@@ -46,9 +46,12 @@ class TableService:
     def find_by_size(self, db: Session, size: int) -> List[Table]:
         return self.table_repository.find_by_size(db, size)
     
-    def find_by_occupied(self, db: Session, occupied: bool) -> List[Table]:
-        return self.table_repository.find_by_occupied(db, occupied)
+    def get_available_tables(self, db: Session) -> List[Table]:
+        return self.table_repository.get_available_tables(db)
     
 
-    def find_by_size_and_occupied(self, db: Session, size: int, occupied: bool) -> List[Table]:
-        return self.table_repository.find_by_size_and_occupied(db, size, occupied)
+    def get_sized_available_tables(self, db: Session, size: int) -> List[Table]:
+        return self.table_repository.get_sized_available_tables(db, size)
+    
+    def update_table_status(self, db: Session, table_id: int, is_occupied: bool) -> Optional[Table]:
+        return self.table_repository.update_table_status(db, table_id, is_occupied)

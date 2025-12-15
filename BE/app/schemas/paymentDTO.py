@@ -25,7 +25,6 @@ class PaymentDTO(BaseModel):
 
 class PaymentCreateDTO(PaymentDTO):
     pass
-
 class PaymentUpdateDTO(BaseModel):
     payment_method: Optional[PaymentMethod] = None
     amount_paid: Optional[float] = Field(None, gt=0)

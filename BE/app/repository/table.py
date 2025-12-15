@@ -28,8 +28,19 @@ class TableRepository:
     def find_by_size(self, db: Session, size: int) -> List[Table]:
         return db.query(Table).filter(Table.table_size == size).all()
     
-    def find_by_occupied(self, db: Session, occupied: bool) -> List[Table]:
-        return db.query(Table).filter(Table.is_occupied == occupied).all()
 
-    def find_by_size_and_occupied(self, db: Session, size: int, occupied: bool) -> List[Table]:
-        return db.query(Table).filter(Table.table_size == size, Table.is_occupied == occupied).all()
+    def update_table_status(self, db: Session, table_id: int , is_occupied: bool)-> Optional[Table]:
+        table = db.query(Table).filter(Table.id == table_id).first()
+        if table: 
+            table.is_occupied = is_occupied
+            db.commit()
+            db.refresh(table)
+        return table
+    
+    def get_available_tables(self,db: Session)->List[Table]:
+        return db.query(Table).filter(Table.is_occupied == False).all()
+    
+    def get_sized_available_tables(self, db: Session, size: int)->List[Table]:
+        return db.query(Table).filter(Table.is_occupied == False, Table.table_size == size).all()
+    
+    

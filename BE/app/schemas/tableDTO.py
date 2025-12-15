@@ -1,3 +1,4 @@
+
 from pydantic import BaseModel,  Field
 from typing import Optional
 from datetime import datetime
@@ -13,8 +14,6 @@ class TableCreateDTO(TableDTO):
     pass
 
 class TableUpdateDTO(BaseModel):
-    table_number: Optional[int] = Field(None, gt=0)
-    table_size: Optional[int] = Field(None, gt=0)
     is_occupied: Optional[bool] = None
 
 class TableResponse(BaseModel):
@@ -26,3 +25,5 @@ class TableResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
