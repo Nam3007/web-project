@@ -19,7 +19,7 @@ class TableService:
         table = Table(
             table_number=table_create_dto.table_number,
             table_size=table_create_dto.table_size,
-            is_occupied=table_create_dto.is_occupied
+
         )
         return self.table_repository.create(db, table)
     
@@ -55,3 +55,6 @@ class TableService:
     
     def update_table_status(self, db: Session, table_id: int, is_occupied: bool) -> Optional[Table]:
         return self.table_repository.update_table_status(db, table_id, is_occupied)
+    
+    def get_unavailable_tables(self, db: Session) -> List[Table]:
+        return self.table_repository.get_unavailable_tables(db)

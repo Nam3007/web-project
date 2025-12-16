@@ -2,34 +2,18 @@ from pydantic import BaseModel,Field
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from models import PaymentMethod, PaymentStatus
 
-class PaymentMethod(str, Enum):
-    cash = "cash"
-    card = "card"
-    digital_wallet = "digital_wallet"
-    bank_transfer = "bank_transfer"
 
-class PaymentStatus(str, Enum):
-    pending = "pending"
-    completed = "completed"
-    failed = "failed"
-    refunded = "refunded"
+class PaymentCreateDTO(BaseModel):
+    order_id: int = Field(..., gt=0)
+    payment_method : PaymentMethod
 
-class PaymentDTO(BaseModel):
-    order_id: int = Field(...,gt=0)
-    payment_date: Optional[datetime] = None
+class PaymentMethodUpdateDTO(BaseModel):
     payment_method: PaymentMethod
-    amount_paid: float = Field(...,gt=0)
-    payment_status: Optional[PaymentStatus] = PaymentStatus.pending
-    transaction_id: Optional[str] = None
-
-class PaymentCreateDTO(PaymentDTO):
-    pass
-class PaymentUpdateDTO(BaseModel):
-    payment_method: Optional[PaymentMethod] = None
-    amount_paid: Optional[float] = Field(None, gt=0)
-    payment_status: Optional[PaymentStatus] = None
-    transaction_id: Optional[str] = None
+    
+class PaymentStatusUpdateDTO(BaseModel):
+    payment_status: PaymentStatus
 
 class PaymentResponse(BaseModel):
     id: int

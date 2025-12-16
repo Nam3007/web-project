@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from db import get_db
-from models import TableModel
-from schemas import TableCreateDTO, TableUpdateDTO, TableResponse
+from models import Table
+from schemas import TableCreateDTO, TableUpdateDTO, TableResponse, TableStatusUpdateDTO
 from services import TableService
 
 
@@ -14,9 +14,9 @@ table_service = TableService()
 def get_all_tables(
     skip:int = 0,
     limit:int = 100,
+    db: Session = Depends(get_db)
 ):
     """Get all tables"""
-    db: Session = Depends(get_db)
     tables = table_service.get_all(db, skip=skip, limit=limit)
     return tables
 
@@ -84,16 +84,24 @@ def get_sized_available_tables(size: int, db: Session = Depends(get_db)):
     tables = table_service.get_sized_available_tables(db, size)
     return tables
 
-@router.patch("/{table_id}", response_model=TableResponse)
+@router.get("/unavailable/", response_model=list[TableResponse])
+def get_unavailable_tables(db: Session = Depends(get_db)):
+    """Get all unavailable (occupied) tables"""
+    tables = table_service.get_unavailable_tables(db)
+    return tables
+
+
+@router.patch("/status/{table_id}/", response_model=TableResponse)
 def update_table_status(
     table_id: int,
-    data: TableUpdateDTO,
+    data: TableStatusUpdateDTO,
     db: Session = Depends(get_db)
 ):
-    table = table_service.update_table_status(db, table_id, data.is_occupied)
-    if not table:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Table not found"
-        )
-    return table
+    if data.is_occupied is None:
+        raise HTTPException(400, "is_occupied is required")
+
+    return table_service.update_table_status(
+        db,
+        table_id,
+        data.is_occupied
+    )

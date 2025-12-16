@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-from models import Payment
+from models import Payment, PaymentStatus, PaymentMethod
 from repository import PaymentRepository
 from typing import List, Optional
-from schemas import PaymentCreateDTO, PaymentUpdateDTO
+from schemas import PaymentCreateDTO, PaymentMethodUpdateDTO, PaymentStatusUpdateDTO   
+from services import OrderService
 
 class PaymentService:
     def __init__(self):
@@ -18,24 +19,17 @@ class PaymentService:
     
     def create(self, db: Session, payment_data: PaymentCreateDTO) -> Payment:
         """Create new payment"""
+        OrderServiceInstance = OrderService()
+        amount = OrderServiceInstance.get_amounts_paid_by_order_id(db, payment_data.order_id)
         payment = Payment(
             order_id=payment_data.order_id,
-            amount=payment_data.amount_paid,
-            payment_status=payment_data.payment_status,
-            transaction_id=payment_data.transaction_id
+            payment_method = payment_data.payment_method,
+            amount_paid = amount,
         )
+        
         return self.repository.create(db, payment)
     
-    def update(self, db: Session, payment_id: int, payment_data: PaymentUpdateDTO) -> Optional[Payment]:
-        """Update existing payment"""
-        payment = self.repository.get_by_id(db, payment_id)
-        if not payment:
-            return None
-        
-        for key, value in payment_data.model_dump(exclude_unset=True).items():
-            setattr(payment, key, value)
-        
-        return self.repository.update(db, payment)
+   
     
     def delete(self, db: Session, payment_id: int) -> bool:
         """Delete payment"""
@@ -56,3 +50,9 @@ class PaymentService:
     def get_by_transaction_id(self, db: Session, transaction_id: str) -> List[Payment]:
         """Get payments by transaction ID"""
         return self.repository.find_by_transaction_id(db, transaction_id)
+    
+    def update_payment_status(self , db: Session , payment_id: int , status: PaymentStatus) -> Optional[Payment]:
+        return self.repository.update_payment_status(db, payment_id, status)
+    
+    def update_payment_method(self , db: Session , payment_id: int , payment_method: PaymentMethod) -> Optional[Payment]:
+        return self.repository.update_payment_method(db, payment_id, payment_method)

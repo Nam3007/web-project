@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from models import Table
-from typing import List, Optional
+from typing import List, Optional 
+from sqlalchemy import Column
 
 class TableRepository:
     def get_all(self, db: Session, skip: int = 0, limit: int = 100) -> List[Table]:
@@ -43,4 +44,6 @@ class TableRepository:
     def get_sized_available_tables(self, db: Session, size: int)->List[Table]:
         return db.query(Table).filter(Table.is_occupied == False, Table.table_size == size).all()
     
+    def get_unavailable_tables(self,db: Session)->List[Table]:
+        return db.query(Table).filter(Table.is_occupied == True).all()
     

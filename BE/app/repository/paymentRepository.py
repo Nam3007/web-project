@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Session
-from models import Payment
+from models import Payment, PaymentStatus, PaymentMethod
 
 class PaymentRepository:
     def get_all(self, db: Session, skip: int = 0, limit: int = 100) -> List[Payment]:
@@ -37,3 +37,18 @@ class PaymentRepository:
     def find_by_transaction_id(self, db: Session, transaction_id: str) -> List[Payment]:
         return db.query(Payment).filter(Payment.transaction_id == transaction_id).all()
     
+    def update_payment_status(self , db: Session , payment_id: int , status: PaymentStatus ) -> Payment:
+        payment = db.query(Payment).filter(Payment.id == payment_id).first()
+        if payment:
+            payment.payment_status = status
+            db.commit()
+            db.refresh(payment)
+        return payment
+    
+    def update_payment_method(self , db: Session , payment_id: int , payment_method: PaymentMethod ) -> Payment:
+        payment = db.query(Payment).filter(Payment.id == payment_id).first()
+        if payment:
+            payment.payment_method = payment_method
+            db.commit()
+            db.refresh(payment)
+        return payment

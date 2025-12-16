@@ -50,3 +50,6 @@ class OrderService:
     
     def find_by_customer_id(self, db: Session, customer_id: int) -> List[Order]:
         return self.repository.find_by_customer_id(db, customer_id)
+    
+    def get_amounts_paid_by_order_id(self, db: Session , order_id: int) ->float:
+        return self.repository.calculate_total_amount(db, order_id)

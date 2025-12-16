@@ -3,3 +3,5 @@ from .staff import router as staff_router
 from .menu_item import router as menu_item_router
 from .order_item import router as order_item_router
 from .order import router as order_router
+from .table import router as table_router
+from .payment import router as payment_router

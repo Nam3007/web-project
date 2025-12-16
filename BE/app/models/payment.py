@@ -1,7 +1,7 @@
 from db import Base
 from sqlalchemy import Column, Integer, String, DateTime, Enum, Numeric, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 import enum
 
 class PaymentMethod(str, enum.Enum):
@@ -26,9 +26,9 @@ class Payment(Base):
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"))
     payment_date = Column(DateTime, server_default=func.now())
-    payment_method = Column(Enum(PaymentMethod), nullable=False)
+    payment_method : Mapped[PaymentMethod] = mapped_column(Enum(PaymentMethod),default= PaymentMethod.cash)
     amount_paid = Column(Numeric(10, 2), nullable=False)
-    payment_status = Column(Enum(PaymentStatus), default=PaymentStatus.pending)
+    payment_status : Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus),default= PaymentStatus.pending)
     transaction_id = Column(String(100))
     created_at = Column(DateTime, server_default=func.now())
 
