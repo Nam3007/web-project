@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from db import get_db
-from models import Payment, PaymentStatus
-from schemas import PaymentCreateDTO, PaymentStatusUpdateDTO, PaymentResponse, PaymentMethodUpdateDTO
+from models import Payment, PaymentStatus,PaymentMethod
+from schemas import PaymentCreateDTO, PaymentResponse
 from services import PaymentService
 
 
@@ -11,7 +11,7 @@ router = APIRouter()
 payment_service = PaymentService()
 
 @router.get("/", response_model=list[PaymentResponse])
-def get_all_payments(
+async def get_all_payments(
     skip:int = 0,
     limit:int = 100,
     db: Session = Depends(get_db)
@@ -22,7 +22,7 @@ def get_all_payments(
     return payments
 
 @router.get("/{payment_id}", response_model=PaymentResponse)
-def get_payment(payment_id : int , db: Session = Depends(get_db)):
+async def get_payment(payment_id : int , db: Session = Depends(get_db)):
     """Get payment by ID"""
     payment = payment_service.get_by_id(db, payment_id)
     if not payment:
@@ -33,12 +33,14 @@ def get_payment(payment_id : int , db: Session = Depends(get_db)):
     return payment
 
 @router.post("/", response_model=PaymentResponse, status_code=status.HTTP_201_CREATED)
-def create_payment(
+async def create_payment(
     payment_data: PaymentCreateDTO,
+    payment_method: PaymentMethod,
     db: Session = Depends(get_db)
 ):
     """Create new payment"""
     try:
+        payment_data.payment_method = payment_method
         return payment_service.create(db, payment_data)
     except ValueError as e:
         raise HTTPException(
@@ -47,13 +49,13 @@ def create_payment(
         )
 
 @router.patch("/{payment_id}/status", response_model=PaymentResponse)
-def update_payment_status(
+async def update_payment_status(
     payment_id: int,
-    payment_data: PaymentStatusUpdateDTO,
+    payment_status: PaymentStatus,
     db: Session = Depends(get_db)
 ):
     """Update payment status"""
-    payment = payment_service.update_payment_status(db, payment_id, payment_data.payment_status)
+    payment = payment_service.update_payment_status(db, payment_id,payment_status)
     if not payment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -62,13 +64,13 @@ def update_payment_status(
     return payment
 
 @router.patch("/{payment_id}/method", response_model=PaymentResponse)
-def update_payment_method(
+async def update_payment_method(
     payment_id: int,
-    payment_data: PaymentMethodUpdateDTO,
+    payment_method: PaymentMethod,
     db: Session = Depends(get_db)
 ):
     """Update payment method"""
-    payment = payment_service.update_payment_method(db, payment_id, payment_data.payment_method)
+    payment = payment_service.update_payment_method(db, payment_id, payment_method)
     if not payment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

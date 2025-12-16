@@ -12,7 +12,6 @@ class OrderItemCreateDTO(BaseModel):
 class OrderItemUpdateDTO(BaseModel):
     quantity: Optional[int] = Field(None, gt=0)
     special_instructions: Optional[str] = None
-    # Do NOT allow updating unit_price or subtotal here!
 
 class OrderItemResponse(BaseModel):
     id: int

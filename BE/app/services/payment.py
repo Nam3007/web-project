@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from models import Payment, PaymentStatus, PaymentMethod
 from repository import PaymentRepository
 from typing import List, Optional
-from schemas import PaymentCreateDTO, PaymentMethodUpdateDTO, PaymentStatusUpdateDTO   
+from schemas import PaymentCreateDTO, PaymentResponse 
 from services import OrderService
 
 class PaymentService:
@@ -29,7 +29,6 @@ class PaymentService:
         
         return self.repository.create(db, payment)
     
-   
     
     def delete(self, db: Session, payment_id: int) -> bool:
         """Delete payment"""

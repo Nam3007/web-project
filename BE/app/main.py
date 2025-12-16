@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 from db import engine
-from controller import customer,staff,menu_item,order_item,order,table,payment
-import models
+from controller import customer,staff,menu_item,order_item,order,table,payment,staff_schedule,auth
 
 app = FastAPI(title="Restaurant API")
 
@@ -43,6 +42,17 @@ app.include_router(
     payment.router,
     prefix="/payments",
     tags=["Payments"]
+)
+app.include_router(
+    staff_schedule.router,
+    prefix="/staff-schedules",
+    tags=["Staff Schedules"]
+)
+
+app.include_router(
+    auth.router,
+    prefix="/auth",
+    tags=["Authentication"]
 )
 # startup event
 @app.on_event("startup")

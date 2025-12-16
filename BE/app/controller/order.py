@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from db import get_db
-from models import Order
+from models import Order, OrderStatus, PaymentMethod
 from schemas import OrderCreateDTO, OrderResponseDTO, OrderUpdateDTO
 from services import OrderService
 
@@ -12,7 +12,7 @@ router = APIRouter()
 order_service = OrderService()
 # Get all orders
 @router.get("/", response_model=List[OrderResponseDTO])
-def get_all_orders(
+async def get_all_orders(
         skip: int = 0,
         limit: int = 100,
         db: Session = Depends(get_db)
@@ -23,7 +23,7 @@ def get_all_orders(
 
 # Get order by ID
 @router.get("/{order_id}", response_model=OrderResponseDTO)
-def get_order_by_id(
+async def get_order_by_id(
         order_id: int,
         db: Session = Depends(get_db)
 ):
@@ -35,7 +35,7 @@ def get_order_by_id(
 
 # Create order
 @router.post("/", response_model=OrderResponseDTO, status_code=201)
-def create_order(
+async def create_order(
     order_data: OrderCreateDTO,
     db: Session = Depends(get_db)
 ):
@@ -45,7 +45,7 @@ def create_order(
 
 # Update order
 @router.put("/{order_id}", response_model=OrderResponseDTO)
-def update_order(
+async def update_order(
     order_id: int,
     order_data: OrderUpdateDTO,
     db: Session = Depends(get_db)
@@ -58,7 +58,7 @@ def update_order(
 
 # Delete order
 @router.delete("/{order_id}", status_code=204)
-def delete_order(
+async def delete_order(
     order_id: int,
     db: Session = Depends(get_db)
 ):
@@ -70,7 +70,7 @@ def delete_order(
 
 # Get orders by customer ID
 @router.get("/customer/{customer_id}", response_model=List[OrderResponseDTO])
-def get_orders_by_customer_id(
+async def get_orders_by_customer_id(
         customer_id: int,
         db: Session = Depends(get_db)
 ):
@@ -79,3 +79,11 @@ def get_orders_by_customer_id(
         return orders
 
 
+@router.get("/status/{status}", response_model=List[OrderResponseDTO])
+async def get_orders_by_status(
+        status: OrderStatus,
+        db: Session = Depends(get_db)
+):
+        """Get orders by status"""
+        orders = order_service.find_by_status(db, status)
+        return orders

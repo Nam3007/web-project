@@ -21,7 +21,7 @@ class PaymentMethod(str, enum.Enum):
 
 class Order(Base):
     __tablename__ = "orders"
-    __table_args__ = {'schema': 'restaurant'}
+
     
 
     id = Column(Integer, primary_key=True)

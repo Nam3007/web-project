@@ -3,9 +3,10 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from db import get_db
-from models import Customer
+from models import Customer,CustomerRole
 from schemas import CustomerCreateDTO, CustomerResponse, CustomerUpdateDTO
 from services import CustomerService
+
 
 
     
@@ -14,7 +15,7 @@ router = APIRouter()
 customer_service = CustomerService()
 # Get all customers
 @router.get("/", response_model=List[CustomerResponse])
-def get_all_customers(
+async def get_all_customers(
         skip: int = 0,
         limit: int = 100,
         db: Session = Depends(get_db)
@@ -24,7 +25,7 @@ def get_all_customers(
         return customers
 
 @router.get("/{customer_id}", response_model=CustomerResponse)
-def get_customer(customer_id: int, db: Session = Depends(get_db)):
+async def get_customer(customer_id: int, db: Session = Depends(get_db)):
     """Get customer by ID"""
     customer = customer_service.get_by_id(db, customer_id)
     if not customer:
@@ -35,7 +36,7 @@ def get_customer(customer_id: int, db: Session = Depends(get_db)):
     return customer
 
 @router.post("/", response_model=CustomerResponse, status_code=status.HTTP_201_CREATED)
-def create_customer(
+async def create_customer(
     customer_data: CustomerCreateDTO,
     db: Session = Depends(get_db)
 ):
@@ -51,7 +52,7 @@ def create_customer(
 
 
 @router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_customer(customer_id: int, db: Session = Depends(get_db)):
+async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     """Delete customer"""
     success = customer_service.delete(db, customer_id)
     if not success:
@@ -62,7 +63,7 @@ def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     return None
 
 @router.put("/{customer_id}", response_model=CustomerResponse)
-def update_customer(
+async def update_customer(
     customer_id: int,
     customer_data: CustomerUpdateDTO,
     db: Session = Depends(get_db)
@@ -79,3 +80,24 @@ def update_customer(
     updated_customer = customer_service.update(db, customer_id, customer_data)
     return updated_customer
 
+@router.patch("/{customer_id}/role", response_model=CustomerResponse)
+async def update_customer_role(
+    customer_id: int,
+    new_role: CustomerRole,
+    db: Session = Depends(get_db)
+):
+    """Update customer role"""
+    customer = customer_service.get_by_id(db, customer_id)
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Customer not found"
+        )
+    try:
+        updated_customer = customer_service.update_customer_role(db, customer_id, new_role)
+        return updated_customer
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )

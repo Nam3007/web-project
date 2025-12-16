@@ -9,11 +9,6 @@ class PaymentCreateDTO(BaseModel):
     order_id: int = Field(..., gt=0)
     payment_method : PaymentMethod
 
-class PaymentMethodUpdateDTO(BaseModel):
-    payment_method: PaymentMethod
-    
-class PaymentStatusUpdateDTO(BaseModel):
-    payment_status: PaymentStatus
 
 class PaymentResponse(BaseModel):
     id: int

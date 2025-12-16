@@ -5,3 +5,5 @@ from .order_item import router as order_item_router
 from .order import router as order_router
 from .table import router as table_router
 from .payment import router as payment_router
+from .staff_schedule import router as staff_schedule_router
+from .auth import router as auth_router

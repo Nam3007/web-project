@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.sql import func
 from db import Base
 import enum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship , mapped_column, Mapped
 class CustomerRole(str, enum.Enum):
     regular_customer = "regular_customer"
     vip_customer = "vip_customer"
@@ -13,11 +13,11 @@ class Customer(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
-    password_hashed = Column(String(255), nullable=False)
+    password_hashed : Mapped[str] = mapped_column(String(255), nullable=False)
     full_name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     phone = Column(String(20), nullable=True)
-    role = Column(Enum(CustomerRole), default=CustomerRole.regular_customer)
+    role : Mapped[CustomerRole] = mapped_column(Enum(CustomerRole), default=CustomerRole.regular_customer)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

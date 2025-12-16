@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from models import Customer
+from models import Customer,CustomerRole
 from schemas import CustomerCreateDTO, CustomerUpdateDTO
 from core.security import hash_password
 from repository import CustomerRepository
@@ -92,3 +92,6 @@ class CustomerService:
 
 
         return self.repository.update(db, customer)
+    
+    def update_customer_role(self,db , customer_id: int , new_role : CustomerRole) -> Customer:
+        return self.repository.update_role(db, customer_id, new_role)

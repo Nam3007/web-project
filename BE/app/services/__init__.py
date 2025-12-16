@@ -8,6 +8,7 @@ from .reservation import ReservationService
 from .payment import PaymentService
 from .staff_schedule import StaffScheduleService
 from .review import ReviewService
+from .auth import AuthService
 
 
 __all__ = [

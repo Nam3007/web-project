@@ -3,10 +3,11 @@ from sqlalchemy.sql import func
 from db import Base
 import enum
 import datetime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship , mapped_column, Mapped
 
 class workShift(str, enum.Enum):
     morning = "morning"
+    noon="noon"
     afternoon = "afternoon"
     evening = "evening"
 
@@ -26,8 +27,8 @@ class StaffSchedule(Base):
     )
     id = Column(Integer, primary_key=True)
     staff_id = Column(Integer, ForeignKey("staff.id", ondelete="CASCADE"))
-    work_day = Column(Enum(workDay), nullable=False)
-    work_shift = Column(Enum(workShift), nullable=False)
+    work_day : Mapped[workDay] = mapped_column(Enum(workDay), nullable=False)
+    work_shift : Mapped[workShift] = mapped_column(Enum(workShift), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
 
     staff = relationship("Staff", back_populates="schedules")

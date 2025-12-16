@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Session
-from models import Order
+from models import Order, OrderStatus
 from sqlalchemy.sql import func
 from models import OrderItem
 
@@ -30,7 +30,7 @@ class OrderRepository:
     def find_by_customer_id(self, db: Session, customer_id: int) -> List[Order]:
         return db.query(Order).filter(Order.customer_id == customer_id).all()
     
-    def find_by_status(self, db: Session, status: str) -> List[Order]:
+    def find_by_status(self, db: Session, status: OrderStatus) -> List[Order]:
         return db.query(Order).filter(Order.status == status).all()
     
     def calculate_total_amount(self,db: Session , order_id:int ):

@@ -1,6 +1,6 @@
 from schemas import OrderCreateDTO, OrderUpdateDTO
 from sqlalchemy.orm import Session
-from models import Order
+from models import Order,OrderStatus
 from typing import List
 from repository import OrderRepository,OrderItemRepository
 
@@ -53,3 +53,6 @@ class OrderService:
     
     def get_amounts_paid_by_order_id(self, db: Session , order_id: int) ->float:
         return self.repository.calculate_total_amount(db, order_id)
+    
+    def find_by_status(self, db: Session, status: OrderStatus) -> List[Order]:
+        return self.repository.find_by_status(db, status)

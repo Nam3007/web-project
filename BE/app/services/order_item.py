@@ -44,7 +44,7 @@ class OrderItemService:
             item.calculate_subtotal()
             saved_item = self.repository.create(db, item)
 
-        # 🔥 always recalc order total
+        # recalc order total
         order_service = OrderService()
         order_service.recalculate_order_total(db, data.order_id)
 

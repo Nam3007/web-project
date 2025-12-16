@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Session
-from models import Customer
+from models import Customer,CustomerRole
 
 class CustomerRepository:
     def get_all(self, db: Session, skip: int = 0, limit: int = 100):
@@ -45,3 +45,11 @@ class CustomerRepository:
 
     def count(self, db: Session) -> int:
         return db.query(Customer).count()
+    
+    def update_role(self, db: Session, customer_id: int, new_role: CustomerRole) -> Customer:
+        customer = self.find_by_id(db, customer_id)
+        if customer:
+            customer.role = new_role
+            db.commit()
+            db.refresh(customer)
+        return customer

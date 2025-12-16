@@ -11,7 +11,7 @@ router = APIRouter()
 staff_service = StaffService()
 
 @router.get("/", response_model=List[StaffResponse])
-def get_all_staff(
+async def get_all_staff(
         skip: int = 0,
         limit: int = 100,
         db: Session = Depends(get_db)
@@ -21,7 +21,7 @@ def get_all_staff(
     return staff_members
 
 @router.get("/{staff_id}", response_model=StaffResponse)
-def get_staff(staff_id: int, db: Session = Depends(get_db)):
+async def get_staff(staff_id: int, db: Session = Depends(get_db)):
     """Get staff member by ID"""
     staff = staff_service.get_by_id(db, staff_id)
     if not staff:
@@ -32,7 +32,7 @@ def get_staff(staff_id: int, db: Session = Depends(get_db)):
     return staff
 
 @router.post("/", response_model=StaffResponse, status_code=status.HTTP_201_CREATED)
-def create_staff(   
+async def create_staff(   
     staff_data: StaffCreateDTO,
     db: Session = Depends(get_db)
 ):
@@ -46,7 +46,7 @@ def create_staff(
         )
     
 @router.delete("/{staff_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_staff(staff_id: int, db: Session = Depends(get_db)):
+async def delete_staff(staff_id: int, db: Session = Depends(get_db)):
     """Delete staff member"""
     success = staff_service.delete(db, staff_id)
     if not success:
@@ -57,7 +57,7 @@ def delete_staff(staff_id: int, db: Session = Depends(get_db)):
     return None
 
 @router.put("/{staff_id}", response_model=StaffResponse)
-def update_staff(
+async def update_staff(
     staff_id: int,
     staff_data: StaffUpdateDTO,
     db: Session = Depends(get_db)
