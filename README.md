@@ -2,6 +2,9 @@ This is a simple website project implemented RESTful API using **FastAPI** and *
 _____________________________________________________________________________________________________________________________________________________________________________
 To run project: 
 -First, you can download project zip -> extract it-> open project folder in your IDE or clone project to your IDE 
+-Terminal instances : Make sure that your terminal instance is in Command prompt type 
+<img width="473" height="387" alt="image" src="https://github.com/user-attachments/assets/7457ec15-a63f-453c-9296-62e5b626701d" />
+
 _____________________________________________________________________________________________________________________________________________________________________________
 -Run backend server : 
 +  open IDE terminal ( CMD type ) 
@@ -26,13 +29,15 @@ ________________________________________________________________________________
     + type fastapi dev main.py
     + documentaion will contains API endpoint , models schema ( model DTO) 
     + Results should appears as this image below: 
-    <img width="822" height="587" alt="image" src="https://github.com/user-attachments/assets/1ca90455-d59c-4565-8454-f02606a56374" />
+  <img width="1662" height="464" alt="image" src="https://github.com/user-attachments/assets/2ea845fa-b681-4bdf-9cb4-7888a9b73b45" />
+
 
 
 _____________________________________________________________________________________________________________________________________________________________________________
 -Run frontend server : 
-+Open new IDE terminal instance
++Open new IDE terminal instance ( CMD type ) 
 + cd to **fe** folder 
 + type **npm run dev** and execute 
-<img width="468" height="235" alt="image" src="https://github.com/user-attachments/assets/a5035e38-0a40-464b-a0c4-a172ae610203" />
+<img width="1666" height="401" alt="image" src="https://github.com/user-attachments/assets/331b2a13-2e69-48e7-8fba-d0764e56a399" />
+
 
