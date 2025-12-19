@@ -7,5 +7,7 @@ from .reservation import Reservation
 from .order import Order, OrderStatus, PaymentMethod
 from .order_item import OrderItem
 from .payment import Payment, PaymentMethod, PaymentStatus
+from .payment import Payment, PaymentMethod, PaymentStatus
 from .review import Review
+from .vip_request import VipRequest, VipRequestStatus
 

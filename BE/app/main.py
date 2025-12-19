@@ -1,9 +1,26 @@
 from fastapi import FastAPI
 from sqlalchemy import text
-from db import engine
-from controller import customer,staff,menu_item,order_item,order,table,payment,staff_schedule,auth
+from db import engine, Base
+from controller import customer,staff,menu_item,order_item,order,table,payment,staff_schedule,auth,vip_request
 
 app = FastAPI(title="Restaurant API")
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# Configure CORS
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # include routers
 app.include_router(
@@ -54,9 +71,18 @@ app.include_router(
     prefix="/auth",
     tags=["Authentication"]
 )
+
+app.include_router(
+    vip_request.router,
+    prefix="/vip-requests",
+    tags=["VIP Requests"]
+)
+
 # startup event
 @app.on_event("startup")
 def test_db_connection():
+    # Create tables if they don't exist
+    Base.metadata.create_all(bind=engine)
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))

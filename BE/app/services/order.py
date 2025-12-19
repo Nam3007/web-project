@@ -31,6 +31,13 @@ class OrderService:
         staff_id=order_data.staff_id,
         notes=order_data.notes
         )
+        # Update table status
+        from models import Table
+        table = db.query(Table).filter(Table.id == order_data.table_id).first()
+        if table:
+            table.is_occupied = True
+            db.add(table)
+            
         return self.repository.create(db, order)
     
     def update(self, db: Session, order_id: int, order_data: OrderUpdateDTO) -> Order:
@@ -38,6 +45,7 @@ class OrderService:
 
         for key, value in order_data.model_dump(exclude_unset=True).items():
             setattr(order, key, value)
+        
         
         return self.repository.update(db, order)
     

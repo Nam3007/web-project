@@ -50,8 +50,22 @@ class PaymentService:
         """Get payments by transaction ID"""
         return self.repository.find_by_transaction_id(db, transaction_id)
     
+    
     def update_payment_status(self , db: Session , payment_id: int , status: PaymentStatus) -> Optional[Payment]:
-        return self.repository.update_payment_status(db, payment_id, status)
+        payment = self.repository.update_payment_status(db, payment_id, status)
+        
+        # When payment is completed, free up the table
+        if payment and status == PaymentStatus.completed:
+            from models import Table, Order
+            order = db.query(Order).filter(Order.id == payment.order_id).first()
+            if order:
+                table = db.query(Table).filter(Table.id == order.table_id).first()
+                if table:
+                    table.is_occupied = False
+                    db.add(table)
+                    db.commit()
+        
+        return payment
     
     def update_payment_method(self , db: Session , payment_id: int , payment_method: PaymentMethod) -> Optional[Payment]:
         return self.repository.update_payment_method(db, payment_id, payment_method)

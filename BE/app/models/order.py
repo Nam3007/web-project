@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, Numeric, DateTime, Enum, Text
+from sqlalchemy import Column, Integer, ForeignKey, Numeric, DateTime, Enum, Text, Boolean
 from db import Base
 from sqlalchemy.sql import func
 import enum
@@ -34,6 +34,7 @@ class Order(Base):
     discount_amount = Column(Numeric(10, 2), default=0)
     final_amount = Column(Numeric(10, 2), default=0)
     payment_method = Column(Enum(PaymentMethod))
+    payment_requested = Column(Boolean, default=False)
     notes = Column(Text)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

@@ -20,6 +20,7 @@ class OrderItemResponse(BaseModel):
     quantity: int
     unit_price: float
     subtotal: float
+    item_name: str
     special_instructions: Optional[str]
     created_at: datetime
 

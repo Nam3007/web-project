@@ -26,3 +26,7 @@ class OrderItem(Base):
 
     def calculate_subtotal(self):
        self.subtotal = self.unit_price * self.quantity
+
+    @property
+    def item_name(self):
+        return self.menu_item.item_name if self.menu_item else "Unknown"

@@ -35,12 +35,10 @@ async def get_payment(payment_id : int , db: Session = Depends(get_db)):
 @router.post("/", response_model=PaymentResponse, status_code=status.HTTP_201_CREATED)
 async def create_payment(
     payment_data: PaymentCreateDTO,
-    payment_method: PaymentMethod,
     db: Session = Depends(get_db)
 ):
     """Create new payment"""
     try:
-        payment_data.payment_method = payment_method
         return payment_service.create(db, payment_data)
     except ValueError as e:
         raise HTTPException(
@@ -77,3 +75,12 @@ async def update_payment_method(
             detail="Payment not found"
         )
     return payment
+
+@router.get("/order/{order_id}", response_model=list[PaymentResponse])
+async def get_payments_by_order_id(
+    order_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get payments by order ID"""
+    payments = payment_service.get_by_order_id(db, order_id)
+    return payments

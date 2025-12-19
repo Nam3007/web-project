@@ -2,19 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
-
-class OrderStatus(str, Enum):
-    pending = "pending"
-    confirmed = "confirmed"
-    preparing = "preparing"
-    delivered = "delivered"
-    cancelled = "cancelled"
-
-class PaymentMethod(str, Enum):
-    cash = "cash"
-    card = "card"
-    digital_wallet = "digital_wallet"
-    bank_transfer = "bank_transfer"
+from models import OrderStatus, PaymentMethod
 
 class OrderDTO(BaseModel):
     notes: Optional[str] = None
@@ -30,6 +18,7 @@ class OrderUpdateDTO(BaseModel):
     status: Optional[OrderStatus] = None
     payment_method: Optional[PaymentMethod] = None
     discount_amount: Optional[float] = None
+    payment_requested: Optional[bool] = None
     notes: Optional[str] = None
 
 
@@ -43,6 +32,7 @@ class OrderResponseDTO(OrderDTO):
     total_amount: float
     discount_amount: float
     final_amount: float
+    payment_requested: bool
 
     payment_method: Optional[PaymentMethod]
     order_date: datetime
