@@ -15,6 +15,7 @@ class StaffDTO(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     role: StaffRole = StaffRole.waiter
+    salary: Optional[float] = None
 
 class StaffCreateDTO(StaffDTO):
     password_hashed: str = Field(..., min_length=6)

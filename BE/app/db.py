@@ -16,7 +16,7 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base(metadata=metadata)
 # #create all tables in schema if not exist  
-# Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()
