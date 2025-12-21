@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { User, Lock, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -116,7 +116,10 @@ export default function LoginPage() {
 
                 <div className="mt-8 text-center">
                     <p className="text-gray-500 text-sm">
-                        Don't have an account? <a href="#" className="text-primary font-medium hover:underline">Create one</a>
+                        Don't have an account?{' '}
+                        <Link to="/register" className="text-primary font-medium hover:underline">
+                            Create one
+                        </Link>
                     </p>
                 </div>
             </div>

@@ -6,6 +6,8 @@ from controller import customer,staff,menu_item,order_item,order,table,payment,s
 app = FastAPI(title="Restaurant API")
 
 from fastapi.middleware.cors import CORSMiddleware
+from repository import staffRepository
+
 
 # Configure CORS
 origins = [
@@ -83,6 +85,7 @@ app.include_router(
 def test_db_connection():
     # Create tables if they don't exist
     Base.metadata.create_all(bind=engine)
+    staffRepository.init_admin(engine)
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))

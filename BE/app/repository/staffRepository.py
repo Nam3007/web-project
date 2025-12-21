@@ -45,3 +45,15 @@ class StaffRepository:
 
     def count(self, db: Session) -> int:
         return db.query(Staff).count()
+
+    def get_admin(self, db: Session):
+        return db.query(Staff).filter(Staff.username == "admin").first()
+
+
+    def init_admin(self, db: Session):
+        admin = Staff(username="admin", password_hashed="admin", full_name="admin", email="admin", phone="admin")
+        if not self.get_admin(db):
+            self.create(db, admin)
+    
+        
+        

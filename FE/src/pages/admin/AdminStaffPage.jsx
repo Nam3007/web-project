@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import {
     Plus,
@@ -19,6 +20,7 @@ import {
 const ROLES = ['waiter', 'chef', 'cashier', 'admin'];
 
 export default function AdminStaffPage() {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingStaff, setEditingStaff] = useState(null);
@@ -97,7 +99,7 @@ export default function AdminStaffPage() {
                 </div>
 
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => navigate('/admin/staff/create')}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-sm shadow-primary/30"
                 >
                     <Plus className="w-5 h-5" />

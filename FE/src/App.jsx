@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import LoginPage from './pages/common/LoginPage';
+import CustomerRegisterPage from './pages/common/CustomerRegisterPage';
 
 // Admin Pages
 import AdminLayout from './components/layout/AdminLayout';
@@ -14,6 +15,7 @@ import AdminSchedulePage from './pages/admin/AdminSchedulePage';
 import AdminTablePage from './pages/admin/AdminTablePage';
 import AdminPaymentPage from './pages/admin/AdminPaymentPage';
 import AdminCustomerPage from './pages/admin/AdminCustomerPage';
+import AdminCreateStaffPage from './pages/admin/AdminCreateStaffPage';
 
 // Staff Pages
 import StaffLayout from './components/layout/StaffLayout';
@@ -40,6 +42,7 @@ function App() {
           <AuthProvider>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<CustomerRegisterPage />} />
               <Route path="/" element={<Navigate to="/menu" replace />} />
 
               {/* Customer Routes (Public/Protected mixed) */}
@@ -66,6 +69,7 @@ function App() {
                 <Route path="orders" element={<AdminOrdersPage />} />
                 <Route path="menu" element={<AdminMenuPage />} />
                 <Route path="staff" element={<AdminStaffPage />} />
+                <Route path="staff/create" element={<AdminCreateStaffPage />} />
                 <Route path="tables" element={<AdminTablePage />} />
                 <Route path="payments" element={<AdminPaymentPage />} />
                 <Route path="customers" element={<AdminCustomerPage />} />

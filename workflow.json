@@ -1,0 +1,491 @@
+{
+    "restaurant_management_system": {
+        "version": "1.0",
+        "workflows": [
+            {
+                "name": "Customer Order Flow",
+                "description": "Complete workflow from customer placing order to payment completion",
+                "steps": [
+                    {
+                        "step": 1,
+                        "actor": "Customer",
+                        "action": "Login to customer account",
+                        "endpoint": "POST /auth/login",
+                        "next_step": 2
+                    },
+                    {
+                        "step": 2,
+                        "actor": "Customer",
+                        "action": "Browse menu and select items",
+                        "endpoint": "GET /menu-items/",
+                        "next_step": 3
+                    },
+                    {
+                        "step": 3,
+                        "actor": "Customer",
+                        "action": "Add items to cart",
+                        "ui_component": "CartContext",
+                        "next_step": 4
+                    },
+                    {
+                        "step": 4,
+                        "actor": "Customer",
+                        "action": "Select table and create order",
+                        "endpoint": "POST /orders/",
+                        "side_effects": [
+                            "Table status updated to is_occupied=true",
+                            "Order created with status='pending'"
+                        ],
+                        "next_step": 5
+                    },
+                    {
+                        "step": 5,
+                        "actor": "Customer",
+                        "action": "Wait for order to be prepared",
+                        "status_flow": "pending → preparing → ready → served",
+                        "next_step": 6
+                    },
+                    {
+                        "step": 6,
+                        "actor": "Customer",
+                        "action": "Request bill with payment method selection",
+                        "endpoint": "POST /payments/",
+                        "payload": {
+                            "order_id": "integer",
+                            "payment_method": "cash|card|digital_wallet"
+                        },
+                        "side_effects": [
+                            "Payment record created with status='pending'",
+                            "Order updated with payment_requested=true and payment_method"
+                        ],
+                        "next_step": 7
+                    },
+                    {
+                        "step": 7,
+                        "actor": "Staff/Waiter",
+                        "action": "Mark order as paid",
+                        "endpoints": [
+                            "PATCH /payments/{payment_id}/status?payment_status=completed",
+                            "PUT /orders/{order_id} (status='paid')"
+                        ],
+                        "side_effects": [
+                            "Payment status updated to 'completed'",
+                            "Order status updated to 'paid'",
+                            "Table status updated to is_occupied=false"
+                        ],
+                        "next_step": "END"
+                    }
+                ]
+            },
+            {
+                "name": "Kitchen Order Management (Chef)",
+                "description": "Chef manages incoming orders through Kitchen Display System",
+                "steps": [
+                    {
+                        "step": 1,
+                        "actor": "Chef",
+                        "action": "Login to chef account",
+                        "endpoint": "POST /auth/login",
+                        "next_step": 2
+                    },
+                    {
+                        "step": 2,
+                        "actor": "Chef",
+                        "action": "View pending orders on Kitchen Display",
+                        "endpoint": "GET /orders/?status=pending",
+                        "ui_component": "ChefDashboard",
+                        "next_step": 3
+                    },
+                    {
+                        "step": 3,
+                        "actor": "Chef",
+                        "action": "Start cooking (update status to 'preparing')",
+                        "endpoint": "PUT /orders/{order_id}",
+                        "payload": {
+                            "status": "preparing"
+                        },
+                        "next_step": 4
+                    },
+                    {
+                        "step": 4,
+                        "actor": "Chef",
+                        "action": "Mark order as ready",
+                        "endpoint": "PUT /orders/{order_id}",
+                        "payload": {
+                            "status": "ready"
+                        },
+                        "notification": "Order appears in Waiter's active orders as 'ready'",
+                        "next_step": "END"
+                    }
+                ]
+            },
+            {
+                "name": "Waiter Order Management",
+                "description": "Waiter manages table selection, order entry, and payment",
+                "steps": [
+                    {
+                        "step": 1,
+                        "actor": "Waiter",
+                        "action": "Login to staff account",
+                        "endpoint": "POST /auth/login",
+                        "next_step": 2
+                    },
+                    {
+                        "step": 2,
+                        "actor": "Waiter",
+                        "action": "Select available table",
+                        "endpoint": "GET /tables/",
+                        "ui_component": "WaiterTableSelection",
+                        "next_step": 3
+                    },
+                    {
+                        "step": 3,
+                        "actor": "Waiter",
+                        "action": "Create order for customer",
+                        "endpoint": "POST /orders/",
+                        "ui_component": "WaiterOrderEntry",
+                        "next_step": 4
+                    },
+                    {
+                        "step": 4,
+                        "actor": "Waiter",
+                        "action": "Add items to order",
+                        "endpoint": "POST /order-items/",
+                        "next_step": 5
+                    },
+                    {
+                        "step": 5,
+                        "actor": "Waiter",
+                        "action": "Monitor active orders",
+                        "endpoint": "GET /orders/",
+                        "ui_component": "WaiterActiveOrdersPage",
+                        "displays": [
+                            "All orders sorted by newest first",
+                            "Bill Requested indicator (pulsing badge)",
+                            "Order status labels"
+                        ],
+                        "next_step": 6
+                    },
+                    {
+                        "step": 6,
+                        "actor": "Waiter",
+                        "action": "Mark order as 'served' when ready",
+                        "endpoint": "PUT /orders/{order_id}",
+                        "payload": {
+                            "status": "served"
+                        },
+                        "condition": "Only when order status is 'ready'",
+                        "next_step": 7
+                    },
+                    {
+                        "step": 7,
+                        "actor": "Waiter",
+                        "action": "Process payment when customer requests bill",
+                        "endpoints": [
+                            "GET /payments/order/{order_id}",
+                            "PATCH /payments/{payment_id}/status?payment_status=completed",
+                            "PUT /orders/{order_id} (status='paid')"
+                        ],
+                        "condition": "Only when order status is 'served' and payment_requested=true",
+                        "side_effects": [
+                            "Payment status: pending → completed",
+                            "Order status: served → paid",
+                            "Table freed: is_occupied=false"
+                        ],
+                        "next_step": "END"
+                    }
+                ]
+            },
+            {
+                "name": "VIP Status Request Flow",
+                "description": "Customer requests VIP status, Admin approves/rejects",
+                "steps": [
+                    {
+                        "step": 1,
+                        "actor": "Customer",
+                        "action": "Check total spent on CustomerOrdersPage",
+                        "calculation": "SUM(order.total_amount) WHERE status IN ('paid', 'completed')",
+                        "condition": "Total spent >= $500",
+                        "next_step": 2
+                    },
+                    {
+                        "step": 2,
+                        "actor": "Customer",
+                        "action": "Request VIP status",
+                        "endpoint": "POST /vip-requests/",
+                        "payload": {
+                            "customer_id": "integer",
+                            "reason": "string"
+                        },
+                        "next_step": 3
+                    },
+                    {
+                        "step": 3,
+                        "actor": "Admin",
+                        "action": "View pending VIP requests",
+                        "endpoint": "GET /vip-requests/?status=pending",
+                        "ui_component": "AdminCustomerPage",
+                        "next_step": 4
+                    },
+                    {
+                        "step": 4,
+                        "actor": "Admin",
+                        "action": "Approve or Reject VIP request",
+                        "endpoint": "PUT /vip-requests/{request_id}",
+                        "payload": {
+                            "status": "approved|rejected"
+                        },
+                        "side_effects_on_approve": [
+                            "Customer role updated to 'vip_customer'",
+                            "VIP benefits activated"
+                        ],
+                        "next_step": "END"
+                    }
+                ]
+            },
+            {
+                "name": "Admin Dashboard & Management",
+                "description": "Admin manages all aspects of restaurant operations",
+                "modules": [
+                    {
+                        "module": "Dashboard",
+                        "endpoint": "GET /admin/dashboard",
+                        "displays": [
+                            "Today's revenue",
+                            "Total orders",
+                            "Active tables count",
+                            "Staff count"
+                        ]
+                    },
+                    {
+                        "module": "Order Management",
+                        "endpoint": "GET /orders/",
+                        "ui_component": "AdminOrdersPage",
+                        "actions": [
+                            "View all orders",
+                            "Filter by status",
+                            "View order details and items"
+                        ]
+                    },
+                    {
+                        "module": "Menu Management",
+                        "endpoints": [
+                            "GET /menu-items/",
+                            "POST /menu-items/",
+                            "PUT /menu-items/{id}",
+                            "DELETE /menu-items/{id}"
+                        ],
+                        "ui_component": "AdminMenuPage",
+                        "actions": [
+                            "Add new menu items",
+                            "Edit existing items",
+                            "Toggle availability",
+                            "Delete items"
+                        ]
+                    },
+                    {
+                        "module": "Staff Management",
+                        "endpoints": [
+                            "GET /staff/",
+                            "POST /staff/register",
+                            "PUT /staff/{id}",
+                            "DELETE /staff/{id}"
+                        ],
+                        "ui_component": "AdminStaffPage",
+                        "actions": [
+                            "Create staff accounts",
+                            "Assign roles (chef/waiter)",
+                            "Manage staff details"
+                        ]
+                    },
+                    {
+                        "module": "Schedule Management",
+                        "endpoints": [
+                            "GET /staff-schedule/",
+                            "POST /staff-schedule/",
+                            "PUT /staff-schedule/{id}",
+                            "DELETE /staff-schedule/{id}"
+                        ],
+                        "ui_component": "AdminSchedulePage",
+                        "actions": [
+                            "Create shifts",
+                            "Assign staff to shifts",
+                            "View weekly schedule"
+                        ]
+                    },
+                    {
+                        "module": "Table Management",
+                        "endpoints": [
+                            "GET /tables/",
+                            "POST /tables/",
+                            "PUT /tables/{id}",
+                            "DELETE /tables/{id}"
+                        ],
+                        "ui_component": "AdminTablePage",
+                        "actions": [
+                            "Add/remove tables",
+                            "View table status",
+                            "Edit table details"
+                        ]
+                    },
+                    {
+                        "module": "Payment History",
+                        "endpoint": "GET /payments/",
+                        "ui_component": "AdminPaymentPage",
+                        "displays": [
+                            "All completed payments",
+                            "Payment method breakdown",
+                            "Transaction details",
+                            "Revenue tracking"
+                        ]
+                    },
+                    {
+                        "module": "Customer & VIP Management",
+                        "endpoints": [
+                            "GET /customers/",
+                            "GET /vip-requests/"
+                        ],
+                        "ui_component": "AdminCustomerPage",
+                        "actions": [
+                            "View all customers",
+                            "Approve/Reject VIP requests",
+                            "View customer spending"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "payment_workflow_detail": {
+            "description": "Detailed payment flow with all state transitions",
+            "flow": [
+                {
+                    "trigger": "Customer clicks 'Request Bill' on CustomerOrdersPage",
+                    "actor": "Customer",
+                    "frontend_actions": [
+                        "Select payment method (Cash/Card/E-Wallet)",
+                        "Call POST /payments/ with order_id and payment_method",
+                        "Call PUT /orders/{id} to set payment_requested=true"
+                    ],
+                    "backend_actions": [
+                        "Create Payment record with status='pending'",
+                        "Calculate amount_paid from order total",
+                        "Update order.payment_requested=true",
+                        "Update order.payment_method"
+                    ],
+                    "next_state": "Payment pending, waiting for staff"
+                },
+                {
+                    "trigger": "Staff clicks 'Mark Paid' on WaiterActiveOrdersPage",
+                    "actor": "Staff/Waiter",
+                    "condition": "Order status='served' and payment_requested=true",
+                    "frontend_actions": [
+                        "GET /payments/order/{order_id} to fetch payment",
+                        "PATCH /payments/{payment_id}/status?payment_status=completed",
+                        "PUT /orders/{order_id} to update status='paid'"
+                    ],
+                    "backend_actions": [
+                        "Update Payment.payment_status='completed'",
+                        "Fetch associated Order via payment.order_id",
+                        "Update Table.is_occupied=false (table freed)",
+                        "Update Order.status='paid'"
+                    ],
+                    "next_state": "Payment completed, table freed, order finalized"
+                }
+            ]
+        },
+        "order_status_lifecycle": {
+            "states": [
+                "pending",
+                "preparing",
+                "ready",
+                "served",
+                "paid",
+                "cancelled"
+            ],
+            "transitions": [
+                {
+                    "from": "pending",
+                    "to": "preparing",
+                    "actor": "Chef",
+                    "action": "Start Cooking button"
+                },
+                {
+                    "from": "preparing",
+                    "to": "ready",
+                    "actor": "Chef",
+                    "action": "Mark Ready button"
+                },
+                {
+                    "from": "ready",
+                    "to": "served",
+                    "actor": "Waiter",
+                    "action": "Mark Served button"
+                },
+                {
+                    "from": "served",
+                    "to": "paid",
+                    "actor": "Waiter",
+                    "action": "Mark Paid button",
+                    "prerequisite": "payment_requested=true"
+                }
+            ]
+        },
+        "database_schema_notes": {
+            "orders_table": {
+                "key_columns": [
+                    "id",
+                    "customer_id",
+                    "table_id",
+                    "staff_id",
+                    "status (OrderStatus enum)",
+                    "total_amount",
+                    "payment_method (PaymentMethod enum)",
+                    "payment_requested (Boolean, default=False)",
+                    "notes"
+                ],
+                "relationships": [
+                    "customer (Customer)",
+                    "staff (Staff)",
+                    "table (Table)",
+                    "items (OrderItem[])",
+                    "payments (Payment[])"
+                ]
+            },
+            "payments_table": {
+                "key_columns": [
+                    "id",
+                    "order_id",
+                    "payment_method (cash|card|digital_wallet|bank_transfer)",
+                    "payment_status (pending|completed|failed|refunded)",
+                    "amount_paid",
+                    "transaction_id"
+                ],
+                "workflow_states": [
+                    "pending: Created when customer requests bill",
+                    "completed: Updated when waiter marks order as paid"
+                ]
+            },
+            "tables_table": {
+                "key_columns": [
+                    "id",
+                    "table_number",
+                    "table_size",
+                    "is_occupied (Boolean)"
+                ],
+                "state_transitions": [
+                    "is_occupied=true: When order is created",
+                    "is_occupied=false: When payment is completed"
+                ]
+            },
+            "vip_requests_table": {
+                "key_columns": [
+                    "id",
+                    "customer_id",
+                    "status (pending|approved|rejected)",
+                    "reason"
+                ],
+                "side_effects_on_approval": "Customer.role updated to 'vip_customer'"
+            }
+        }
+    }
+}

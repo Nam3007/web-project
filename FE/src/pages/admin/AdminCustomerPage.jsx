@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-import { Search, ShieldAlert, CheckCircle, XCircle, User } from 'lucide-react';
+import { Search, ShieldAlert, CheckCircle, XCircle, User, Plus } from 'lucide-react';
 
 export default function AdminCustomerPage() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('requests'); // 'requests' | 'all'
     const [searchQuery, setSearchQuery] = useState('');
     const queryClient = useQueryClient();
@@ -29,7 +31,7 @@ export default function AdminCustomerPage() {
     // Update Status Mutation
     const updateStatusMutation = useMutation({
         mutationFn: async ({ id, status }) => {
-            return api.put(`/vip-requests/${id}`, { status });
+            return api.put(`/ vip - requests / ${id} `, { status });
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['vipRequests']);
@@ -54,23 +56,34 @@ export default function AdminCustomerPage() {
                     <p className="text-gray-500 text-sm">Manage user roles and VIP requests</p>
                 </div>
 
-                <div className="flex bg-gray-100 p-1 rounded-lg">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="flex bg-gray-100 p-1 rounded-lg flex-1 md:flex-none">
+                        <button
+                            onClick={() => setActiveTab('requests')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'requests' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            VIP Requests
+                            {vipRequests.length > 0 && (
+                                <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">{vipRequests.length}</span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('all')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'all' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            All Customers
+                        </button>
+                    </div>
+
                     <button
-                        onClick={() => setActiveTab('requests')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'requests' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-700'
-                            }`}
+                        onClick={() => navigate('/admin/customers/create')}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-sm shadow-primary/30 whitespace-nowrap"
                     >
-                        VIP Requests
-                        {vipRequests.length > 0 && (
-                            <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">{vipRequests.length}</span>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('all')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'all' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        All Customers
+                        <Plus className="w-4 h-4" />
+                        <span className="hidden sm:inline">Add Customer</span>
+                        <span className="sm:hidden">Add</span>
                     </button>
                 </div>
             </div>
@@ -159,8 +172,8 @@ export default function AdminCustomerPage() {
                                         <td className="px-6 py-4 font-medium text-gray-900">{c.full_name}</td>
                                         <td className="px-6 py-4 text-gray-600">{c.username}</td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${c.role === 'vip_customer' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
-                                                }`}>
+                                            <span className={`px - 2 py - 1 rounded - full text - xs font - bold uppercase ${c.role === 'vip_customer' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
+                                                } `}>
                                                 {c.role ? c.role.replace('_', ' ') : 'Regular'}
                                             </span>
                                         </td>
