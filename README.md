@@ -23,7 +23,7 @@ ________________________________________________________________________________
 
     
     --OPTION 2: open db.py, add **Base.metadata.create_all(bind=engine)** under **Base = declarative_base(metadata=metadata)**
-
+  + In db.py change  db_url to your database url
   + Once finish you can check the connection and API endpoints by :
     + cd to app folder in terminal 
     + type fastapi dev main.py
