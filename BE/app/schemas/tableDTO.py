@@ -14,14 +14,20 @@ class TableDTO(BaseModel):
 class TableCreateDTO(BaseModel):
     table_number: str = Field(..., pattern=r"^T\d{2}$")
     table_size: int = Field(..., gt=0)
+    posX: Optional[int] = None
+    posY: Optional[int] = None
+    floor: Optional[int] = None
 
 class TableStatusUpdateDTO(BaseModel):
-    is_occupied: Optional[bool] = None
+    is_occupied: bool
 
 class TableResponse(BaseModel):
     id: int
     table_number: str
     table_size: int
+    posX: Optional[int] = None
+    posY: Optional[int] = None
+    floor: Optional[int] = None
     is_occupied: bool
     created_at: datetime
 
@@ -32,3 +38,6 @@ class TableUpdateDTO(BaseModel):
     table_number: Optional[str] = Field(None, pattern=r"^T\d{2}$")
     table_size: Optional[int] = Field(None, gt=0)
     is_occupied: Optional[bool] = None
+    posX: Optional[int] = None
+    posY: Optional[int] = None
+    floor: Optional[int] = None

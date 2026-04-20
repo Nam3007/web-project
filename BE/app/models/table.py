@@ -15,6 +15,8 @@ class Table(Base):
     table_size: Mapped[int] = mapped_column(Integer, nullable=False)
     is_occupied: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
-    
+    posX : Mapped[int] = mapped_column(Integer, nullable=True)
+    posY : Mapped[int] = mapped_column(Integer, nullable=True)
+    floor : Mapped[int] = mapped_column(Integer, nullable=True)
     orders = relationship("Order", back_populates="table")
     reservations = relationship("Reservation", back_populates="table")

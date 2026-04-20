@@ -9,11 +9,14 @@ export default function WaiterActiveOrdersPage() {
 
     const { data: orders = [], isLoading } = useQuery({
         queryKey: ['activeOrders'], // Keeping key name for consistency or cache
-        queryFn: async () => {
-            const res = await api.get('/orders/');
-            return res.data;
+        queryFn: async () =>{
+            const [readyRes,servedRes] = await Promise.all([
+                api.get('/orders/status/ready'),
+                api.get('/orders/status/served')
+            ])
+            return [...readyRes.data, ...servedRes.data];
         },
-        refetchInterval: 10000
+        refreshInterval: 10000, // Poll every 10 seconds for real-time updates
     });
 
     // Sort by newest first, show ALL orders as requested
@@ -120,10 +123,21 @@ export default function WaiterActiveOrdersPage() {
 
                                             // Step 2: Update payment status to completed
                                             await api.patch(`/payments/${payment.id}/status?payment_status=completed`);
+
+                                            
+
                                         }
 
                                         // Step 3: Update order status to paid
                                         updateStatusMutation.mutate({ id: order.id, status: 'paid' });
+
+                                        // Step 3.1: Free the table by setting is_occupied to false
+                                        await api.patch(`/tables/status/${order.table_id}/`, {
+                                            is_occupied: false
+                                        });
+
+                                        // Step 4: Invalidate tables query to refresh map/grid views immediately
+                                        queryClient.invalidateQueries(['tables']);
                                     } catch (error) {
                                         console.error('Error updating payment:', error);
                                         alert('Failed to process payment. Please try again.');

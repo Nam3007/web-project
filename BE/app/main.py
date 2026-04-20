@@ -85,10 +85,10 @@ app.include_router(
 def test_db_connection():
     # Create tables if they don't exist
     Base.metadata.create_all(bind=engine)
-    staffRepository.init_admin(engine)
+
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        print("✅ Database connection successful")
+        print(" Database connection successful")
     except Exception as e:
-        print("❌ Database connection failed:", e)
+        print(" Database connection failed:", e)

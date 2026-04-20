@@ -13,7 +13,7 @@ class OrderItem(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
-    menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"))
+    menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"), nullable=False)
 
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)

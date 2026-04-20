@@ -7,7 +7,6 @@ from sqlalchemy.orm import relationship , mapped_column, Mapped
 class StaffRole(str, enum.Enum):
     waiter = "waiter"
     chef = "chef"
-    cashier = "cashier"
     admin = "admin"
 
 
