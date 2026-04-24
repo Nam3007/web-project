@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
-from models import OrderStatus, PaymentMethod
+from models import OrderStatus, PaymentMethod, OrderType
 
 class OrderDTO(BaseModel):
     notes: Optional[str] = None
@@ -10,8 +10,10 @@ class OrderDTO(BaseModel):
 
 class OrderCreateDTO(OrderDTO):
     customer_id: int
-    table_id: int
+    table_id: Optional[int] = None
     staff_id: Optional[int] = None
+    order_type: OrderType = OrderType.dine_in
+    shipping_address: Optional[str] = None
 
 
 class OrderUpdateDTO(BaseModel):
@@ -25,8 +27,10 @@ class OrderUpdateDTO(BaseModel):
 class OrderResponseDTO(OrderDTO):
     id: int
     customer_id: int
-    table_id: int
+    table_id: Optional[int]
     staff_id: Optional[int]
+    order_type: OrderType
+    shipping_address: Optional[str]
 
     status: OrderStatus
     total_amount: float

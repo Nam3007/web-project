@@ -31,6 +31,11 @@ import CustomerMenuPage from './pages/customer/CustomerMenuPage';
 import CustomerCartPage from './pages/customer/CustomerCartPage';
 import CustomerOrdersPage from './pages/customer/CustomerOrdersPage';
 import CustomerTablePage from './pages/customer/CustomerTablePage';
+import CustomerShippingPage from './pages/customer/CustomerShippingPage';
+import QRPaymentPage from './pages/customer/QRPaymentPage';
+
+// Staff Delivery
+import DeliveryManDashboard from './pages/staff/DeliveryManDashboard';
 
 const queryClient = new QueryClient();
 
@@ -51,6 +56,8 @@ function App() {
                 <Route path="/tables" element={<CustomerTablePage />} />
                 <Route path="/cart" element={<CustomerCartPage />} />
                 <Route path="/orders" element={<CustomerOrdersPage />} />
+                <Route path="/shipping" element={<CustomerShippingPage />} />
+                <Route path="/qr-payment" element={<QRPaymentPage />} />
               </Route>
 
               {/* Staff Routes */}
@@ -60,6 +67,7 @@ function App() {
                 <Route path="orders/new" element={<WaiterOrderEntry />} />
                 <Route path="orders" element={<WaiterActiveOrdersPage />} />
                 <Route path="schedule" element={<StaffSchedulePage />} />
+                <Route path="delivery" element={<DeliveryManDashboard />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
 

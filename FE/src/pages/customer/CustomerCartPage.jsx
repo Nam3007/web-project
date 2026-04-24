@@ -4,13 +4,16 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed } from 'lucide-react';
+import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote } from 'lucide-react';
 
 export default function CustomerCartPage() {
     const { cart, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
     const { user } = useAuth();
     const navigate = useNavigate();
     const [selectedTable, setSelectedTable] = useState('');
+    const [orderType, setOrderType] = useState('dine_in');
+    const [shippingAddress, setShippingAddress] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('QR');
 
     // Fetch Tables
     const { data: tables = [], isLoading: tablesLoading } = useQuery({
@@ -38,8 +41,6 @@ export default function CustomerCartPage() {
     });
 
     // Auto-select table if active order exists
-    // We can do this by deriving state or initializing differently, but effect is okay if guarded or we use default state.
-    // To avoid set-state-in-effect error, we can just use the activeOrder directly in render or use a simpler check.
     useEffect(() => {
         if (activeOrder && activeOrder.table_id && selectedTable !== activeOrder.table_id.toString()) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -47,20 +48,36 @@ export default function CustomerCartPage() {
         }
     }, [activeOrder, selectedTable]);
 
+    // Force QR when shipping is selected
+    useEffect(() => {
+        if (orderType === 'shipping') {
+            setPaymentMethod('QR');
+        }
+    }, [orderType]);
+
     const placeOrderMutation = useMutation({
         mutationFn: async () => {
             let orderId = activeOrder?.id;
 
             // 1. If NO active order, create one
             if (!orderId) {
-                if (!selectedTable) throw new Error("Please select a table.");
+                if (orderType === 'dine_in' && !selectedTable) throw new Error('Please select a table.');
+                if (orderType === 'shipping' && !shippingAddress.trim()) throw new Error('Please enter a shipping address.');
 
-                const orderRes = await api.post('/orders/', {
+                const orderPayload = {
                     customer_id: user.id,
-                    table_id: parseInt(selectedTable),
                     staff_id: null,
-                    notes: 'Customer mobile order'
-                });
+                    notes: orderType === 'shipping' ? 'Customer online shipping order' : 'Customer mobile order',
+                    order_type: orderType,
+                };
+
+                if (orderType === 'dine_in') {
+                    orderPayload.table_id = parseInt(selectedTable);
+                } else {
+                    orderPayload.shipping_address = shippingAddress.trim();
+                }
+
+                const orderRes = await api.post('/orders/', orderPayload);
                 orderId = orderRes.data.id;
             }
 
@@ -73,15 +90,33 @@ export default function CustomerCartPage() {
                     notes: cartItem.notes || ''
                 });
             }
-            return orderId;
+
+            // 3. Create payment record
+            const paymentRes = await api.post('/payments/', {
+                order_id: orderId,
+                payment_method: paymentMethod
+            });
+
+            // 4. Update order with payment method
+            await api.put(`/orders/${orderId}`, {
+                payment_method: paymentMethod
+            });
+
+            return { orderId, paymentId: paymentRes.data.id, amount: paymentRes.data.amount_paid };
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             clearCart();
-            alert(activeOrder ? "Items added to your existing order!" : "Order placed successfully! Please wait for your food.");
-            navigate('/orders');
+            if (paymentMethod === 'QR') {
+                // Redirect to QR payment page
+                navigate(`/qr-payment?orderId=${data.orderId}&amount=${data.amount}&paymentId=${data.paymentId}`);
+            } else {
+                // Cash: redirect to orders page, waiter will confirm
+                alert('Order placed! Please wait for the waiter to confirm your cash payment.');
+                navigate('/orders');
+            }
         },
         onError: (err) => {
-            alert("Failed to place order: " + err.message);
+            alert('Failed to place order: ' + err.message);
         }
     });
 
@@ -162,12 +197,40 @@ export default function CustomerCartPage() {
                 {/* Right Column: Table Selection + Summary */}
                 <div className="flex flex-col gap-6 h-fit">
 
-                    {/* Table Selection */}
+                    {/* Dining Details */}
                     <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-center gap-2 mb-4 text-gray-800">
                             <UtensilsCrossed className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-bold">Dining Details</h2>
                         </div>
+
+                        {/* Order Type Toggle */}
+                        {!activeOrder && (
+                            <div className="flex bg-gray-100 rounded-xl p-1 gap-1 mb-4">
+                                <button
+                                    onClick={() => setOrderType('dine_in')}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                                        orderType === 'dine_in'
+                                            ? 'bg-white text-primary shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                                >
+                                    <UtensilsCrossed className="w-4 h-4" />
+                                    Dine-in
+                                </button>
+                                <button
+                                    onClick={() => setOrderType('shipping')}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                                        orderType === 'shipping'
+                                            ? 'bg-white text-blue-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                                >
+                                    <Truck className="w-4 h-4" />
+                                    Shipping
+                                </button>
+                            </div>
+                        )}
 
                         {activeOrder ? (
                             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
@@ -175,7 +238,7 @@ export default function CustomerCartPage() {
                                 <p>You are seated at <span className="font-bold">Table {activeOrder.table_id}</span>.</p>
                                 <p className="mt-2 text-xs opacity-75">Items will be added to this order.</p>
                             </div>
-                        ) : (
+                        ) : orderType === 'dine_in' ? (
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Your Table</label>
                                 {tablesLoading ? (
@@ -195,10 +258,94 @@ export default function CustomerCartPage() {
                                         ))}
                                     </select>
                                 )}
-                                <p className="text-xs text-gray-400 mt-2">
-                                    Only available tables are shown.
-                                </p>
+                                <p className="text-xs text-gray-400 mt-2">Only available tables are shown.</p>
                             </div>
+                        ) : (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                                    <MapPin className="w-4 h-4 text-blue-500" />
+                                    Delivery Address
+                                </label>
+                                <textarea
+                                    value={shippingAddress}
+                                    onChange={(e) => setShippingAddress(e.target.value)}
+                                    placeholder="Enter your full delivery address..."
+                                    rows={3}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 resize-none text-sm"
+                                />
+                                <p className="text-xs text-gray-400 mt-2">We'll deliver to this address.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Payment Method Selection */}
+                    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
+                        <div className="flex items-center gap-2 mb-4 text-gray-800">
+                            <Banknote className="w-5 h-5 text-primary" />
+                            <h2 className="text-lg font-bold">Payment Method</h2>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* QR Payment Option */}
+                            <button
+                                onClick={() => setPaymentMethod('QR')}
+                                className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                                    paymentMethod === 'QR'
+                                        ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100'
+                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                {paymentMethod === 'QR' && (
+                                    <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                )}
+                                <div className={`p-3 rounded-xl ${paymentMethod === 'QR' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                    <QrCode className={`w-7 h-7 ${paymentMethod === 'QR' ? 'text-blue-600' : 'text-gray-500'}`} />
+                                </div>
+                                <span className={`text-sm font-bold ${paymentMethod === 'QR' ? 'text-blue-700' : 'text-gray-600'}`}>
+                                    QR Transfer
+                                </span>
+                                <span className="text-[10px] text-gray-400">Instant payment</span>
+                            </button>
+
+                            {/* Cash Option — disabled for shipping */}
+                            <button
+                                onClick={() => orderType !== 'shipping' && setPaymentMethod('cash')}
+                                disabled={orderType === 'shipping'}
+                                className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                                    orderType === 'shipping'
+                                        ? 'border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed'
+                                        : paymentMethod === 'cash'
+                                            ? 'border-green-500 bg-green-50 shadow-md shadow-green-100'
+                                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                {paymentMethod === 'cash' && orderType !== 'shipping' && (
+                                    <div className="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                )}
+                                <div className={`p-3 rounded-xl ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                                    <Banknote className={`w-7 h-7 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-green-600' : 'text-gray-500'}`} />
+                                </div>
+                                <span className={`text-sm font-bold ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-green-700' : 'text-gray-600'}`}>
+                                    Cash
+                                </span>
+                                <span className="text-[10px] text-gray-400">
+                                    {orderType === 'shipping' ? 'Not available' : 'Pay at counter'}
+                                </span>
+                            </button>
+                        </div>
+
+                        {orderType === 'shipping' && (
+                            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded-lg mt-3 text-center">
+                                Shipping orders require QR payment
+                            </p>
                         )}
                     </div>
 
@@ -223,20 +370,24 @@ export default function CustomerCartPage() {
 
                         <button
                             onClick={() => placeOrderMutation.mutate()}
-                            disabled={placeOrderMutation.isPending || (!selectedTable && !activeOrder)}
-                            className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={placeOrderMutation.isPending || (!activeOrder && orderType === 'dine_in' && !selectedTable) || (!activeOrder && orderType === 'shipping' && !shippingAddress.trim())}
+                            className={`w-full py-4 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                paymentMethod === 'QR'
+                                    ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/30'
+                                    : 'bg-green-600 hover:bg-green-700 shadow-green-600/30'
+                            }`}
                         >
                             {placeOrderMutation.isPending ? 'Processing...' : (
                                 <>
-                                    {activeOrder ? 'Add to Order' : 'Place Order'}
+                                    {activeOrder ? 'Add to Order' : paymentMethod === 'QR' ? 'Pay with QR' : 'Place Order (Cash)'}
                                     <ArrowRight className="w-5 h-5" />
                                 </>
                             )}
                         </button>
                         <p className="text-xs text-center text-gray-400">
-                            {activeOrder ?
-                                "Creating a new shipment for your table." :
-                                "By placing this order you agree to our Terms."
+                            {paymentMethod === 'QR'
+                                ? "You'll be redirected to scan the QR code."
+                                : "Waiter will confirm your cash payment."
                             }
                         </p>
                     </div>

@@ -22,9 +22,9 @@ export default function ChefDashboard() {
         refetchInterval: 10000 // Refresh every 10s
     });
 
-    // Filter for Chef relevant active orders
+    // Filter for Chef relevant active orders (only paid + preparing)
     const activeOrders = orders.filter(o =>
-        ['pending', 'preparing'].includes(o.status)
+        ['paid', 'preparing'].includes(o.status)
     ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at)); // Oldest first
 
     // Update Status Mutation
@@ -42,7 +42,7 @@ export default function ChefDashboard() {
     };
 
     // Group by status
-    const pendingOrders = activeOrders.filter(o => o.status === 'pending');
+    const paidOrders = activeOrders.filter(o => o.status === 'paid');
     const preparingOrders = activeOrders.filter(o => o.status === 'preparing');
 
     if (isLoading) return <div className="text-center p-10">Loading orders...</div>;
@@ -58,25 +58,25 @@ export default function ChefDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Pending Column */}
+                {/* Paid Column — Orders ready to start cooking */}
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between bg-amber-50 p-4 rounded-xl border border-amber-100">
-                        <h2 className="text-xl font-bold text-amber-800 flex items-center gap-2">
+                    <div className="flex items-center justify-between bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                        <h2 className="text-xl font-bold text-emerald-800 flex items-center gap-2">
                             <AlertCircle className="w-6 h-6" />
-                            Pending Orders
+                            Paid Orders
                         </h2>
-                        <span className="bg-amber-200 text-amber-900 px-3 py-1 rounded-full text-sm font-bold">
-                            {pendingOrders.length}
+                        <span className="bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full text-sm font-bold">
+                            {paidOrders.length}
                         </span>
                     </div>
 
                     <div className="space-y-4">
-                        {pendingOrders.length === 0 ? (
+                        {paidOrders.length === 0 ? (
                             <div className="text-center p-8 bg-white rounded-xl border border-gray-100 border-dashed text-gray-400">
-                                No pending orders
+                                No paid orders to cook
                             </div>
                         ) : (
-                            pendingOrders.map(order => (
+                            paidOrders.map(order => (
                                 <OrderCard
                                     key={order.id}
                                     order={order}

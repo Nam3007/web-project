@@ -31,6 +31,9 @@ export default function LoginPage() {
                 case 'cashier':
                     navigate('/staff/dashboard');
                     break;
+                case 'delivery_man':
+                    navigate('/staff/delivery');
+                    break;
                 case 'regular_customer':
                 case 'vip_customer':
                 default:

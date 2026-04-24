@@ -6,7 +6,8 @@ import {
     ChefHat,
     UtensilsCrossed,
     ClipboardList,
-    CalendarDays
+    CalendarDays,
+    Truck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,6 +35,8 @@ export default function StaffLayout() {
         } else if (user?.role === 'waiter') {
             items.push({ name: 'Tables', path: '/staff/tables', icon: UtensilsCrossed });
             items.push({ name: 'Active Orders', path: '/staff/orders', icon: ClipboardList });
+        } else if (user?.role === 'delivery_man') {
+            items.push({ name: 'Deliveries', path: '/staff/delivery', icon: Truck });
         }
 
         return items;

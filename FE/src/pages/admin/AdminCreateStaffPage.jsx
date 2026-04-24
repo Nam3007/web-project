@@ -15,7 +15,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 
-const ROLES = ['waiter', 'chef', 'cashier', 'admin'];
+const ROLES = ['waiter', 'chef', 'cashier', 'admin', 'delivery_man'];
 
 export default function AdminCreateStaffPage() {
     const navigate = useNavigate();

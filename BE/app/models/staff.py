@@ -8,7 +8,8 @@ class StaffRole(str, enum.Enum):
     waiter = "waiter"
     chef = "chef"
     admin = "admin"
-
+    delivery_man = "delivery_man"
+    
 
 
 class Staff(Base):

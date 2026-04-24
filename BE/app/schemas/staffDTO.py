@@ -8,6 +8,7 @@ class StaffRole(str, Enum):
     chef = "chef"
     cashier = "cashier"
     admin = "admin"
+    delivery_man = "delivery_man"
 
 class StaffDTO(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)

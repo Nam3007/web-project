@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader } from 'lucide-react';
+import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader, QrCode, Banknote, Clock } from 'lucide-react';
 
 const VIP_THRESHOLD = 500;
 
@@ -13,7 +13,6 @@ export default function CustomerOrdersPage() {
     const { data: allOrders = [], isLoading } = useQuery({
         queryKey: ['myOrders'],
         queryFn: async () => {
-            // Filter logic client side for demo
             const res = await api.get('/orders/');
             return res.data;
         }
@@ -27,13 +26,6 @@ export default function CustomerOrdersPage() {
     const totalSpent = myOrders
         .filter(o => o.status === 'paid' || o.status === 'completed')
         .reduce((sum, o) => sum + o.total_amount, 0);
-
-    // 2. Fetch My Pending/Rejected requests to know status
-    // Ideally GET /vip-requests/me but we have GET /vip-requests?status=...
-    // We'll just try to create and catch 400 if exists, or adding checking endpoint.
-    // Let's implement optimistic check by assuming we can try.
-    // Or better, fetch all requests (?) no that's security issue.
-    // Let's just rely on the "Try" action or checking user role.
 
     // Mutation to Request VIP
     const requestVipMutation = useMutation({
@@ -51,34 +43,36 @@ export default function CustomerOrdersPage() {
         }
     });
 
-    // Mutation to Request Bill
-    const requestBillMutation = useMutation({
-        mutationFn: async ({ orderId, paymentMethod }) => {
-            // Step 1: Create payment record
-            await api.post('/payments/', {
-                order_id: orderId,
-                payment_method: paymentMethod
-            });
-
-            // Step 2: Update order to mark payment_requested
-            return api.put(`/orders/${orderId}`, {
-                payment_requested: true,
-                payment_method: paymentMethod
-            });
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['myOrders']);
-            alert("Bill requested! Staff has been notified.");
-        },
-        onError: (err) => {
-            alert("Failed to request bill: " + err.message);
-        }
-    });
-
     if (isLoading) return <div className="text-center py-20">Loading orders...</div>;
 
     const isVip = user.role === 'vip_customer';
     const progress = Math.min((totalSpent / VIP_THRESHOLD) * 100, 100);
+
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'pending': return 'bg-amber-100 text-amber-700';
+            case 'paid': return 'bg-emerald-100 text-emerald-700';
+            case 'preparing': return 'bg-blue-100 text-blue-700';
+            case 'ready': return 'bg-indigo-100 text-indigo-700';
+            case 'served': return 'bg-purple-100 text-purple-700';
+            case 'completed': return 'bg-green-100 text-green-700';
+            case 'cancelled': return 'bg-red-100 text-red-700';
+            default: return 'bg-gray-100 text-gray-700';
+        }
+    };
+
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'pending': return 'Awaiting Payment';
+            case 'paid': return 'Paid — In Queue';
+            case 'preparing': return 'Being Prepared';
+            case 'ready': return 'Ready for Pickup';
+            case 'served': return 'Served';
+            case 'completed': return 'Completed';
+            case 'cancelled': return 'Cancelled';
+            default: return status;
+        }
+    };
 
     return (
         <div className="max-w-3xl mx-auto space-y-8">
@@ -162,55 +156,41 @@ export default function CustomerOrdersPage() {
                                 </div>
 
                                 <div className="flex flex-col items-end gap-2">
-                                    <div className="flex items-center gap-6">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${order.status === 'completed' || order.status === 'paid' ? 'bg-green-100 text-green-700' :
-                                            order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                                'bg-amber-100 text-amber-900'
+                                    <div className="flex items-center gap-4">
+                                        {/* Payment method badge */}
+                                        {order.payment_method && (
+                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                                                order.payment_method === 'QR'
+                                                    ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                                                    : 'bg-green-50 text-green-600 border border-green-200'
                                             }`}>
-                                            {order.status}
+                                                {order.payment_method === 'QR' ? <QrCode className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
+                                                {order.payment_method}
+                                            </span>
+                                        )}
+
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
+                                            {getStatusLabel(order.status)}
                                         </span>
 
                                         <p className="font-bold text-lg text-gray-900 flex items-center gap-1">
                                             <DollarSign className="w-4 h-4 text-gray-400" />
                                             {order.total_amount}
                                         </p>
-
-                                        <button className="text-primary hover:bg-primary/5 p-2 rounded-full">
-                                            <ChevronRight className="w-5 h-5" />
-                                        </button>
                                     </div>
 
-                                    {/* Request Payment Button */}
-                                    {['served'].includes(order.status) && !order.payment_requested && (
-                                        <div className="flex bg-gray-100 rounded-lg p-1 gap-1">
-                                            <select
-                                                className="bg-transparent text-xs font-medium text-gray-700 outline-none p-1"
-                                                onChange={(e) => {
-                                                    const el = document.getElementById(`pay-method-${order.id}`);
-                                                    if (el) el.value = e.target.value;
-                                                }}
-                                                defaultValue="cash"
-                                                id={`pay-method-select-${order.id}`}
-                                            >
-                                                <option value="cash">Cash</option>
-                                                <option value="card">Card</option>
-                                                <option value="digital_wallet">E-Wallet</option>
-                                            </select>
-                                            <input type="hidden" id={`pay-method-${order.id}`} value="cash" />
-                                            <button
-                                                onClick={() => {
-                                                    const method = document.getElementById(`pay-method-${order.id}`).value;
-                                                    requestBillMutation.mutate({ orderId: order.id, paymentMethod: method });
-                                                }}
-                                                disabled={requestBillMutation.isPending}
-                                                className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1.5 rounded-lg font-bold transition-colors"
-                                            >
-                                                {requestBillMutation.isPending ? '...' : 'Request Bill'}
-                                            </button>
-                                        </div>
+                                    {/* Status message for pending orders */}
+                                    {order.status === 'pending' && order.payment_method === 'cash' && (
+                                        <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded flex items-center gap-1">
+                                            <Clock className="w-3 h-3" />
+                                            Waiting for waiter to confirm cash
+                                        </span>
                                     )}
-                                    {order.payment_requested && (
-                                        <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded">Bill Requested</span>
+                                    {order.status === 'pending' && order.payment_method === 'QR' && (
+                                        <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded flex items-center gap-1">
+                                            <QrCode className="w-3 h-3" />
+                                            QR payment in progress
+                                        </span>
                                     )}
                                 </div>
                             </div>

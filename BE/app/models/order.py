@@ -6,18 +6,23 @@ from sqlalchemy.orm import relationship
 
 
 class OrderStatus(str, enum.Enum):
-    pending = "pending"
-    preparing = "preparing"
-    ready = "ready"
-    served = "served"
-    paid = "paid"
-    cancelled = "cancelled"
+    pending    = "pending"
+    preparing  = "preparing"
+    ready      = "ready"
+    served     = "served"
+    delivering = "delivering"
+    delivered  = "delivered"
+    paid       = "paid"
+    cancelled  = "cancelled"
+    completed  = "completed"
+
+class OrderType(str, enum.Enum):
+    dine_in  = "dine_in"
+    shipping = "shipping"
 
 class PaymentMethod(str, enum.Enum):
     cash = "cash"
-    card = "card"
-    digital_wallet = "digital_wallet"
-    bank_transfer = "bank_transfer"
+    QR = "QR"
 
 class Order(Base):
     __tablename__ = "orders"
@@ -26,8 +31,10 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True)
     customer_id = Column(Integer, ForeignKey("customers.id", ondelete="CASCADE"))
-    table_id = Column(Integer, ForeignKey("tables.id", ondelete="CASCADE"))
-    staff_id = Column(Integer, ForeignKey("staff.id", ondelete="SET NULL"))
+    table_id = Column(Integer, ForeignKey("tables.id", ondelete="CASCADE"), nullable=True)
+    staff_id = Column(Integer, ForeignKey("staff.id", ondelete="SET NULL"), nullable=True)
+    order_type = Column(Enum(OrderType), default=OrderType.dine_in)
+    shipping_address = Column(Text, nullable=True)
     order_date = Column(DateTime, server_default=func.now())
     status = Column(Enum(OrderStatus), default=OrderStatus.pending)
     total_amount = Column(Numeric(10, 2), default=0)

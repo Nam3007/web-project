@@ -1,5 +1,5 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, User, History, LogOut, UtensilsCrossed } from 'lucide-react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingBag, User, History, LogOut, UtensilsCrossed, Truck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -7,10 +7,11 @@ export default function CustomerLayout() {
     const { user, logout } = useAuth();
     const { cartCount } = useCart();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/menu');
     };
 
     return (
@@ -29,22 +30,31 @@ export default function CustomerLayout() {
 
                             <div className="hidden md:flex items-center gap-1">
                                 <NavLink to="/menu" current={location.pathname}>Menu</NavLink>
-                                <NavLink to="/tables" current={location.pathname}>Tables</NavLink>
-                                <NavLink to="/orders" current={location.pathname}>My Orders</NavLink>
+                                {user && (
+                                    <>
+                                        <NavLink to="/tables" current={location.pathname}>Tables</NavLink>
+                                        <NavLink to="/orders" current={location.pathname}> Order History</NavLink>
+                                        <NavLink to="/shipping" current={location.pathname}>Shipping</NavLink>
+                                    </>
+                                )}
                             </div>
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary transition-colors">
-                                <ShoppingBag className="w-6 h-6" />
-                                {cartCount > 0 && (
-                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
-                                        {cartCount}
-                                    </span>
-                                )}
-                            </Link>
+                            {user && (
+                                <>
+                                    <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary transition-colors">
+                                        <ShoppingBag className="w-6 h-6" />
+                                        {cartCount > 0 && (
+                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                                                {cartCount}
+                                            </span>
+                                        )}
+                                    </Link>
 
-                            <div className="h-6 w-px bg-gray-200 mx-2"></div>
+                                    <div className="h-6 w-px bg-gray-200 mx-2"></div>
+                                </>
+                            )}
 
                             {user ? (
                                 <div className="flex items-center gap-3">
@@ -78,13 +88,18 @@ export default function CustomerLayout() {
             {/* Mobile Nav Bottom */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-3 z-50 pb-safe">
                 <MobileNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
-                <MobileNavLink to="/tables" icon={UtensilsCrossed} label="Tables" current={location.pathname} />
-                <MobileNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
-                <MobileNavLink to="/orders" icon={History} label="Orders" current={location.pathname} />
-                <button onClick={handleLogout} className="flex flex-col items-center justify-center gap-1 text-gray-400">
-                    <LogOut className="w-6 h-6" />
-                    <span className="text-[10px] font-medium">Logout</span>
-                </button>
+                {user && (
+                    <>
+                        <MobileNavLink to="/tables" icon={UtensilsCrossed} label="Tables" current={location.pathname} />
+                        <MobileNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
+                        <MobileNavLink to="/orders" icon={History} label="Orders" current={location.pathname} />
+                        <MobileNavLink to="/shipping" icon={Truck} label="Shipping" current={location.pathname} />
+                        <button onClick={handleLogout} className="flex flex-col items-center justify-center gap-1 text-gray-400">
+                            <LogOut className="w-6 h-6" />
+                            <span className="text-[10px] font-medium">Logout</span>
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );

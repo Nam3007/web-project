@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from db import get_db
-from models import Order, OrderStatus, PaymentMethod
+from models import Order, OrderStatus, PaymentMethod, OrderType
 from schemas import OrderCreateDTO, OrderResponseDTO, OrderUpdateDTO
 from services import OrderService
 
@@ -20,6 +20,21 @@ async def get_all_orders(
         """Get all orders"""
         orders = order_service.get_all(db, skip=skip, limit=limit)
         return orders
+
+# --- Shipping endpoints (must come BEFORE /{order_id}) ---
+
+@router.get("/shipping/active", response_model=List[OrderResponseDTO])
+async def get_active_shipping_orders(db: Session = Depends(get_db)):
+    """Get shipping orders with status ready or delivering — for Delivery Man Dashboard."""
+    return order_service.find_shipping_active(db)
+
+@router.get("/shipping/customer/{customer_id}", response_model=List[OrderResponseDTO])
+async def get_customer_shipping_orders(
+    customer_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get a customer's shipping orders (delivering/delivered/paid)."""
+    return order_service.find_shipping_by_customer(db, customer_id)
 
 # Get order by ID
 @router.get("/{order_id}", response_model=OrderResponseDTO)
@@ -87,3 +102,14 @@ async def get_orders_by_status(
         """Get orders by status"""
         orders = order_service.find_by_status(db, status)
         return orders
+
+@router.get("/status/{status}/type/{order_type}", response_model=List[OrderResponseDTO])
+async def get_orders_by_status_and_type(
+        status: OrderStatus,
+        order_type: OrderType,
+        db: Session = Depends(get_db)
+):
+        """Get orders by status and type"""
+        orders = order_service.find_by_status_and_type(db, status, order_type)
+        return orders
+        

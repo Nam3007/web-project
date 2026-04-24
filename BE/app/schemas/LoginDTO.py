@@ -8,6 +8,7 @@ class Role(str, enum.Enum):
     chef = "chef"
     cashier = "cashier"
     admin = "admin"
+    delivery_man = "delivery_man"
     
 
 class LoginRequestDTO(BaseModel):

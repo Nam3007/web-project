@@ -22,6 +22,6 @@ router = APIRouter(
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
-SECRET_KEY = "123zxcasd123456789aassswweeddkkklddd"
+SECRET_KEY = "THISSHOULDBEENOUGHFORASECRETKEY"
 ALGORITHM = "HS256"
 

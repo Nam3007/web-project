@@ -6,9 +6,7 @@ import enum
 
 class PaymentMethod(str, enum.Enum):
     cash = "cash"
-    card = "card"
-    digital_wallet = "digital_wallet"
-    bank_transfer = "bank_transfer"
+    QR = "QR"
 
 class PaymentStatus(str, enum.Enum):
     pending = "pending"

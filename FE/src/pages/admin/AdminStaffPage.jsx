@@ -14,11 +14,11 @@ import {
     Mail,
     Phone,
     DollarSign,
-    Briefcase
+    Briefcase,
+    
 } from 'lucide-react';
 
-const ROLES = ['waiter', 'chef', 'cashier', 'admin'];
-
+const ROLES = ['waiter', 'chef', 'cashier', 'admin','delivery_man' ];
 export default function AdminStaffPage() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
