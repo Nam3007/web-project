@@ -22,7 +22,7 @@ class Payment(Base):
 
 
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"))
+    order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE") , nullable=True)
     payment_date = Column(DateTime, server_default=func.now())
     payment_method : Mapped[PaymentMethod] = mapped_column(Enum(PaymentMethod),default= PaymentMethod.cash)
     amount_paid = Column(Numeric(10, 2), nullable=False)

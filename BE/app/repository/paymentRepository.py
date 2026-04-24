@@ -52,3 +52,7 @@ class PaymentRepository:
             db.commit()
             db.refresh(payment)
         return payment
+    
+    def delete_by_order_id(self, db : Session , order_id: int) -> None:
+        db.query(Payment).filter(Payment.order_id == order_id).delete(synchronize_session=False)
+        db.commit()

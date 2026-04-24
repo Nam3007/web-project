@@ -54,7 +54,7 @@ export default function AdminDashboard() {
     const stats = [
         {
             label: 'Total Revenue',
-            value: `$${totalRevenue.toLocaleString()}`,
+            value: `${totalRevenue.toLocaleString()} VND`,
             icon: DollarSign,
             color: 'text-emerald-600',
             bg: 'bg-emerald-100'
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-bold text-gray-900">${order.total_amount}</p>
+                                        <p className="font-bold text-gray-900">{order.total_amount} VND</p>
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
                                             order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                                                 'bg-blue-100 text-blue-800'

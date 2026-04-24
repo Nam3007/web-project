@@ -7,7 +7,7 @@ import { CheckCircle, Clock, QrCode, AlertCircle, ArrowLeft, Loader } from 'luci
 // ============================================
 // CONFIGURABLE: Change this value for testing
 // ============================================
-const QR_COUNTDOWN_SECONDS = 120;
+const QR_COUNTDOWN_SECONDS = 10;
 
 // VietQR Bank Details
 const BANK_ID = '970403'; // Sacombank

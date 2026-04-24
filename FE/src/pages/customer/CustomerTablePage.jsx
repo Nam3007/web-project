@@ -47,10 +47,10 @@ function TableTop({ table, isSelected, onSelect }) {
 
             {/* Table circle */}
             <div
-                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full ${statusColor.bg} border-2 ${statusColor.border} ${statusColor.glow} flex flex-col items-center justify-center shadow-md transition-all duration-300 ${!isOccupied ? 'group-hover:scale-105 group-hover:shadow-lg' : ''}`}
+                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full ${statusColor.bg} border-2 ${statusColor.border} ${statusColor.glow} flex flex-col items-center justify-center shadow-md transition-all duration-300 ${!isOccupied ? 'group-hover:scale-110 border-emerald-600 group-hover:shadow-lg' : ''}`}
             >
                 <span className={`text-sm font-bold ${statusColor.text}`}>{table.table_number}</span>
-                <span className={`text-[9px] font-medium ${statusColor.text} opacity-70`}>{seats} seats</span>
+                <span className={`text-[15px] font-medium ${statusColor.text} opacity-70`}>{seats} seats</span>
             </div>
 
             {/* Floating tooltip on hover */}
@@ -157,11 +157,11 @@ export default function CustomerTablePage() {
 
             {/* FLOOR PLAN VIEW */}
             {viewMode === 'floor' && (
-                <div className="bg-black rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="border-solid border-dark border-3 rounded-xl overflow-hidden " >
                     {/* Floor plan area */}
-                    <div className="relative p-8 min-h-[500px] bg-gradient-to-br from-gray-50 to-dark">
+                    <div className="bg-white relative p-8 min-h-[500px] ">
                         {/* Decorative walls */}
-                        <div className="absolute inset-4 border-2 border-gray-200 rounded-xl pointer-events-none"></div>
+                        <div className="  absolute inset-4 border-3 border-gray-500 rounded-xl"></div>
 
                         {/* Kitchen area */}
                         <div className="absolute top-6 right-6 w-50 h-20 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center pointer-events-none">
@@ -177,14 +177,14 @@ export default function CustomerTablePage() {
 
                         {/* Plant decorations */}
                         <div className="absolute top-8 left-8 flex items-center gap-1 pointer-events-none opacity-40">
-                            <Flower2 className="w-4 h-4 text-green-500" />
+                            <Flower2 className="w-8 h-8 text-green-500" />
                         </div>
                         <div className="absolute bottom-20 right-8 flex items-center gap-1 pointer-events-none opacity-40">
-                            <Flower2 className="w-4 h-4 text-green-500" />
+                            <Flower2 className="w-8 h-8 text-green-500" />
                         </div>
 
                         {/* Tables positioned on the floor plan */}
-                        <div className="relative flex flex-wrap gap-6 justify-center items-center pt-8 pb-16 px-8 min-h-[400px]">
+                        <div className="relative flex flex-wrap gap-6 justify-center items-center pt-8 pb-16 px-8 min-h-[400px] ">
                             {floorTables.map(table => (
                                 <TableTop
                                     key={table.id}
@@ -238,7 +238,7 @@ export default function CustomerTablePage() {
                                     ? 'bg-blue-50 border-blue-400 shadow-lg shadow-blue-100 ring-2 ring-blue-200'
                                     : table.is_occupied
                                         ? 'bg-red-50 border-red-100 opacity-70 cursor-not-allowed'
-                                        : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-200 cursor-pointer'
+                                        : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-800 cursor-pointer'
                             }`}
                         >
                             <div className={`p-4 rounded-full ${

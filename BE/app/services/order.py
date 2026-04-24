@@ -2,12 +2,13 @@ from schemas import OrderCreateDTO, OrderUpdateDTO
 from sqlalchemy.orm import Session
 from models import Order, OrderStatus, OrderType
 from typing import List
-from repository import OrderRepository,OrderItemRepository
+from repository import OrderRepository,OrderItemRepository, PaymentRepository
 
 class OrderService:
     def __init__(self):
         self.repository = OrderRepository()
         self.order_item_repository = OrderItemRepository()
+        self.payment_repository = PaymentRepository()
     
     def recalculate_order_total(self, db: Session, order_id: int):
         total = self.repository.calculate_total_amount(db, order_id)
@@ -55,6 +56,7 @@ class OrderService:
         order = self.get_by_id(db, order_id)
         if not order:
             return False
+        self.payment_repository.delete_by_order_id(db, order_id)
         self.repository.delete(db, order)
         return True
     
