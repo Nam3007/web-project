@@ -59,8 +59,7 @@ export default function CustomerLayout() {
                             {user ? (
                                 <div className="flex items-center gap-3">
                                     <div className="hidden md:block text-right">
-                                        <p className="text-sm font-bold text-gray-800">{user.full_name}</p>
-                                        <p className="text-xs text-secondary capitalize">{user.role.replace('_', ' ')}</p>
+                                        <p className="text-xs font-bold text-green-600">{user.full_name}</p>
                                     </div>
                                     <button
                                         onClick={handleLogout}

@@ -38,6 +38,10 @@ class StaffService:
         if self.repository.exists_by_email(db, staff_data.email):
             raise ValueError("Email already exists")
         
+        # Business logic: Check if phone exists
+        if self.repository.exists_by_phone(db, staff_data.phone):
+            raise ValueError("Phone already exists")
+        
         # Business logic: Hash password
         hashed_password = hash_password(staff_data.password_hashed)
         
@@ -78,8 +82,12 @@ class StaffService:
         updated_staff = staff_data.model_dump(exclude_unset=True)
         
         if "email" in updated_staff:
-            if self.repository.exists_by_email(db, updated_staff["email"]):
+            if self.repository.exists_by_email(db, updated_staff["email"]).id != staff_id:
                 raise ValueError("Email already exists")
+        
+        if "phone" in updated_staff:
+            if self.repository.exists_by_phone(db, updated_staff["phone"]).id != staff_id:
+                raise ValueError("Phone already exists")
         
         #hashed password if password is being updated
         # Special handling for password_hashed

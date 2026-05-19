@@ -27,7 +27,7 @@ export default function AdminLayout() {
         { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
         { name: 'Menu', path: '/admin/menu', icon: MenuSquare },
         { name: 'Customers', path: '/admin/customers', icon: Users },
-        { name: 'Staff', path: '/admin/staff', icon: ChefHat }, // Changed icon to differentiate
+        { name: 'Staff', path: '/admin/staff', icon: ChefHat }, 
         { name: 'Tables', path: '/admin/tables', icon: UtensilsCrossed },
         { name: 'Payments', path: '/admin/payments', icon: CreditCard },
         { name: 'Schedule', path: '/admin/schedule', icon: CalendarRange },

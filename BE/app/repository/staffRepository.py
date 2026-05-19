@@ -35,10 +35,11 @@ class StaffRepository:
         #return true if username exists, else false
         return db.query(Staff).filter(Staff.username == username).count() > 0
     
-    def exists_by_email(self, db: Session, email: str) -> bool:
-        #return true if email exists, else false
-        return db.query(Staff).filter(Staff.email == email).count() > 0
+    def exists_by_email(self, db: Session, email: str):
+        return db.query(Staff).filter(Staff.email == email).first()
 
+    def exists_by_phone(self, db: Session, phone: str):
+        return db.query(Staff).filter(Staff.phone == phone).first()
     
     def search_by_name(self, db: Session, full_name: str):
         return db.query(Staff).filter(Staff.full_name.ilike(f"%{full_name}%")).all()

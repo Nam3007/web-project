@@ -167,8 +167,8 @@ export default function AdminStaffPage() {
                                         )}
                                         {staff.salary && (
                                             <div className="flex items-center gap-2">
-                                                <DollarSign className="w-4 h-4 text-green-500" />
-                                                <span className="font-medium text-green-700">${staff.salary}/hr</span>
+                                                VND
+                                                <span className="font-medium text-green-700">{staff.salary.toLocaleString('vi-VN')}đ/hr</span>
                                             </div>
                                         )}
                                     </div>
@@ -313,7 +313,7 @@ function StaffModal({ isOpen, onClose, initialData, onSave, isSaving }) {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate ($)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (đ)</label>
                             <input
                                 type="number"
                                 min="0"

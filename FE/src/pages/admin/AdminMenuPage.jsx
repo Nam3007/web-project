@@ -164,7 +164,7 @@ export default function AdminMenuPage() {
                             <div className="p-4">
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="font-bold text-gray-900 line-clamp-1" title={item.item_name}>{item.item_name}</h3>
-                                    <span className="text-sm font-bold text-primary">${item.item_price.toFixed(2)}</span>
+                                    <span className="text-sm font-bold text-primary">{item.item_price.toLocaleString('vi-VN')}đ</span>
                                 </div>
                                 <p className="text-sm text-gray-500 line-clamp-2 min-h-[2.5rem] mb-3">{item.item_description || 'No description'}</p>
 
@@ -243,7 +243,7 @@ function MenuItemModal({ isOpen, onClose, initialData, onSave, isSaving }) {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Price (VND)</label>
                             <input
                                 required
                                 type="number"

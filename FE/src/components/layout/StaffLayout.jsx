@@ -62,7 +62,7 @@ export default function StaffLayout() {
                     <div className="mb-6 px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
                         <p className="text-sm text-gray-500">Logged in as</p>
                         <p className="font-bold text-gray-800 capitalize">{user?.role || 'Staff'}</p>
-                        <p className="text-xs text-secondary mt-0.5">{user?.username}</p>
+                        <p className="text-xs text-secondary mt-0.5">{user?.full_name}</p>
                     </div>
 
                     <nav className="space-y-1">

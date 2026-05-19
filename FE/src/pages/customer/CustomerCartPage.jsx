@@ -186,7 +186,7 @@ export default function CustomerCartPage() {
                                         </button>
                                     </div>
                                     <span className="font-bold text-lg text-primary">
-                                        ${(cartItem.item.item_price * cartItem.quantity).toFixed(2)}
+                                        {(cartItem.item.item_price * cartItem.quantity).toLocaleString('vi-VN')}₫ 
                                     </span>
                                 </div>
                             </div>
@@ -356,15 +356,15 @@ export default function CustomerCartPage() {
                         <div className="space-y-3 pb-6 border-b border-gray-100">
                             <div className="flex justify-between text-gray-600">
                                 <span>Subtotal</span>
-                                <span>${cartTotal.toFixed(2)}</span>
+                                <span>{cartTotal.toLocaleString('vi-VN')}₫ </span>
                             </div>
                             <div className="flex justify-between text-gray-600">
                                 <span>Tax (8%)</span>
-                                <span>${(cartTotal * 0.08).toFixed(2)}</span>
+                                <span>{(cartTotal * 0.08).toLocaleString('vi-VN')}₫ </span>
                             </div>
                             <div className="flex justify-between text-xl font-bold text-gray-900 pt-2">
                                 <span>Total</span>
-                                <span>${(cartTotal * 1.08).toFixed(2)}</span>
+                                <span>{(cartTotal * 1.08).toLocaleString('vi-VN')}₫ </span>
                             </div>
                         </div>
 

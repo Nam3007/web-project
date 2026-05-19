@@ -9,12 +9,14 @@ class AuthService:
             token = create_access_token({
                 "sub": staff.id,
                 "user_type": "staff",
-                "role": staff.role
+                "role": staff.role,
+                "full_name": staff.full_name
             })
             return {
                 "access_token": token,
                 "user_id": staff.id,
-                "role": staff.role
+                "role": staff.role,
+                "full_name": staff.full_name
             }
 
         customer = CustomerRepository().find_by_username(db, username)
@@ -22,12 +24,14 @@ class AuthService:
             token = create_access_token({
                 "sub": customer.id,
                 "user_type": "customer",
-                "role": customer.role
+                "role": customer.role,
+                "full_name": customer.full_name
             })
             return {
                 "access_token": token,
                 "user_id": customer.id,
-                "role": customer.role
+                "role": customer.role,
+                "full_name": customer.full_name
             }
 
         raise ValueError("Invalid credentials")

@@ -253,10 +253,9 @@ export default function AdminCreateStaffPage() {
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Hourly Rate ($)
+                                            Hourly Rate (VND)
                                         </label>
                                         <div className="relative">
-                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                             <input
                                                 type="number"
                                                 min="0"

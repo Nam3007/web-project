@@ -120,7 +120,7 @@ export default function CustomerMenuPage() {
                             <div className="p-5">
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="font-bold text-xl text-gray-800 line-clamp-1 group-hover:text-primary transition-colors">{item.item_name}</h3>
-                                    <span className="font-bold text-lg text-primary">${item.item_price.toFixed(2)}</span>
+                                    <span className="font-bold text-lg text-primary">{item.item_price.toLocaleString('vi-VN')}₫</span>
                                 </div>
                                 <p className="text-gray-500 text-sm line-clamp-2 h-10 mb-4">{item.item_description || 'No description available.'}</p>
                                 <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">

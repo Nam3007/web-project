@@ -45,7 +45,7 @@ class OrderService:
     
     def update(self, db: Session, order_id: int, order_data: OrderUpdateDTO) -> Order:
         order = self.get_by_id(db, order_id)
-
+        
         for key, value in order_data.model_dump(exclude_unset=True).items():
             setattr(order, key, value)
         

@@ -35,7 +35,8 @@ export default function LoginPage() {
                     navigate('/staff/delivery');
                     break;
                 case 'regular_customer':
-                case 'vip_customer':
+                    navigate('/menu');
+                    break;
                 default:
                     navigate('/menu');
                     break;

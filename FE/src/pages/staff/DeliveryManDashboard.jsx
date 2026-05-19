@@ -97,7 +97,7 @@ export default function DeliveryManDashboard() {
                         iconColor="text-blue-600"
                         orders={deliveringOrders}
                         onAction={(orderId) =>
-                            updateStatusMutation.mutate({ orderId, newStatus: 'delivered' })
+                            updateStatusMutation.mutate({ orderId, newStatus: 'completed' })
                         }
                         isPending={updateStatusMutation.isPending}
                     />
@@ -149,7 +149,7 @@ function OrderSection({ title, icon: Icon, iconColor, orders, onAction, isPendin
                                     </p>
                                 </div>
                                 <p className="text-xl font-bold text-primary">
-                                    ${Number(order.total_amount).toFixed(2)}
+                                    {Number(order.total_amount).toLocaleString('vi-VN')} ₫
                                 </p>
                             </div>
 

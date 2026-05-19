@@ -25,60 +25,16 @@ app.add_middleware(
 )
 
 # include routers
-app.include_router(
-    customer.router,
-    prefix="/customers",
-    tags=["Customers"]
-)
-app.include_router(
-    staff.router,
-    prefix="/staff",
-    tags=["Staff"]
-)
-app.include_router(
-    menu_item.router,
-    prefix="/menu-items",
-    tags=["Menu Items"]
-)
+app.include_router(customer.router,prefix="/customers",tags=["Customers"])
+app.include_router(staff.router,prefix="/staff",tags=["Staff"])
+app.include_router(menu_item.router,prefix="/menu-items",tags=["Menu Items"])
+app.include_router(order_item.router,prefix="/order-items",tags=["Order Items"])
+app.include_router(order.router,prefix="/orders",tags=["Orders"])
+app.include_router(table.router,prefix="/tables",tags=["Tables"])
+app.include_router(payment.router,prefix="/payments",tags=["Payments"])
+app.include_router(staff_schedule.router,prefix="/staff-schedules",tags=["Staff Schedules"])
+app.include_router(auth.router,prefix="/auth",tags=["Authentication"])
 
-app.include_router(
-    order_item.router,
-    prefix="/order-items",
-    tags=["Order Items"]
-)
-app.include_router(
-    order.router,
-    prefix="/orders",
-    tags=["Orders"]
-)
-
-app.include_router(
-    table.router,
-    prefix="/tables",
-    tags=["Tables"]
-)
-app.include_router(
-    payment.router,
-    prefix="/payments",
-    tags=["Payments"]
-)
-app.include_router(
-    staff_schedule.router,
-    prefix="/staff-schedules",
-    tags=["Staff Schedules"]
-)
-
-app.include_router(
-    auth.router,
-    prefix="/auth",
-    tags=["Authentication"]
-)
-
-app.include_router(
-    vip_request.router,
-    prefix="/vip-requests",
-    tags=["VIP Requests"]
-)
 
 # startup event
 @app.on_event("startup")

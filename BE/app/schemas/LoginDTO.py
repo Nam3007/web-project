@@ -20,3 +20,4 @@ class LoginResponseDTO(BaseModel):
     token_type: str = "bearer"
     user_id: int
     role: Role
+    full_name: str

@@ -24,7 +24,7 @@ import WaiterTableSelection from './pages/staff/WaiterTableSelection';
 import WaiterOrderEntry from './pages/staff/WaiterOrderEntry';
 import WaiterActiveOrdersPage from './pages/staff/WaiterActiveOrdersPage';
 import StaffSchedulePage from './pages/staff/StaffSchedulePage';
-
+import DeliveryManDashboard from './pages/staff/DeliveryManDashboard';
 // Customer Pages
 import CustomerLayout from './components/layout/CustomerLayout';
 import CustomerMenuPage from './pages/customer/CustomerMenuPage';
@@ -34,8 +34,8 @@ import CustomerTablePage from './pages/customer/CustomerTablePage';
 import CustomerShippingPage from './pages/customer/CustomerShippingPage';
 import QRPaymentPage from './pages/customer/QRPaymentPage';
 
-// Staff Delivery
-import DeliveryManDashboard from './pages/staff/DeliveryManDashboard';
+
+
 
 const queryClient = new QueryClient();
 

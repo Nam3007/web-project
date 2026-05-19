@@ -13,13 +13,12 @@ export default function CustomerOrdersPage() {
     const { data: allOrders = [], isLoading } = useQuery({
         queryKey: ['myOrders'],
         queryFn: async () => {
-            const res = await api.get('/orders/');
+            const res = await api.get(`/orders/customer/${user.id}`);
             return res.data;
         }
     });
 
     const myOrders = allOrders
-        .filter(o => o.customer_id === user.id)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     // Calculate Total Spent (only paid or completed)
@@ -92,7 +91,7 @@ export default function CustomerOrdersPage() {
                     </div>
                     <div className="text-right">
                         <p className="text-sm opacity-60">Total Spent</p>
-                        <p className="text-3xl font-bold text-emerald-400">${totalSpent.toFixed(2)}</p>
+                        <p className="text-3xl font-bold text-emerald-400">{totalSpent.toLocaleString('vi-VN')}₫</p>
                     </div>
                 </div>
 
@@ -174,8 +173,8 @@ export default function CustomerOrdersPage() {
                                         </span>
 
                                         <p className="font-bold text-lg text-gray-900 flex items-center gap-1">
-                                            <DollarSign className="w-4 h-4 text-gray-400" />
-                                            {order.total_amount}
+                                           
+                                            {order.total_amount.toLocaleString('vi-VN')} ₫
                                         </p>
                                     </div>
 

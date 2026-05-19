@@ -139,8 +139,8 @@ export default function WaiterActiveOrdersPage() {
                             <div>
                                 <p className="text-xs text-gray-400 mb-0.5">Total Amount</p>
                                 <p className="font-bold text-gray-900 text-lg flex items-center gap-1">
-                                    <DollarSign className="w-4 h-4 text-primary" />
-                                    {order.total_amount}
+            
+                                    {order.total_amount.toLocaleString('vi-VN')} ₫
                                 </p>
                             </div>
                         </div>

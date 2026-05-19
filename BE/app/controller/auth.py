@@ -17,6 +17,6 @@ def login(
 ):
     try:
         result = auth_service.login(db, data.username, data.password)
-        return result  # Now returns all required fields
+        return result  # Now returns all required field
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
