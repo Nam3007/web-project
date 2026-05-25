@@ -44,7 +44,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        const role = localStorage.getItem('role');
+        const userId = localStorage.getItem('userId');
+
+        if (role && userId) {
+            const isCustomer = role.includes('customer');
+            const endpoint = isCustomer ? `/customers/${userId}/status` : `/staff/${userId}/status`;
+
+            try {
+                await api.patch(endpoint, null, {
+                    params: { new_status: 'inactive' }
+                });
+            } catch (error) {
+                console.error('Failed to mark user inactive on logout:', error);
+            }
+        }
+
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         localStorage.removeItem('userId');
@@ -59,5 +75,5 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const useAuth = () => useContext(AuthContext);

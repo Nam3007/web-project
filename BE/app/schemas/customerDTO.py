@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from models import customer_status
 
 class CustomerRole(str, Enum):
     regular_customer = "regular_customer"
@@ -21,6 +22,7 @@ class CustomerUpdateDTO(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     password_hashed: Optional[str] = Field(None, min_length=6)
+    status: Optional[customer_status] = None
 
 class CustomerResponse(BaseModel):
     id: int
@@ -29,6 +31,7 @@ class CustomerResponse(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     role: CustomerRole
+    status: customer_status
     created_at: datetime
 
     class Config:

@@ -51,20 +51,36 @@ class PaymentService:
         return self.repository.find_by_transaction_id(db, transaction_id)
     
     
-    def update_payment_status(self , db: Session , payment_id: int , status: PaymentStatus) -> Optional[Payment]:
+    def update_payment_status(self, db: Session, payment_id: int, status: PaymentStatus) -> Optional[Payment]:
         payment = self.repository.update_payment_status(db, payment_id, status)
-        
-        # When payment is completed, free up the table
+
         if payment and status == PaymentStatus.completed:
-            from models import Table, Order
+            from models import Table, Order, OrderStatus
+            from services.assignmentService import AssignmentService
+
             order = db.query(Order).filter(Order.id == payment.order_id).first()
             if order:
+                # Free table if it was already occupied (for cash payment flow)
                 table = db.query(Table).filter(Table.id == order.table_id).first()
                 if table:
                     table.is_occupied = False
                     db.add(table)
                     db.commit()
-        
+
+                if order.status == OrderStatus.pending:
+                    # Normal flow: paid before eating/prep
+                    order.status = OrderStatus.paid
+                    db.add(order)
+                    db.commit()
+                    db.refresh(order)
+
+                    AssignmentService().try_assign_chef(db, order)
+                elif order.status in (OrderStatus.served, OrderStatus.delivered):
+                    # Post-pay flow: paid after eating/delivery
+                    order.status = OrderStatus.completed
+                    db.add(order)
+                    db.commit()
+
         return payment
     
     def update_payment_method(self , db: Session , payment_id: int , payment_method: PaymentMethod) -> Optional[Payment]:

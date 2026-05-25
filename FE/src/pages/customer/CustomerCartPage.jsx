@@ -48,6 +48,19 @@ export default function CustomerCartPage() {
         }
     }, [activeOrder, selectedTable]);
 
+    // Pre-fill table from localStorage (set by CustomerTablePage)
+    useEffect(() => {
+        const saved = localStorage.getItem('selectedTable');
+        if (saved && !activeOrder) {
+            try {
+                const parsed = JSON.parse(saved);
+                setSelectedTable(parsed.id.toString());
+            } catch (_) { /* ignore malformed data */ }
+        }
+    // Only run once on mount — activeOrder may not be loaded yet, handled by the effect above
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Force QR when shipping is selected
     useEffect(() => {
         if (orderType === 'shipping') {
@@ -106,6 +119,7 @@ export default function CustomerCartPage() {
         },
         onSuccess: (data) => {
             clearCart();
+            localStorage.removeItem('selectedTable'); // clear pre-selected table after order
             if (paymentMethod === 'QR') {
                 // Redirect to QR payment page
                 navigate(`/qr-payment?orderId=${data.orderId}&amount=${data.amount}&paymentId=${data.paymentId}`);

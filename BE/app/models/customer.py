@@ -7,6 +7,11 @@ class CustomerRole(str, enum.Enum):
     regular_customer = "regular_customer"
     vip_customer = "vip_customer"
 
+class customer_status(str, enum.Enum):
+    active = "active"
+    inactive = "inactive"
+
+    
 class Customer(Base):
     __tablename__ = "customers"
 
@@ -18,6 +23,7 @@ class Customer(Base):
     email = Column(String(100), unique=True, nullable=False)
     phone = Column(String(20), nullable=True)
     role : Mapped[CustomerRole] = mapped_column(Enum(CustomerRole), default=CustomerRole.regular_customer)
+    status = Column(Enum(customer_status), default=customer_status.active)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

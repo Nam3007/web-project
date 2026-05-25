@@ -8,6 +8,7 @@ from .reservationRepository import ReservationRepository
 from .paymentRepository import PaymentRepository
 from .reviewRepository import ReviewRepository
 from .staff_scheduleRepository import StaffScheduleRepository
+from .orderQueueRepository import OrderQueueRepository
 __all__ = [
     "CustomerRepository",
     "StaffRepository",
@@ -19,4 +20,5 @@ __all__ = [
     "PaymentRepository",
     "ReviewRepository",
     "StaffScheduleRepository",
-]
+    "OrderQueueRepository",
+]

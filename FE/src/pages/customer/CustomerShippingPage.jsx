@@ -49,16 +49,13 @@ export default function CustomerShippingPage() {
     const payMutation = useMutation({
         mutationFn: async ({ orderId, method }) => {
             // 1. Create payment record
-            await api.post('/payments/', {
+            const res = await api.post('/payments/', {
                 order_id: orderId,
                 payment_method: method,
             });
-            // 2. Mark order as paid
-            return api.put(`/orders/${orderId}`, {
-                status: 'paid',
-                payment_requested: true,
-                payment_method: method,
-            });
+            const paymentId = res.data.id;
+            // 2. Mark payment as completed (backend handles marking order as 'completed' for delivered orders)
+            return api.patch(`/payments/${paymentId}/status?payment_status=completed`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['myShippingOrders']);

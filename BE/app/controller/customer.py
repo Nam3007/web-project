@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from db import get_db
-from models import Customer,CustomerRole
+from models import Customer, CustomerRole, customer_status
 from schemas import CustomerCreateDTO, CustomerResponse, CustomerUpdateDTO
 from services import CustomerService
 
@@ -101,3 +101,23 @@ async def update_customer_role(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+# ── Status toggle (admin) ───────────────────────────────────────────────────
+@router.patch("/{customer_id}/status", response_model=CustomerResponse)
+async def update_customer_status(
+    customer_id: int,
+    new_status: customer_status,
+    db: Session = Depends(get_db)
+):
+    """Toggle a customer's active/inactive status (admin only)."""
+    customer = customer_service.get_by_id(db, customer_id)
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Customer not found"
+        )
+    customer.status = new_status
+    db.add(customer)
+    db.commit()
+    db.refresh(customer)
+    return customer

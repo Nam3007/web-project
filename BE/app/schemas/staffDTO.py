@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from models import staff_status, staff_availability
 
 class StaffRole(str, Enum):
     waiter = "waiter"
@@ -28,6 +29,8 @@ class StaffUpdateDTO(BaseModel):
     role: Optional[StaffRole] = None
     password_hashed: Optional[str] = Field(None, min_length=6)
     salary: Optional[float] = None
+    status: Optional[staff_status] = None
+    availability: Optional[staff_availability] = None
 
 class StaffResponse(BaseModel):
     id: int
@@ -39,6 +42,8 @@ class StaffResponse(BaseModel):
     salary: Optional[float]
     hire_date: datetime
     created_at: datetime
+    status: staff_status
+    availability: staff_availability
 
     class Config:
         from_attributes = True

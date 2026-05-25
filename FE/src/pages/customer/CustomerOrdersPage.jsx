@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader, QrCode, Banknote, Clock } from 'lucide-react';
+import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader, QrCode, Banknote, Clock, Bell, CheckCircle } from 'lucide-react';
 
 const VIP_THRESHOLD = 500;
 
@@ -42,6 +42,19 @@ export default function CustomerOrdersPage() {
         }
     });
 
+    // Mutation to request order completion (customer signals waiter)
+    const requestCompleteMutation = useMutation({
+        mutationFn: async (orderId) => {
+            return api.patch(`/orders/${orderId}/request-complete`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['myOrders']);
+        },
+        onError: (err) => {
+            alert(err.response?.data?.detail || "Failed to send request.");
+        }
+    });
+
     if (isLoading) return <div className="text-center py-20">Loading orders...</div>;
 
     const isVip = user.role === 'vip_customer';
@@ -62,13 +75,16 @@ export default function CustomerOrdersPage() {
 
     const getStatusLabel = (status) => {
         switch (status) {
-            case 'pending': return 'Awaiting Payment';
-            case 'paid': return 'Paid — In Queue';
+            case 'pending':   return 'Awaiting Payment';
+            case 'paid':      return 'Paid — Assigning Chef';
+            case 'queued':    return 'In Queue';
             case 'preparing': return 'Being Prepared';
-            case 'ready': return 'Ready for Pickup';
-            case 'served': return 'Served';
+            case 'ready':     return 'Ready — Assigning Staff';
+            case 'served':    return 'Served';
             case 'completed': return 'Completed';
             case 'cancelled': return 'Cancelled';
+            case 'delivering': return 'Out for Delivery';
+            case 'delivered': return 'Delivered';
             default: return status;
         }
     };
@@ -190,6 +206,25 @@ export default function CustomerOrdersPage() {
                                             <QrCode className="w-3 h-3" />
                                             QR payment in progress
                                         </span>
+                                    )}
+
+                                    {/* Request Complete button for served dine_in orders */}
+                                    {order.status === 'served' && order.order_type === 'dine_in' && (
+                                        order.completion_requested ? (
+                                            <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded flex items-center gap-1 border border-green-200">
+                                                <CheckCircle className="w-3 h-3" />
+                                                Completion Requested
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => requestCompleteMutation.mutate(order.id)}
+                                                disabled={requestCompleteMutation.isPending}
+                                                className="text-xs text-white font-semibold bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded flex items-center gap-1 transition-colors disabled:opacity-60"
+                                            >
+                                                <Bell className="w-3 h-3" />
+                                                Request Complete
+                                            </button>
+                                        )
                                     )}
                                 </div>
                             </div>

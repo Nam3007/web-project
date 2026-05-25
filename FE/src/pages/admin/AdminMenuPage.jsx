@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import {
@@ -10,7 +10,9 @@ import {
     Image as ImageIcon,
     XCircle,
     Save,
-    Utensils
+    Utensils,
+    Upload,
+    X
 } from 'lucide-react';
 
 const CATEGORIES = ['food', 'drink', 'appetizer', 'dessert'];
@@ -205,8 +207,37 @@ function MenuItemModal({ isOpen, onClose, initialData, onSave, isSaving }) {
         item_image: initialData?.item_image || '',
         is_available: initialData?.is_available ?? true
     });
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
+    const fileInputRef = useRef(null);
 
     if (!isOpen) return null;
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploadError('');
+        setIsUploading(true);
+        try {
+            const data = new FormData();
+            data.append('file', file);
+            const res = await fetch('http://localhost:8000/upload/menu-image', {
+                method: 'POST',
+                body: data,
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || 'Upload failed');
+            }
+            const json = await res.json();
+            setFormData(prev => ({ ...prev, item_image: json.url }));
+        } catch (err) {
+            setUploadError(err.message);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -280,16 +311,72 @@ function MenuItemModal({ isOpen, onClose, initialData, onSave, isSaving }) {
                         />
                     </div>
 
+                    {/* Image Upload */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (Optional)</label>
-                        <div className="relative">
-                            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Item Image</label>
+
+                        {/* Preview */}
+                        {formData.item_image ? (
+                            <div className="relative mb-3 w-full h-40 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                <img
+                                    src={formData.item_image}
+                                    alt="Preview"
+                                    className="w-full h-full object-cover"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, item_image: '' }))}
+                                    className="absolute top-2 right-2 p-1 bg-white/80 hover:bg-white rounded-full shadow text-gray-500 hover:text-red-500 transition"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            /* Drop zone */
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                className="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-primary hover:text-primary transition-colors bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {isUploading ? (
+                                    <>
+                                        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                        <span className="text-sm font-medium text-primary">Uploading...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Upload className="w-8 h-8" />
+                                        <span className="text-sm font-medium">Click to upload image</span>
+                                        <span className="text-xs">JPG, PNG, WEBP up to 5 MB</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
+
+                        {/* Hidden file input */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                        />
+
+                        {/* Upload error */}
+                        {uploadError && (
+                            <p className="mt-1 text-xs text-red-500">{uploadError}</p>
+                        )}
+
+                        {/* Manual URL fallback */}
+                        <div className="mt-2 relative">
+                            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
                             <input
                                 type="url"
                                 value={formData.item_image}
                                 onChange={(e) => setFormData({ ...formData, item_image: e.target.value })}
-                                className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                                placeholder="https://..."
+                                className="w-full pl-8 pr-4 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xs text-gray-500"
+                                placeholder="Or paste an image URL..."
                             />
                         </div>
                     </div>

@@ -1,15 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
-import { Search, Plus, Utensils } from 'lucide-react';
+import { Search, Plus, Utensils, CheckCircle2, X } from 'lucide-react';
 
 const CATEGORIES = ['food', 'drink', 'appetizer', 'dessert'];
 
 export default function CustomerMenuPage() {
     const [selectedCategory, setSelectedCategory] = useState('ALL');
     const [searchQuery, setSearchQuery] = useState('');
+    const [notification, setNotification] = useState(null);
     const { addToCart } = useCart();
+    const location = useLocation();
+
+    // Show success banner if navigated from table selection
+    useEffect(() => {
+        if (location.state?.tableConfirmed) {
+            setNotification(`Table ${location.state.tableNumber} selected successfully. Please proceed to select menu items.`);
+            // Auto-dismiss after 4 seconds
+            const timer = setTimeout(() => setNotification(null), 4000);
+            // Clear state so banner doesn't reappear on re-render
+            window.history.replaceState({}, '');
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
 
     // Fetch Menu
     const { data: menuItems = [], isLoading } = useQuery({
@@ -37,6 +52,22 @@ export default function CustomerMenuPage() {
 
     return (
         <div className="space-y-8">
+
+            {/* Table Confirmation Notification */}
+            {notification && (
+                <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl shadow-sm animate-fade-in">
+                    <div className="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow shadow-emerald-200">
+                        <CheckCircle2 className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="flex-1 text-sm font-medium text-emerald-800">{notification}</p>
+                    <button
+                        onClick={() => setNotification(null)}
+                        className="p-1 text-emerald-400 hover:text-emerald-600 transition-colors"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
             {/* Hero / Header */}
             <div className="relative bg-black rounded-3xl overflow-hidden shadow-xl aspect-[21/9] md:aspect-[21/6]">
                 <img

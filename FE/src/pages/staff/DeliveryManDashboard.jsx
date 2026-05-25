@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
-import { Truck, MapPin, Package, CheckCircle2, Clock, Loader2 } from 'lucide-react';
+import { Truck, MapPin, Package, CheckCircle2, Clock, Loader2, Inbox } from 'lucide-react';
 
 const statusConfig = {
     ready: {
@@ -22,15 +23,18 @@ const statusConfig = {
 };
 
 export default function DeliveryManDashboard() {
+    const { user } = useAuth();
     const queryClient = useQueryClient();
 
+    // Only fetch orders assigned to this delivery man
     const { data: orders = [], isLoading } = useQuery({
-        queryKey: ['shippingActive'],
+        queryKey: ['deliveryOrders', user?.id],
         queryFn: async () => {
-            const res = await api.get('/orders/shipping/active');
-            return res.data;
+            const res = await api.get(`/orders/staff/${user.id}`);
+            // Filter to only shipping orders in active delivery states
+            return res.data.filter(o => ['ready', 'delivering'].includes(o.status));
         },
-        refetchInterval: 15000,
+        refetchInterval: 10000,
     });
 
     const updateStatusMutation = useMutation({
@@ -38,15 +42,15 @@ export default function DeliveryManDashboard() {
             return api.put(`/orders/${orderId}`, { status: newStatus });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['shippingActive']);
+            queryClient.invalidateQueries(['deliveryOrders', user?.id]);
         },
         onError: (err) => {
             alert('Failed to update status: ' + (err.response?.data?.detail || err.message));
         },
     });
 
-    const readyOrders = orders.filter((o) => o.status === 'ready');
-    const deliveringOrders = orders.filter((o) => o.status === 'delivering');
+    const readyOrders = orders.filter(o => o.status === 'ready');
+    const deliveringOrders = orders.filter(o => o.status === 'delivering');
 
     if (isLoading) {
         return (
@@ -65,7 +69,7 @@ export default function DeliveryManDashboard() {
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Delivery Dashboard</h1>
-                    <p className="text-sm text-gray-500">Manage your active shipping orders</p>
+                    <p className="text-sm text-gray-500">Your assigned shipping orders</p>
                 </div>
                 <div className="ml-auto flex gap-3">
                     <StatBadge label="Ready" count={readyOrders.length} color="bg-amber-100 text-amber-800" />
@@ -74,10 +78,10 @@ export default function DeliveryManDashboard() {
             </div>
 
             {orders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                    <CheckCircle2 className="w-16 h-16 text-emerald-300 mb-4" />
-                    <h2 className="text-xl font-bold text-gray-700 mb-1">All Clear!</h2>
-                    <p className="text-gray-400">No active shipping orders right now.</p>
+                <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-gray-100 shadow-sm gap-3 text-gray-400">
+                    <Inbox className="w-16 h-16 text-gray-300" />
+                    <h2 className="text-xl font-bold text-gray-700">No Orders Assigned</h2>
+                    <p className="text-gray-400">Orders will appear here when assigned to you automatically.</p>
                 </div>
             ) : (
                 <div className="space-y-10">
@@ -97,7 +101,8 @@ export default function DeliveryManDashboard() {
                         iconColor="text-blue-600"
                         orders={deliveringOrders}
                         onAction={(orderId) =>
-                            updateStatusMutation.mutate({ orderId, newStatus: 'completed' })
+                            // 'delivered' triggers backend to free delivery_man + dispatch queue
+                            updateStatusMutation.mutate({ orderId, newStatus: 'delivered' })
                         }
                         isPending={updateStatusMutation.isPending}
                     />

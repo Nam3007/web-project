@@ -21,6 +21,7 @@ class OrderUpdateDTO(BaseModel):
     payment_method: Optional[PaymentMethod] = None
     discount_amount: Optional[float] = None
     payment_requested: Optional[bool] = None
+    completion_requested: Optional[bool] = None
     notes: Optional[str] = None
 
 
@@ -37,6 +38,7 @@ class OrderResponseDTO(OrderDTO):
     discount_amount: float
     final_amount: float
     payment_requested: bool
+    completion_requested: bool
 
     payment_method: Optional[PaymentMethod]
     order_date: datetime

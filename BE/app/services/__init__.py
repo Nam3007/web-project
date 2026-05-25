@@ -9,6 +9,7 @@ from .payment import PaymentService
 from .staff_schedule import StaffScheduleService
 from .review import ReviewService
 from .auth import AuthService
+from .assignmentService import AssignmentService
 
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     "ReservationService",
     "PaymentService",
     "StaffScheduleService",
-    "ReviewService"
-]
+    "ReviewService",
+    "AssignmentService",
+]

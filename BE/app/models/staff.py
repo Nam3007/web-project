@@ -10,8 +10,13 @@ class StaffRole(str, enum.Enum):
     admin = "admin"
     delivery_man = "delivery_man"
     
+class staff_availability(str, enum.Enum):
+    available = "available"
+    unavailable = "unavailable"
 
-
+class staff_status(str, enum.Enum):
+    active = "active"
+    inactive = "inactive"
 class Staff(Base):
     __tablename__ = "staff"
 
@@ -26,6 +31,9 @@ class Staff(Base):
     hire_date = Column(Date, server_default=func.current_date())
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    status = Column(Enum(staff_status), default=staff_status.active)
+    availability = Column(Enum(staff_availability), default=staff_availability.available)
+  
 
     schedules = relationship("StaffSchedule", back_populates="staff")
     orders = relationship("Order", back_populates="staff")

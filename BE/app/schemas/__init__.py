@@ -9,4 +9,4 @@ from .staff_scheduleDTO import StaffScheduleCreateDTO, StaffScheduleUpdateDTO, S
 from .staffDTO import StaffCreateDTO, StaffUpdateDTO, StaffResponse
 from .tableDTO import TableCreateDTO, TableUpdateDTO, TableResponse, TableStatusUpdateDTO
 from .LoginDTO import LoginRequestDTO, LoginResponseDTO
-from .LoginDTO import LoginRequestDTO, LoginResponseDTO
+from .orderQueueDTO import OrderQueueResponse

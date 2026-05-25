@@ -7,7 +7,7 @@ import { CheckCircle, Clock, QrCode, AlertCircle, ArrowLeft, Loader } from 'luci
 // ============================================
 // CONFIGURABLE: Change this value for testing
 // ============================================
-const QR_COUNTDOWN_SECONDS = 10;
+const QR_COUNTDOWN_SECONDS = 30;
 
 // VietQR Bank Details
 const BANK_ID = '970403'; // Sacombank
@@ -58,9 +58,8 @@ export default function QRPaymentPage() {
             if (paymentId) {
                 await api.patch(`/payments/${paymentId}/status?payment_status=completed`);
             }
+            // Backend PaymentService automatically marks order as paid and handles chef assignment
 
-            // Step 2: Mark order as paid
-            await api.put(`/orders/${orderId}`, { status: 'paid' });
         },
         onSuccess: () => {
             setIsCompleted(true);

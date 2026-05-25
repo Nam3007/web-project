@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 class OrderStatus(str, enum.Enum):
     pending    = "pending"
+    queued     = "queued"
     preparing  = "preparing"
     ready      = "ready"
     served     = "served"
@@ -42,6 +43,7 @@ class Order(Base):
     final_amount = Column(Numeric(10, 2), default=0)
     payment_method = Column(Enum(PaymentMethod))
     payment_requested = Column(Boolean, default=False)
+    completion_requested = Column(Boolean, default=False)
     notes = Column(Text)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
@@ -51,5 +53,6 @@ class Order(Base):
     table = relationship("Table", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="order")
+    queue_entry = relationship("OrderQueue", back_populates="order", uselist=False, cascade="all, delete-orphan")
 
     

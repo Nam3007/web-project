@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
-from models import Staff
+from models import Staff, staff_status, staff_availability, StaffRole
 
 class StaffRepository:
     def get_all(self, db: Session, skip: int = 0, limit: int = 100):
@@ -55,6 +55,17 @@ class StaffRepository:
         admin = Staff(username="admin", password_hashed="admin", full_name="admin", email="admin", phone="admin")
         if not self.get_admin(db):
             self.create(db, admin)
-    
-        
+
+    def find_available_by_role(self, db: Session, role: StaffRole) -> Optional[Staff]:
+        """Return the first active + available staff member with the given role."""
+        return (
+            db.query(Staff)
+            .filter(
+                Staff.role == role,
+                Staff.status == staff_status.active,
+                Staff.availability == staff_availability.available
+            )
+            .order_by(Staff.id.asc())
+            .first()
+        )
         

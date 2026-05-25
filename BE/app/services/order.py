@@ -45,12 +45,34 @@ class OrderService:
     
     def update(self, db: Session, order_id: int, order_data: OrderUpdateDTO) -> Order:
         order = self.get_by_id(db, order_id)
-        
+
+        previous_status = order.status
         for key, value in order_data.model_dump(exclude_unset=True).items():
             setattr(order, key, value)
-        
-        
-        return self.repository.update(db, order)
+
+        new_status = order.status
+
+        # Persist base changes first
+        updated_order = self.repository.update(db, order)
+
+        # ----- Side-effects based on status transitions -----
+        from services.assignmentService import AssignmentService
+        assignment_svc = AssignmentService()
+
+        if new_status == "ready" and previous_status != "ready":
+            # Chef marked order ready: free the chef, then assign waiter/delivery_man
+            if updated_order.staff_id:
+                assignment_svc.free_staff_and_dispatch(db, updated_order.staff_id)
+            assignment_svc.try_assign_next_staff(db, updated_order)
+            db.refresh(updated_order)
+
+        elif new_status in ("served", "delivered", "completed") and previous_status not in ("served", "delivered", "completed"):
+            # Waiter/delivery_man finished: free them and dispatch queue
+            if updated_order.staff_id:
+                assignment_svc.free_staff_and_dispatch(db, updated_order.staff_id)
+
+        return updated_order
+
     
     def delete(self, db: Session, order_id: int) -> bool:
         order = self.get_by_id(db, order_id)

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-import { Users, UtensilsCrossed, Map, Grid3x3, ChefHat, DoorOpen, Flower2 } from 'lucide-react';
+import { Users, UtensilsCrossed, Map, Grid3x3, ChefHat, DoorOpen, Flower2, CheckCircle2 } from 'lucide-react';
 import MapLayout from '../../components/MapLayout';
 
 // Top-down table component with chairs
@@ -67,6 +68,7 @@ function TableTop({ table, isSelected, onSelect }) {
 export default function CustomerTablePage() {
     const [viewMode, setViewMode] = useState('floor'); // 'floor', 'map', or 'grid'
     const [selectedTable, setSelectedTable] = useState(null);
+    const navigate = useNavigate();
 
     const { data: tables = [], isLoading } = useQuery({
         queryKey: ['tables'],
@@ -85,6 +87,18 @@ export default function CustomerTablePage() {
 
     const handleTableSelect = (table) => {
         setSelectedTable(prev => prev?.id === table.id ? null : table);
+    };
+
+    const handleConfirmTable = () => {
+        if (!selectedTable) return;
+        // Persist selection so CartPage can pre-fill it
+        localStorage.setItem('selectedTable', JSON.stringify({
+            id: selectedTable.id,
+            table_number: selectedTable.table_number,
+            table_size: selectedTable.table_size,
+        }));
+        // Navigate to menu with notification flag
+        navigate('/menu', { state: { tableConfirmed: true, tableNumber: selectedTable.table_number } });
     };
 
     return (
@@ -115,13 +129,7 @@ export default function CustomerTablePage() {
                         <UtensilsCrossed className="w-4 h-4" />
                         Floor Plan
                     </button>
-                    <button
-                        onClick={() => setViewMode('map')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'map' ? 'bg-white shadow-sm text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        <Map className="w-4 h-4" />
-                        Grid Map
-                    </button>
+                  
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-gray-500 hover:text-gray-700'}`}
@@ -146,12 +154,21 @@ export default function CustomerTablePage() {
                             </p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setSelectedTable(null)}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
-                    >
-                        Clear
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setSelectedTable(null)}
+                            className="text-sm text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                            Clear
+                        </button>
+                        <button
+                            onClick={handleConfirmTable}
+                            className="flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition-colors shadow-md shadow-blue-200"
+                        >
+                            <CheckCircle2 className="w-4 h-4" />
+                            Confirm Table
+                        </button>
+                    </div>
                 </div>
             )}
 

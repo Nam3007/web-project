@@ -68,3 +68,15 @@ class OrderRepository:
     
     def find_by_status_and_type(self, db: Session, status: OrderStatus, order_type: OrderType) -> List[Order]:
         return db.query(Order).filter(Order.status == status, Order.order_type == order_type).all()
+
+    def find_by_staff_id(self, db: Session, staff_id: int) -> List[Order]:
+        """Return all active orders assigned to a specific staff member."""
+        return (
+            db.query(Order)
+            .filter(
+                Order.staff_id == staff_id,
+                Order.status.notin_(["completed", "cancelled", "delivered"])
+            )
+            .order_by(Order.created_at.asc())
+            .all()
+        )
