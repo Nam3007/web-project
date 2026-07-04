@@ -2,7 +2,7 @@ from .customerDTO import CustomerCreateDTO, CustomerUpdateDTO, CustomerResponse
 from .menu_itemDTO import MenuItemCreateDTO, MenuItemUpdateDTO, MenuItemResponse
 from .order_itemDTO import OrderItemCreateDTO, OrderItemUpdateDTO, OrderItemResponse
 from .orderDTO import OrderCreateDTO, OrderUpdateDTO, OrderResponseDTO
-from .paymentDTO import PaymentCreateDTO,PaymentResponse
+from .paymentDTO import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse, QuarterRevenueBreakdown
 from .reservationDTO import ReservationCreateDTO, ReservationUpdateDTO, ReservationResponse
 from .reviewDTO import ReviewCreateDTO, ReviewUpdateDTO, ReviewResponse
 from .staff_scheduleDTO import StaffScheduleCreateDTO, StaffScheduleUpdateDTO, StaffScheduleResponse

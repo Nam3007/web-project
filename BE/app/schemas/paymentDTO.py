@@ -1,7 +1,6 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-from enum import Enum
 from models import PaymentMethod, PaymentStatus
 
 
@@ -22,3 +21,22 @@ class PaymentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class QuarterRevenueBreakdown(BaseModel):
+    quarter: int
+    start_date: datetime
+    end_date: datetime
+    total_revenue: float
+    payments_count: int
+
+
+class RevenueSummaryResponse(BaseModel):
+    period: str
+    start_date: datetime
+    end_date: datetime
+    total_revenue: float
+    payments_count: int
+    year: Optional[int] = None
+    quarter: Optional[int] = None
+    quarterly_breakdown: list[QuarterRevenueBreakdown] = Field(default_factory=list)

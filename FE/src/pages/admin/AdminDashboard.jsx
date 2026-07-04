@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api/axios';
 import {
@@ -11,6 +12,12 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboard() {
+    const [period, setPeriod] = useState('last_week');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [reportYear, setReportYear] = useState(new Date().getFullYear());
+    const [reportQuarter, setReportQuarter] = useState(1);
+
     // Fetch Orders
     const { data: orders = [], isLoading: ordersLoading } = useQuery({
         queryKey: ['orders'],
@@ -29,27 +36,49 @@ export default function AdminDashboard() {
         }
     });
 
-    // Fetch Payments (for revenue)
-    const { data: payments = [], isLoading: paymentsLoading } = useQuery({
-        queryKey: ['payments'],
+    const revenueQuery = useQuery({
+        queryKey: ['revenue-summary', period, startDate, endDate, reportYear, reportQuarter],
+        enabled: period !== 'date_range' || Boolean(startDate && endDate),
         queryFn: async () => {
-            // Assuming GET /payments returns all payments
             try {
-                const res = await api.get('/payments/');
+                const params = new URLSearchParams({ period });
+
+                if (period === 'date_range') {
+                    if (startDate) params.set('start_date', startDate);
+                    if (endDate) params.set('end_date', endDate);
+                }
+
+                if (period === 'quarter') {
+                    params.set('year', String(reportYear));
+                    params.set('quarter', String(reportQuarter));
+                }
+
+                if (period === 'year') {
+                    params.set('year', String(reportYear));
+                }
+
+                const res = await api.get(`/payments/summary?${params.toString()}`);
                 return res.data;
             } catch (e) {
-                console.error("Failed to fetch payments", e);
-                return [];
+                console.error('Failed to fetch revenue summary', e);
+                return null;
             }
         }
     });
 
+    const revenueSummary = revenueQuery.data;
+
     // Calculate Stats
-    const activeOrders = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').length;
+    const activeOrders = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled' && o.status !=='delivered').length;
     const occupiedTables = tables.filter(t => t.is_occupied).length;
-    const totalRevenue = payments
-        .filter(p => p.payment_status === 'completed')
-        .reduce((sum, p) => sum + p.amount_paid, 0);
+    const totalRevenue = revenueSummary?.total_revenue ?? 0;
+    const reportLabel = period === 'last_week'
+        ? 'Last 7 days'
+        : period === 'date_range'
+            ? 'Custom range'
+            : period === 'quarter'
+                ? `Q${reportQuarter} ${reportYear}`
+                : `Year ${reportYear}`;
 
     const stats = [
         {
@@ -82,7 +111,7 @@ export default function AdminDashboard() {
         },
     ];
 
-    if (ordersLoading || tablesLoading || paymentsLoading) {
+    if (ordersLoading || tablesLoading || revenueQuery.isLoading) {
         return (
             <div className="flex items-center justify-center h-96">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -95,6 +124,67 @@ export default function AdminDashboard() {
             <div>
                 <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
                 <p className="text-gray-500">Welcome back, here's what's happening today.</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                <div className="flex flex-wrap gap-2">
+                    {[
+                        ['last_week', 'Last week'],
+                        ['date_range', 'Date range'],
+                        ['quarter', 'Quarter'],
+                        ['year', 'Year quarters'],
+                    ].map(([value, label]) => (
+                        <button
+                            key={value}
+                            onClick={() => setPeriod(value)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${period === value ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
+                    {period === 'date_range' && (
+                        <>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            />
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            />
+                        </>
+                    )}
+
+                    {(period === 'quarter' || period === 'year') && (
+                        <>
+                            <input
+                                type="number"
+                                min="2000"
+                                value={reportYear}
+                                onChange={(e) => setReportYear(Number(e.target.value) || new Date().getFullYear())}
+                                className="w-28 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            />
+                            {period === 'quarter' && (
+                                <select
+                                    value={reportQuarter}
+                                    onChange={(e) => setReportQuarter(Number(e.target.value))}
+                                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+                                >
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <option key={q} value={q}>Q{q}</option>
+                                    ))}
+                                </select>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -158,14 +248,17 @@ export default function AdminDashboard() {
 
                 {/* Quick Actions or Other Stats */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-800 mb-6">System Status</h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-bold text-gray-800">Revenue Report</h2>
+                        <span className="text-sm text-gray-500">{reportLabel}</span>
+                    </div>
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 border border-green-100">
-                            <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                <span className="font-medium text-green-700">Backend System</span>
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                            <div>
+                                <p className="font-medium text-emerald-700">Total revenue</p>
+                                <p className="text-sm text-emerald-600">Completed payments only</p>
                             </div>
-                            <span className="text-sm text-green-600">Operational</span>
+                            <span className="text-lg font-bold text-emerald-700">{totalRevenue.toLocaleString('vi-VN')} ₫</span>
                         </div>
                         <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100">
                             <div className="flex items-center gap-3">
@@ -174,6 +267,17 @@ export default function AdminDashboard() {
                             </div>
                             <span className="text-sm text-blue-600">Checking...</span>
                         </div>
+
+                        {revenueSummary?.quarterly_breakdown?.length > 0 && (
+                            <div className="space-y-2 pt-2">
+                                {revenueSummary.quarterly_breakdown.map((item) => (
+                                    <div key={item.quarter} className="flex items-center justify-between text-sm p-3 rounded-lg bg-gray-50">
+                                        <span className="font-medium text-gray-700">Q{item.quarter}</span>
+                                        <span className="text-gray-900">{item.total_revenue.toLocaleString('vi-VN')} ₫</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from models import Payment, PaymentStatus, PaymentMethod
 
 class PaymentRepository:
@@ -56,3 +57,27 @@ class PaymentRepository:
     def delete_by_order_id(self, db : Session , order_id: int) -> None:
         db.query(Payment).filter(Payment.order_id == order_id).delete(synchronize_session=False)
         db.commit()
+
+    def get_revenue_in_range(self, db: Session, start_date, end_date):
+        result = db.query(
+            func.coalesce(func.sum(Payment.amount_paid), 0),
+            func.count(Payment.id),
+        ).filter(
+            Payment.payment_status == PaymentStatus.completed,
+            Payment.payment_date >= start_date,
+            Payment.payment_date <= end_date,
+        ).first()
+
+        if not result:
+            return {
+                "total_revenue": 0.0,
+                "payments_count": 0,
+            }
+
+        total_revenue, payments_count = result
+
+        return {
+            "total_revenue": float(total_revenue or 0),
+            "payments_count": int(payments_count or 0),
+        }
+

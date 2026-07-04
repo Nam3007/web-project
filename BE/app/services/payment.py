@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from models import Payment, PaymentStatus, PaymentMethod
 from repository import PaymentRepository
-from typing import List, Optional
-from schemas import PaymentCreateDTO, PaymentResponse 
+from typing import Any, List, Optional, cast
+from schemas import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse, QuarterRevenueBreakdown
 from services import OrderService
+from datetime import datetime, date, time, timedelta
+import calendar
 
 class PaymentService:
     def __init__(self):
@@ -60,24 +62,25 @@ class PaymentService:
 
             order = db.query(Order).filter(Order.id == payment.order_id).first()
             if order:
+                order_model = cast(Any, order)
                 # Free table if it was already occupied (for cash payment flow)
-                table = db.query(Table).filter(Table.id == order.table_id).first()
+                table = db.query(Table).filter(Table.id == order_model.table_id).first()
                 if table:
                     table.is_occupied = False
                     db.add(table)
                     db.commit()
 
-                if order.status == OrderStatus.pending:
+                if order_model.status == OrderStatus.pending.value:
                     # Normal flow: paid before eating/prep
-                    order.status = OrderStatus.paid
+                    order_model.status = OrderStatus.paid.value
                     db.add(order)
                     db.commit()
                     db.refresh(order)
 
-                    AssignmentService().try_assign_chef(db, order)
-                elif order.status in (OrderStatus.served, OrderStatus.delivered):
+                    AssignmentService().try_assign_chef(db, order_model)
+                elif order_model.status in (OrderStatus.served.value, OrderStatus.delivered.value):
                     # Post-pay flow: paid after eating/delivery
-                    order.status = OrderStatus.completed
+                    order_model.status = OrderStatus.completed.value
                     db.add(order)
                     db.commit()
 
@@ -85,3 +88,105 @@ class PaymentService:
     
     def update_payment_method(self , db: Session , payment_id: int , payment_method: PaymentMethod) -> Optional[Payment]:
         return self.repository.update_payment_method(db, payment_id, payment_method)
+
+    def get_revenue_summary(
+        self,
+        db: Session,
+        period: str = "last_week",
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+        year: Optional[int] = None,
+        quarter: Optional[int] = None,
+    ) -> RevenueSummaryResponse:
+        period = period.lower()
+
+        if period == "last_week":
+            end_dt = datetime.now()
+            start_dt = end_dt - timedelta(days=7)
+            summary = self.repository.get_revenue_in_range(db, start_dt, end_dt)
+            return RevenueSummaryResponse(
+                period=period,
+                start_date=start_dt,
+                end_date=end_dt,
+                total_revenue=summary["total_revenue"],
+                payments_count=summary["payments_count"],
+            )
+
+        if period == "date_range":
+            if not start_date or not end_date:
+                raise ValueError("start_date and end_date are required for date_range")
+            start_dt = datetime.combine(start_date, time.min)
+            end_dt = datetime.combine(end_date, time.max)
+            summary = self.repository.get_revenue_in_range(db, start_dt, end_dt)
+            return RevenueSummaryResponse(
+                period=period,
+                start_date=start_dt,
+                end_date=end_dt,
+                total_revenue=summary["total_revenue"],
+                payments_count=summary["payments_count"],
+            )
+
+        if period == "quarter":
+            if year is None or quarter is None:
+                raise ValueError("year and quarter are required for quarter reports")
+            if quarter < 1 or quarter > 4:
+                raise ValueError("quarter must be between 1 and 4")
+
+            start_month = (quarter - 1) * 3 + 1
+            end_month = start_month + 2
+            start_dt = datetime(year, start_month, 1)
+            last_day = calendar.monthrange(year, end_month)[1]
+            end_dt = datetime(year, end_month, last_day, 23, 59, 59, 999999)
+            summary = self.repository.get_revenue_in_range(db, start_dt, end_dt)
+            return RevenueSummaryResponse(
+                period=period,
+                start_date=start_dt,
+                end_date=end_dt,
+                total_revenue=summary["total_revenue"],
+                payments_count=summary["payments_count"],
+                year=year,
+                quarter=quarter,
+            )
+
+        if period == "year":
+            if year is None:
+                raise ValueError("year is required for year reports")
+
+            breakdown: list[QuarterRevenueBreakdown] = []
+            total_revenue = 0.0
+            total_payments = 0
+            year_start = datetime(year, 1, 1)
+            year_end = datetime(year, 12, 31, 23, 59, 59, 999999)
+
+            for quarter_number in range(1, 5):
+                start_month = (quarter_number - 1) * 3 + 1
+                end_month = start_month + 2
+                quarter_start = datetime(year, start_month, 1)
+                quarter_last_day = calendar.monthrange(year, end_month)[1]
+                quarter_end = datetime(year, end_month, quarter_last_day, 23, 59, 59, 999999)
+                summary = self.repository.get_revenue_in_range(db, quarter_start, quarter_end)
+                total_revenue += summary["total_revenue"]
+                total_payments += summary["payments_count"]
+                breakdown.append(
+                    QuarterRevenueBreakdown(
+                        quarter=quarter_number,
+                        start_date=quarter_start,
+                        end_date=quarter_end,
+                        total_revenue=summary["total_revenue"],
+                        payments_count=summary["payments_count"],
+                    )
+                )
+
+            return RevenueSummaryResponse(
+                period=period,
+                start_date=year_start,
+                end_date=year_end,
+                total_revenue=total_revenue,
+                payments_count=total_payments,
+                year=year,
+                quarterly_breakdown=breakdown,
+            )
+
+        raise ValueError("Unsupported period")
+    
+    

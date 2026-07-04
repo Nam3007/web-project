@@ -1,14 +1,37 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from datetime import date
 from db import get_db
 from models import Payment, PaymentStatus,PaymentMethod
-from schemas import PaymentCreateDTO, PaymentResponse
+from schemas import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse
 from services import PaymentService
 
 
 router = APIRouter()
 # Initialize service
 payment_service = PaymentService()
+
+@router.get("/summary", response_model=RevenueSummaryResponse)
+async def get_revenue_summary(
+    period: str = Query("last_week", pattern="^(last_week|date_range|quarter|year)$"),
+    start_date: date | None = None,
+    end_date: date | None = None,
+    year: int | None = None,
+    quarter: int | None = Query(None, ge=1, le=4),
+    db: Session = Depends(get_db)
+):
+    """Get revenue summary for a period"""
+    try:
+        return payment_service.get_revenue_summary(
+            db,
+            period=period,
+            start_date=start_date,
+            end_date=end_date,
+            year=year,
+            quarter=quarter,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.get("/", response_model=list[PaymentResponse])
 async def get_all_payments(
