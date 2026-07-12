@@ -4,7 +4,8 @@ from typing import List
 from db import get_db
 from models import Order, OrderStatus, PaymentMethod, OrderType
 from schemas import OrderCreateDTO, OrderResponseDTO, OrderUpdateDTO, OrderQueueResponse
-from services import OrderService, AssignmentService
+from services import OrderService, AssignmentService , TableService
+
 from repository import OrderQueueRepository
 
 router = APIRouter()
@@ -12,6 +13,7 @@ router = APIRouter()
 # Initialize services
 order_service = OrderService()
 assignment_service = AssignmentService()
+table_service = TableService()
 queue_repo = OrderQueueRepository()
 
 # ── Get all orders ──────────────────────────────────────────────────────────
@@ -79,7 +81,6 @@ async def create_order(
     order_data: OrderCreateDTO,
     db: Session = Depends(get_db)
 ):
-    """Create a new order"""
     return order_service.create(db, order_data)
 
 # ── Update order ────────────────────────────────────────────────────────────

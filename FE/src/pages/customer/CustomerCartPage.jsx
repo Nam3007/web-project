@@ -1,15 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote } from 'lucide-react';
 
+const SELECTED_TABLE_STORAGE_KEY = 'selectedTable';
+
+function readStoredSelectedTable() {
+    const saved = localStorage.getItem(SELECTED_TABLE_STORAGE_KEY);
+
+    if (!saved) return null;
+
+    try {
+        return JSON.parse(saved);
+    } catch {
+        return null;
+    }
+}
+
 export default function CustomerCartPage() {
     const { cart, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [selectedTable, setSelectedTable] = useState('');
     const [orderType, setOrderType] = useState('dine_in');
     const [shippingAddress, setShippingAddress] = useState('');
@@ -23,6 +38,66 @@ export default function CustomerCartPage() {
             return res.data;
         }
     });
+
+    const orderedTables = [...tables].sort((a, b) => {
+        const leftNumber = Number(a.table_number);
+        const rightNumber = Number(b.table_number);
+
+        if (Number.isNaN(leftNumber) || Number.isNaN(rightNumber)) {
+            return String(a.table_number).localeCompare(String(b.table_number));
+        }
+
+        return leftNumber - rightNumber;
+    });
+
+    const updateSelectedTable = async (nextTableId) => {
+        const storedTable = readStoredSelectedTable();
+        const previousTableId = storedTable?.id;
+
+        if (!nextTableId) {
+            if (previousTableId) {
+                await api.patch(`/tables/status/${previousTableId}/`, { is_occupied: false });
+                localStorage.removeItem(SELECTED_TABLE_STORAGE_KEY);
+            }
+
+            setSelectedTable('');
+            return;
+        }
+
+        if (previousTableId === nextTableId) {
+            setSelectedTable(nextTableId.toString());
+            return;
+        }
+
+        try {
+            if (previousTableId) {
+                await api.patch(`/tables/status/${previousTableId}/`, { is_occupied: false });
+            }
+
+            await api.patch(`/tables/status/${nextTableId}/`, { is_occupied: true });
+
+            const nextSelectedTable = {
+                id: nextTableId,
+                table_number: tables.find(table => table.id === nextTableId)?.table_number,
+                table_size: tables.find(table => table.id === nextTableId)?.table_size,
+                is_occupied: true,
+            };
+
+            localStorage.setItem(SELECTED_TABLE_STORAGE_KEY, JSON.stringify(nextSelectedTable));
+            setSelectedTable(nextTableId.toString());
+            queryClient.invalidateQueries({ queryKey: ['tables'] });
+        } catch (error) {
+            if (previousTableId) {
+                try {
+                    await api.patch(`/tables/status/${previousTableId}/`, { is_occupied: true });
+                } catch {
+                    // Ignore rollback errors; surface the original failure below.
+                }
+            }
+
+            alert(error.response?.data?.detail || 'Failed to update table status.');
+        }
+    };
 
     // Fetch Active Orders to see if we should append
     const { data: activeOrder } = useQuery({
@@ -120,6 +195,8 @@ export default function CustomerCartPage() {
         onSuccess: (data) => {
             clearCart();
             localStorage.removeItem('selectedTable'); // clear pre-selected table after order
+            queryClient.invalidateQueries({ queryKey: ['tables'] });
+            queryClient.invalidateQueries({ queryKey: ['myActiveOrder'] });
             if (paymentMethod === 'QR') {
                 // Redirect to QR payment page
                 navigate(`/qr-payment?orderId=${data.orderId}&amount=${data.amount}&paymentId=${data.paymentId}`);
@@ -260,12 +337,12 @@ export default function CustomerCartPage() {
                                 ) : (
                                     <select
                                         value={selectedTable}
-                                        onChange={(e) => setSelectedTable(e.target.value)}
+                                        onChange={(e) => updateSelectedTable(e.target.value ? Number(e.target.value) : null)}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white appearance-none"
                                         style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                                     >
                                         <option value="">-- Choose a Table --</option>
-                                        {tables.map(t => (
+                                        {orderedTables.map(t => (
                                             <option key={t.id} value={t.id} disabled={t.is_occupied}>
                                                 Table {t.table_number} ({t.table_size} seats) {t.is_occupied ? '- Occupied' : ''}
                                             </option>

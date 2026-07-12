@@ -2,8 +2,12 @@
 from core.security import verify_password, create_access_token
 from repository import StaffRepository, CustomerRepository
 from models import staff_status, customer_status
+from services.assignmentService import AssignmentService
 
 class AuthService:
+    def __init__(self):
+        self.assignment_service = AssignmentService()
+
     def login(self, db, username: str, password: str):
         # ── Staff login ──────────────────────────────────────────────────
         staff = StaffRepository().find_by_username(db, username)
@@ -13,6 +17,7 @@ class AuthService:
                 db.add(staff)
                 db.commit()
                 db.refresh(staff)
+            self.assignment_service.dispatch_queue(db)
             token = create_access_token({
                 "sub": staff.id,
                 "user_type": "staff",

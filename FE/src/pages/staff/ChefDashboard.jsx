@@ -24,7 +24,7 @@ export default function ChefDashboard() {
             const res = await api.get(`/orders/staff/${user.id}`);
             return res.data;
         },
-        refetchInterval: 8000,
+        refetchInterval: 2000,
         enabled: !!user?.id
     });
 

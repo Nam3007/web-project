@@ -4,8 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import {
     Truck, MapPin, CheckCircle2, Clock, CreditCard, DollarSign,
-    Wallet, PackageCheck, Loader2
+    Wallet, PackageCheck, Loader2, Star
 } from 'lucide-react';
+import RatingModal from '../../components/RatingModal';
 
 const STATUS_CONFIG = {
     delivering: {
@@ -23,6 +24,11 @@ const STATUS_CONFIG = {
         badge: 'bg-gray-100 text-gray-600 border-gray-200',
         icon: CheckCircle2,
     },
+    completed: {
+        label: 'Completed',
+        badge: 'bg-green-100 text-green-700 border-green-200',
+        icon: CheckCircle2,
+    },
 };
 
 const PAYMENT_METHODS = [
@@ -36,6 +42,7 @@ export default function CustomerShippingPage() {
     const queryClient = useQueryClient();
     const [payingOrderId, setPayingOrderId] = useState(null);
     const [selectedMethod, setSelectedMethod] = useState('cash');
+    const [ratingOrder, setRatingOrder] = useState(null);
 
     const { data: orders = [], isLoading } = useQuery({
         queryKey: ['myShippingOrders', user?.id],
@@ -44,6 +51,16 @@ export default function CustomerShippingPage() {
             return res.data;
         },
         refetchInterval: 20000,
+    });
+
+    // Fetch order items for the order being rated
+    const { data: orderItems = [] } = useQuery({
+        queryKey: ['orderItems', ratingOrder?.id],
+        queryFn: async () => {
+            const res = await api.get(`/order-items/order/${ratingOrder.id}`);
+            return res.data;
+        },
+        enabled: !!ratingOrder,
     });
 
     const payMutation = useMutation({
@@ -65,6 +82,44 @@ export default function CustomerShippingPage() {
             alert('Payment failed: ' + (err.response?.data?.detail || err.message));
         },
     });
+
+    // Check if rating should be shown for a completed delivery order
+    const shouldShowRateButton = (order) => {
+        if (order.status !== 'completed' && order.status !== 'paid') return false;
+
+        if (localStorage.getItem(`rated_order_${order.id}`) === 'true') return false;
+
+        const skippedAt = localStorage.getItem(`skipped_rating_${order.id}`);
+        if (skippedAt) return false;
+
+        const completedAt = new Date(order.updated_at || order.created_at);
+        const now = new Date();
+        const hoursSinceCompletion = (now - completedAt) / (1000 * 60 * 60);
+        if (hoursSinceCompletion > 24) return false;
+
+        return true;
+    };
+
+    const isAlreadyRated = (order) => {
+        return localStorage.getItem(`rated_order_${order.id}`) === 'true';
+    };
+
+    // Build unique items for rating modal
+    const getRatingItems = () => {
+        if (!orderItems.length) return [];
+        const seen = new Set();
+        return orderItems
+            .filter((item) => {
+                if (seen.has(item.menu_item_id)) return false;
+                seen.add(item.menu_item_id);
+                return true;
+            })
+            .map((item) => ({
+                menu_item_id: item.menu_item_id,
+                item_name: item.item_name || `Item #${item.menu_item_id}`,
+                item_image: item.item_image || null,
+            }));
+    };
 
     if (isLoading) {
         return (
@@ -100,6 +155,7 @@ export default function CustomerShippingPage() {
                         const StatusIcon = cfg.icon;
                         const isDelivered = order.status === 'delivered';
                         const isPaid = order.status === 'paid';
+                        const isCompleted = order.status === 'completed';
                         const isPayingThis = payingOrderId === order.id;
 
                         return (
@@ -108,7 +164,7 @@ export default function CustomerShippingPage() {
                                 className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
                             >
                                 {/* Card top strip */}
-                                <div className={`h-1.5 w-full ${isDelivered ? 'bg-emerald-400' : isPaid ? 'bg-gray-300' : 'bg-blue-500'}`} />
+                                <div className={`h-1.5 w-full ${isDelivered ? 'bg-emerald-400' : isPaid || isCompleted ? 'bg-gray-300' : 'bg-blue-500'}`} />
 
                                 <div className="p-6 space-y-4">
                                     {/* Row 1: ID + status + amount */}
@@ -200,10 +256,29 @@ export default function CustomerShippingPage() {
                                     )}
 
                                     {/* Paid confirmation */}
-                                    {isPaid && (
+                                    {(isPaid || isCompleted) && (
                                         <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-xl px-4 py-3">
                                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                             Payment complete via <span className="font-bold capitalize ml-1">{order.payment_method?.replace('_', ' ')}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Rate Items button for completed delivery orders */}
+                                    {shouldShowRateButton(order) && (
+                                        <button
+                                            onClick={() => setRatingOrder(order)}
+                                            className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-200 flex items-center justify-center gap-2"
+                                        >
+                                            <Star className="w-5 h-5" />
+                                            Rate Your Items
+                                        </button>
+                                    )}
+
+                                    {/* Already rated badge */}
+                                    {(isPaid || isCompleted) && isAlreadyRated(order) && (
+                                        <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 rounded-xl px-4 py-3 border border-amber-200">
+                                            <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                                            <span className="font-semibold">You rated this order</span>
                                         </div>
                                     )}
                                 </div>
@@ -211,6 +286,17 @@ export default function CustomerShippingPage() {
                         );
                     })}
                 </div>
+            )}
+
+            {/* Rating Modal */}
+            {ratingOrder && (
+                <RatingModal
+                    isOpen={!!ratingOrder}
+                    onClose={() => setRatingOrder(null)}
+                    orderId={ratingOrder.id}
+                    customerId={user.id}
+                    orderItems={getRatingItems()}
+                />
             )}
         </div>
     );

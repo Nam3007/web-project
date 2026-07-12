@@ -9,7 +9,8 @@ import {
     CalendarRange,
     LogOut,
     ChefHat,
-    MenuSquare
+    MenuSquare,
+    Star
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -31,6 +32,7 @@ export default function AdminLayout() {
         { name: 'Tables', path: '/admin/tables', icon: UtensilsCrossed },
         { name: 'Payments', path: '/admin/payments', icon: CreditCard },
         { name: 'Schedule', path: '/admin/schedule', icon: CalendarRange },
+        { name: 'Reviews', path: '/admin/reviews', icon: Star },
     ];
 
     return (

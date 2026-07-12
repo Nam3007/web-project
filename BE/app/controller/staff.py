@@ -92,6 +92,9 @@ async def update_staff_status(
     db.add(staff)
     db.commit()
     db.refresh(staff)
+    # Dispatch queued orders if staff just became active (and is available)
+    if new_status == staff_status.active:
+        assignment_service.dispatch_queue(db)
     return staff
 
 # ── Availability toggle ─────────────────────────────────────────────────────

@@ -37,6 +37,7 @@ class MenuItemResponse(BaseModel):
     item_description: Optional[str] = None
     item_image: Optional[str] = None
     is_available: bool
+    average_rating: Optional[float] = None
     created_at: datetime
     updated_at: datetime
 

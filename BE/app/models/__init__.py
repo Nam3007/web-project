@@ -10,3 +10,4 @@ from .payment import Payment, PaymentMethod, PaymentStatus
 from .review import Review
 from .vip_request import VipRequest, VipRequestStatus
 from .order_queue import OrderQueue
+from .item_rating import ItemRating

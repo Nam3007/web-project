@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { Search, Plus, Utensils, CheckCircle2, X } from 'lucide-react';
+import { StarDisplay } from '../../components/RatingModal';
 
 const CATEGORIES = ['food', 'drink', 'appetizer', 'dessert'];
 
@@ -148,17 +149,22 @@ export default function CustomerMenuPage() {
                                     </button>
                                 </div>
                             </div>
-                            <div className="p-5">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-xl text-gray-800 line-clamp-1 group-hover:text-primary transition-colors">{item.item_name}</h3>
-                                    <span className="font-bold text-lg text-primary">{item.item_price.toLocaleString('vi-VN')}₫</span>
+                                <div className="p-5">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <h3 className="font-bold text-xl text-gray-800 line-clamp-1 group-hover:text-primary transition-colors">{item.item_name}</h3>
+                                        <span className="font-bold text-lg text-primary">{item.item_price.toLocaleString('vi-VN')}₫</span>
+                                    </div>
+                                    {item.average_rating && (
+                                        <div className="mb-2">
+                                            <StarDisplay rating={item.average_rating} size="sm" />
+                                        </div>
+                                    )}
+                                    <p className="text-gray-500 text-sm line-clamp-2 h-10 mb-4">{item.item_description || 'No description available.'}</p>
+                                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                        Available
+                                    </div>
                                 </div>
-                                <p className="text-gray-500 text-sm line-clamp-2 h-10 mb-4">{item.item_description || 'No description available.'}</p>
-                                <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                    Available
-                                </div>
-                            </div>
                         </div>
                     ))}
                 </div>

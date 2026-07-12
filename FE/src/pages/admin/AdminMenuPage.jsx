@@ -14,6 +14,7 @@ import {
     Upload,
     X
 } from 'lucide-react';
+import { StarDisplay } from '../../components/RatingModal';
 
 const CATEGORIES = ['food', 'drink', 'appetizer', 'dessert'];
 
@@ -174,9 +175,14 @@ export default function AdminMenuPage() {
                                     <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium capitalize">
                                         {item.item_type}
                                     </span>
-                                    <span className={`text-xs font-medium ${item.is_available ? 'text-green-600' : 'text-red-500'}`}>
-                                        {item.is_available ? 'Available' : 'Unavailable'}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        {item.average_rating && (
+                                            <StarDisplay rating={item.average_rating} size="sm" />
+                                        )}
+                                        <span className={`text-xs font-medium ${item.is_available ? 'text-green-600' : 'text-red-500'}`}>
+                                            {item.is_available ? 'Available' : 'Unavailable'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

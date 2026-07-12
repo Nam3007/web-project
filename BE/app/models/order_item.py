@@ -30,3 +30,7 @@ class OrderItem(Base):
     @property
     def item_name(self):
         return self.menu_item.item_name if self.menu_item else "Unknown"
+
+    @property
+    def item_image(self):
+        return self.menu_item.item_image if self.menu_item else None

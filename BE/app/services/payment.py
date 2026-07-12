@@ -63,24 +63,21 @@ class PaymentService:
             order = db.query(Order).filter(Order.id == payment.order_id).first()
             if order:
                 order_model = cast(Any, order)
-                # Free table if it was already occupied (for cash payment flow)
-                table = db.query(Table).filter(Table.id == order_model.table_id).first()
-                if table:
-                    table.is_occupied = False
-                    db.add(table)
-                    db.commit()
-
-                if order_model.status == OrderStatus.pending.value:
+                if order_model.status in (OrderStatus.pending, OrderStatus.pending.value):
                     # Normal flow: paid before eating/prep
-                    order_model.status = OrderStatus.paid.value
+                    order_model.status = OrderStatus.paid
                     db.add(order)
                     db.commit()
                     db.refresh(order)
 
-                    AssignmentService().try_assign_chef(db, order_model)
-                elif order_model.status in (OrderStatus.served.value, OrderStatus.delivered.value):
+                    assignment_svc = AssignmentService()
+                    assignment_svc.try_assign_chef(db, order_model)
+                    # Safety net: dispatch any remaining queued orders
+                    assignment_svc.dispatch_queue(db)
+                elif order_model.status in (OrderStatus.served, OrderStatus.served.value,
+                                            OrderStatus.delivered, OrderStatus.delivered.value):
                     # Post-pay flow: paid after eating/delivery
-                    order_model.status = OrderStatus.completed.value
+                    order_model.status = OrderStatus.completed
                     db.add(order)
                     db.commit()
 

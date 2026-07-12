@@ -7,3 +7,4 @@ from .table import router as table_router
 from .payment import router as payment_router
 from .staff_schedule import router as staff_schedule_router
 from .auth import router as auth_router
+from .item_rating import router as item_rating_router

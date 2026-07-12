@@ -2,13 +2,14 @@ from schemas import OrderCreateDTO, OrderUpdateDTO
 from sqlalchemy.orm import Session
 from models import Order, OrderStatus, OrderType
 from typing import List
-from repository import OrderRepository,OrderItemRepository, PaymentRepository
+from repository import OrderRepository,OrderItemRepository, PaymentRepository, TableRepository
 
 class OrderService:
     def __init__(self):
         self.repository = OrderRepository()
         self.order_item_repository = OrderItemRepository()
         self.payment_repository = PaymentRepository()
+        self.table_repository = TableRepository()
     
     def recalculate_order_total(self, db: Session, order_id: int):
         total = self.repository.calculate_total_amount(db, order_id)
@@ -34,14 +35,13 @@ class OrderService:
             order_type=order_data.order_type,
             shipping_address=order_data.shipping_address
         )
-        # Only mark table occupied for dine-in orders
-        if order_data.order_type == OrderType.dine_in and order_data.table_id:
-            from models import Table
-            table = db.query(Table).filter(Table.id == order_data.table_id).first()
-            if table:
-                table.is_occupied = True
-                db.add(table)
-        return self.repository.create(db, order)
+        created_order = self.repository.create(db, order)
+
+        if order_data.order_type in (OrderType.dine_in, "dine_in") and order_data.table_id is not None:
+            # Mark the table as occupied
+            self.table_repository.update_table_status(db, order_data.table_id, is_occupied=True)
+
+        return created_order
     
     def update(self, db: Session, order_id: int, order_data: OrderUpdateDTO) -> Order:
         order = self.get_by_id(db, order_id)
@@ -70,6 +70,10 @@ class OrderService:
             # Waiter/delivery_man finished: free them and dispatch queue
             if updated_order.staff_id:
                 assignment_svc.free_staff_and_dispatch(db, updated_order.staff_id)
+
+            if new_status == "completed" and updated_order.table_id:
+                self.table_repository.update_table_status(db, updated_order.table_id, is_occupied=False)
+
 
         return updated_order
 

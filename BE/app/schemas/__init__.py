@@ -10,3 +10,4 @@ from .staffDTO import StaffCreateDTO, StaffUpdateDTO, StaffResponse
 from .tableDTO import TableCreateDTO, TableUpdateDTO, TableResponse, TableStatusUpdateDTO
 from .LoginDTO import LoginRequestDTO, LoginResponseDTO
 from .orderQueueDTO import OrderQueueResponse
+from .item_ratingDTO import ItemRatingCreateDTO, ItemRatingBulkCreateDTO, ItemRatingResponse, ItemRatingSummaryResponse

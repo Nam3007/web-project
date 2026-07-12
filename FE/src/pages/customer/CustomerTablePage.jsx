@@ -1,74 +1,30 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-import { Users, UtensilsCrossed, Map, Grid3x3, ChefHat, DoorOpen, Flower2, CheckCircle2 } from 'lucide-react';
-import MapLayout from '../../components/MapLayout';
+import { useAuth } from '../../context/AuthContext';
+import { Users, UtensilsCrossed, Grid3x3, CheckCircle2 } from 'lucide-react';
 
-// Top-down table component with chairs
-function TableTop({ table, isSelected, onSelect }) {
-    const isOccupied = table.is_occupied;
-    const seats = table.table_size || 4;
+const SELECTED_TABLE_STORAGE_KEY = 'selectedTable';
 
-    // Generate chair positions around circular table
-    const chairPositions = [];
-    for (let i = 0; i < seats; i++) {
-        const angle = (i / seats) * 360 - 90;
-        const rad = (angle * Math.PI) / 180;
-        const radius = 42;
-        chairPositions.push({
-            x: Math.cos(rad) * radius,
-            y: Math.sin(rad) * radius,
-        });
+function readStoredSelectedTable() {
+    const saved = localStorage.getItem(SELECTED_TABLE_STORAGE_KEY);
+
+    if (!saved) return null;
+
+    try {
+        return JSON.parse(saved);
+    } catch {
+        return null;
     }
-
-    const statusColor = isOccupied
-        ? { bg: 'bg-red-100', border: 'border-red-300', text: 'text-red-600', chair: 'bg-red-300', glow: '' }
-        : isSelected
-            ? { bg: 'bg-blue-100', border: 'border-blue-400', text: 'text-blue-700', chair: 'bg-blue-400', glow: 'ring-4 ring-blue-300 ring-opacity-60 animate-pulse-ring' }
-            : { bg: 'bg-emerald-50', border: 'border-emerald-300', text: 'text-emerald-700', chair: 'bg-emerald-300', glow: '' };
-
-    return (
-        <div
-            className={`relative flex flex-col items-center group ${!isOccupied ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}
-            onClick={() => !isOccupied && onSelect && onSelect(table)}
-            style={{ width: 120, height: 120 }}
-        >
-            {/* Chairs */}
-            {chairPositions.map((pos, i) => (
-                <div
-                    key={i}
-                    className={`absolute w-4 h-4 rounded-full ${statusColor.chair} border-2 border-white shadow-sm transition-all duration-300 ${!isOccupied ? 'group-hover:scale-110' : ''}`}
-                    style={{
-                        left: `calc(50% + ${pos.x}px - 8px)`,
-                        top: `calc(50% + ${pos.y}px - 8px)`,
-                    }}
-                />
-            ))}
-
-            {/* Table circle */}
-            <div
-                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full ${statusColor.bg} border-2 ${statusColor.border} ${statusColor.glow} flex flex-col items-center justify-center shadow-md transition-all duration-300 ${!isOccupied ? 'group-hover:scale-110 border-emerald-600 group-hover:shadow-lg' : ''}`}
-            >
-                <span className={`text-sm font-bold ${statusColor.text}`}>{table.table_number}</span>
-                <span className={`text-[15px] font-medium ${statusColor.text} opacity-70`}>{seats} seats</span>
-            </div>
-
-            {/* Floating tooltip on hover */}
-            {!isOccupied && (
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-medium px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg pointer-events-none z-10">
-                    Click to select
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-                </div>
-            )}
-        </div>
-    );
 }
 
 export default function CustomerTablePage() {
-    const [viewMode, setViewMode] = useState('floor'); // 'floor', 'map', or 'grid'
+    const [viewMode, setViewMode] = useState('grid');
     const [selectedTable, setSelectedTable] = useState(null);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { user } = useAuth();
 
     const { data: tables = [], isLoading } = useQuery({
         queryKey: ['tables'],
@@ -79,25 +35,105 @@ export default function CustomerTablePage() {
         refetchInterval: 5000
     });
 
+    const { data: activeOrder } = useQuery({
+        queryKey: ['myActiveOrder', user?.id],
+        queryFn: async () => {
+            const res = await api.get('/orders/');
+            const myOrders = res.data.filter(order => order.customer_id === user.id);
+            const active = myOrders
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .find(order => order.status !== 'paid' && order.status !== 'cancelled' && order.status !== 'completed');
+            return active || null;
+        },
+        enabled: !!user?.id,
+    });
+
+    const tableSelectionLocked = !!activeOrder;
+
+    useEffect(() => {
+        const savedTable = readStoredSelectedTable();
+
+        if (!savedTable || tableSelectionLocked) return;
+
+        const matchingTable = tables.find(table => table.id === savedTable.id);
+
+        if (matchingTable) {
+            setSelectedTable({
+                ...matchingTable,
+                is_occupied: true,
+            });
+        }
+    }, [tables, tableSelectionLocked]);
+
     if (isLoading) return <div className="text-center py-20">Loading tables...</div>;
 
-    const availableCount = tables.filter(t => !t.is_occupied).length;
-    const occupiedCount = tables.filter(t => t.is_occupied).length;
-    const floorTables = tables.filter(t => t.floor === 0);
+    const orderedTables = [...tables].sort((a, b) => {
+        const leftNumber = Number(a.table_number);
+        const rightNumber = Number(b.table_number);
 
-    const handleTableSelect = (table) => {
-        setSelectedTable(prev => prev?.id === table.id ? null : table);
+        if (Number.isNaN(leftNumber) || Number.isNaN(rightNumber)) {
+            return String(a.table_number).localeCompare(String(b.table_number));
+        }
+
+        return leftNumber - rightNumber;
+    });
+
+    const availableCount = orderedTables.filter(t => !t.is_occupied).length;
+    const occupiedCount = orderedTables.filter(t => t.is_occupied).length;
+
+    const handleTableSelect = async (table) => {
+        if (tableSelectionLocked) {
+            alert('Please complete your current order before selecting a new table.');
+            return;
+        }
+
+        const storedTable = readStoredSelectedTable();
+
+        if (storedTable?.id === table.id) {
+            setSelectedTable({
+                ...table,
+                is_occupied: true,
+            });
+            return;
+        }
+
+        const previousTable = storedTable?.id && storedTable.id !== table.id
+            ? tables.find(item => item.id === storedTable.id)
+            : null;
+
+        try {
+            if (previousTable) {
+                await api.patch(`/tables/status/${previousTable.id}/`, { is_occupied: false });
+            }
+
+            await api.patch(`/tables/status/${table.id}/`, { is_occupied: true });
+
+            const nextSelectedTable = {
+                id: table.id,
+                table_number: table.table_number,
+                table_size: table.table_size,
+                is_occupied: true,
+            };
+
+            localStorage.setItem(SELECTED_TABLE_STORAGE_KEY, JSON.stringify(nextSelectedTable));
+            setSelectedTable(nextSelectedTable);
+            queryClient.invalidateQueries({ queryKey: ['tables'] });
+        } catch (error) {
+            if (previousTable) {
+                try {
+                    await api.patch(`/tables/status/${previousTable.id}/`, { is_occupied: true });
+                } catch {
+                    // Ignore rollback failures so the original error is surfaced.
+                }
+            }
+
+            alert(error.response?.data?.detail || 'Failed to update table status.');
+        }
     };
 
-    const handleConfirmTable = () => {
+    const handleConfirmTable = async () => {
         if (!selectedTable) return;
-        // Persist selection so CartPage can pre-fill it
-        localStorage.setItem('selectedTable', JSON.stringify({
-            id: selectedTable.id,
-            table_number: selectedTable.table_number,
-            table_size: selectedTable.table_size,
-        }));
-        // Navigate to menu with notification flag
+
         navigate('/menu', { state: { tableConfirmed: true, tableNumber: selectedTable.table_number } });
     };
 
@@ -123,14 +159,6 @@ export default function CustomerTablePage() {
                 {/* View Toggle */}
                 <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
                     <button
-                        onClick={() => setViewMode('floor')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'floor' ? 'bg-white shadow-sm text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        <UtensilsCrossed className="w-4 h-4" />
-                        Floor Plan
-                    </button>
-                  
-                    <button
                         onClick={() => setViewMode('grid')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-gray-500 hover:text-gray-700'}`}
                     >
@@ -148,122 +176,71 @@ export default function CustomerTablePage() {
                             <UtensilsCrossed className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <p className="font-bold text-gray-800">Table {selectedTable.table_number} Selected</p>
+                            <p className="font-bold text-gray-800">
+                                {tableSelectionLocked ? `Table ${selectedTable.table_number} In Use` : `Table ${selectedTable.table_number} Selected`}
+                            </p>
                             <p className="text-sm text-gray-600">
-                                {selectedTable.table_size} seats • Available
+                                {tableSelectionLocked
+                                    ? 'You have an active order. Complete it before choosing another table.'
+                                    : `${selectedTable.table_size} seats • Available`
+                                }
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setSelectedTable(null)}
-                            className="text-sm text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
-                            Clear
-                        </button>
-                        <button
-                            onClick={handleConfirmTable}
-                            className="flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition-colors shadow-md shadow-blue-200"
-                        >
-                            <CheckCircle2 className="w-4 h-4" />
-                            Confirm Table
-                        </button>
+                        {!tableSelectionLocked && (
+                            <>
+                                <button
+                                    onClick={() => setSelectedTable(null)}
+                                    className="text-sm text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    onClick={handleConfirmTable}
+                                    className="flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition-colors shadow-md shadow-blue-200"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Confirm Table
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* FLOOR PLAN VIEW */}
-            {viewMode === 'floor' && (
-                <div className="border-solid border-dark border-3 rounded-xl overflow-hidden " >
-                    {/* Floor plan area */}
-                    <div className="bg-white relative p-8 min-h-[500px] ">
-                        {/* Decorative walls */}
-                        <div className="  absolute inset-4 border-3 border-gray-500 rounded-xl"></div>
-
-                        {/* Kitchen area */}
-                        <div className="absolute top-6 right-6 w-50 h-20 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center pointer-events-none">
-                            <ChefHat className="w-15 h-15 text-gray-400" />
-                            <span className="text-[10px] font-medium text-gray-400 mt-1">KITCHEN</span>
-                        </div>
-
-                        {/* Entrance */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
-                            <DoorOpen className="w-10 h-10 text-gray-400" />
-                            <span className="text-[10px] font-medium text-gray-400 mt-0.5">ENTRANCE</span>
-                        </div>
-
-                        {/* Plant decorations */}
-                        <div className="absolute top-8 left-8 flex items-center gap-1 pointer-events-none opacity-40">
-                            <Flower2 className="w-8 h-8 text-green-500" />
-                        </div>
-                        <div className="absolute bottom-20 right-8 flex items-center gap-1 pointer-events-none opacity-40">
-                            <Flower2 className="w-8 h-8 text-green-500" />
-                        </div>
-
-                        {/* Tables positioned on the floor plan */}
-                        <div className="relative flex flex-wrap gap-6 justify-center items-center pt-8 pb-16 px-8 min-h-[400px] ">
-                            {floorTables.map(table => (
-                                <TableTop
-                                    key={table.id}
-                                    table={table}
-                                    isSelected={selectedTable?.id === table.id}
-                                    onSelect={handleTableSelect}
-                                />
-                            ))}
-                            {floorTables.length === 0 && (
-                                <p className="text-gray-400 text-center py-20">No tables on this floor</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Legend */}
-                    <div className="p-4 bg-gray-50 border-t border-gray-200 flex flex-wrap gap-6 justify-center items-center">
-                        <div className="flex items-center gap-2">
-                            <span className="w-4 h-4 rounded-full bg-emerald-300 border-2 border-white shadow"></span>
-                            <span className="text-sm font-medium text-gray-600">Available — Click to select</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-4 h-4 rounded-full bg-red-300 border-2 border-white shadow"></span>
-                            <span className="text-sm font-medium text-gray-600">Occupied</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-4 h-4 rounded-full bg-blue-400 border-2 border-white shadow ring-2 ring-blue-200"></span>
-                            <span className="text-sm font-medium text-gray-600">Selected</span>
-                        </div>
-                    </div>
+            {tableSelectionLocked && activeOrder && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800">
+                    <p className="font-semibold">Table selection is locked until your current order is completed.</p>
+                    <p className="text-sm mt-1">Current order #{activeOrder.id} is still active at table {activeOrder.table_id}.</p>
                 </div>
-            )}
-
-            {/* GRID MAP VIEW (existing MapLayout) */}
-            {viewMode === 'map' && (
-                <MapLayout
-                    tables={tables}
-                    onTableSelect={handleTableSelect}
-                    selectedTableId={selectedTable?.id}
-                />
             )}
 
             {/* GRID/LIST VIEW */}
             {viewMode === 'grid' && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {tables.map(table => (
+                    {orderedTables.map(table => (
                         <div
                             key={table.id}
-                            onClick={() => !table.is_occupied && handleTableSelect(table)}
+                            onClick={() => !table.is_occupied && !tableSelectionLocked && handleTableSelect(table)}
                             className={`rounded-2xl border-2 p-6 flex flex-col items-center justify-center space-y-3 transition-all ${
-                                selectedTable?.id === table.id
+                                (tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
                                     ? 'bg-blue-50 border-blue-400 shadow-lg shadow-blue-100 ring-2 ring-blue-200'
                                     : table.is_occupied
                                         ? 'bg-red-50 border-red-100 opacity-70 cursor-not-allowed'
-                                        : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-800 cursor-pointer'
+                                        : tableSelectionLocked
+                                            ? 'bg-white border-gray-100 opacity-70 cursor-not-allowed'
+                                            : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-800 cursor-pointer'
                             }`}
                         >
                             <div className={`p-4 rounded-full ${
-                                selectedTable?.id === table.id
+                                (tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
                                     ? 'bg-blue-100 text-blue-600'
                                     : table.is_occupied
                                         ? 'bg-gray-200 text-gray-500'
-                                        : 'bg-emerald-100 text-emerald-600'
+                                        : tableSelectionLocked
+                                            ? 'bg-gray-100 text-gray-400'
+                                            : 'bg-emerald-100 text-emerald-600'
                             }`}>
                                 <UtensilsCrossed className="w-8 h-8" />
                             </div>
@@ -275,13 +252,21 @@ export default function CustomerTablePage() {
                             </div>
 
                             <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                                selectedTable?.id === table.id
+                                (tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
                                     ? 'bg-blue-100 text-blue-600'
                                     : table.is_occupied
                                         ? 'bg-red-100 text-red-600'
+                                        : tableSelectionLocked
+                                            ? 'bg-gray-100 text-gray-500'
                                         : 'bg-emerald-100 text-emerald-600'
                             }`}>
-                                {selectedTable?.id === table.id ? 'Selected' : table.is_occupied ? 'Occupied' : 'Free'}
+                                {(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'Selected'
+                                    : table.is_occupied
+                                        ? 'Occupied'
+                                        : tableSelectionLocked
+                                            ? 'Locked'
+                                            : 'Free'}
                             </div>
                         </div>
                     ))}

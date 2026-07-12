@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, Numeric, String, DateTime, Enum, Text
+from sqlalchemy import Boolean, Column, Integer, Numeric, String, DateTime, Enum, Text, Float
 from sqlalchemy.sql import func
 from db import Base
 import enum
@@ -24,5 +24,7 @@ class MenuItem(Base):
     is_available = Column(Boolean, default=True)
     created_at = Column(DateTime,server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    average_rating = Column(Numeric(2, 1), nullable=True, default=None)
 
     order_items = relationship("OrderItem", back_populates="menu_item")
+    item_ratings = relationship("ItemRating", back_populates="menu_item")

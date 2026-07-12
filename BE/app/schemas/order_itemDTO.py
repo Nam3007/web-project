@@ -21,6 +21,7 @@ class OrderItemResponse(BaseModel):
     unit_price: float
     subtotal: float
     item_name: str
+    item_image: Optional[str] = None
     special_instructions: Optional[str]
     created_at: datetime
 

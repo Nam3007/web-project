@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader, QrCode, Banknote, Clock, Bell, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader, QrCode, Banknote, Clock, Bell, CheckCircle, Star } from 'lucide-react';
+import RatingModal from '../../components/RatingModal';
 
 const VIP_THRESHOLD = 500;
 
 export default function CustomerOrdersPage() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    const [ratingOrder, setRatingOrder] = useState(null); // order object to rate
 
     // 1. Fetch Orders
     const { data: allOrders = [], isLoading } = useQuery({
@@ -16,6 +19,16 @@ export default function CustomerOrdersPage() {
             const res = await api.get(`/orders/customer/${user.id}`);
             return res.data;
         }
+    });
+
+    // 2. Fetch order items for the order being rated
+    const { data: orderItems = [] } = useQuery({
+        queryKey: ['orderItems', ratingOrder?.id],
+        queryFn: async () => {
+            const res = await api.get(`/order-items/order/${ratingOrder.id}`);
+            return res.data;
+        },
+        enabled: !!ratingOrder,
     });
 
     const myOrders = allOrders
@@ -54,6 +67,49 @@ export default function CustomerOrdersPage() {
             alert(err.response?.data?.detail || "Failed to send request.");
         }
     });
+
+    // Check if rating should be shown for a completed order
+    const shouldShowRateButton = (order) => {
+        // Only for completed dine-in orders
+        if (order.status !== 'completed' || order.order_type !== 'dine_in') return false;
+
+        // Check if already rated (localStorage)
+        if (localStorage.getItem(`rated_order_${order.id}`) === 'true') return false;
+
+        // Check if skipped
+        const skippedAt = localStorage.getItem(`skipped_rating_${order.id}`);
+        if (skippedAt) return false;
+
+        // Check 24h window
+        const completedAt = new Date(order.updated_at || order.created_at);
+        const now = new Date();
+        const hoursSinceCompletion = (now - completedAt) / (1000 * 60 * 60);
+        if (hoursSinceCompletion > 24) return false;
+
+        return true;
+    };
+
+    const isAlreadyRated = (order) => {
+        return localStorage.getItem(`rated_order_${order.id}`) === 'true';
+    };
+
+    // Build unique items for rating modal
+    const getRatingItems = () => {
+        if (!orderItems.length) return [];
+        // Deduplicate by menu_item_id
+        const seen = new Set();
+        return orderItems
+            .filter((item) => {
+                if (seen.has(item.menu_item_id)) return false;
+                seen.add(item.menu_item_id);
+                return true;
+            })
+            .map((item) => ({
+                menu_item_id: item.menu_item_id,
+                item_name: item.item_name || `Item #${item.menu_item_id}`,
+                item_image: item.item_image || null,
+            }));
+    };
 
     if (isLoading) return <div className="text-center py-20">Loading orders...</div>;
 
@@ -226,12 +282,42 @@ export default function CustomerOrdersPage() {
                                             </button>
                                         )
                                     )}
+
+                                    {/* Rate Items button for completed dine-in orders */}
+                                    {shouldShowRateButton(order) && (
+                                        <button
+                                            onClick={() => setRatingOrder(order)}
+                                            className="text-xs text-white font-semibold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all shadow-sm shadow-amber-200"
+                                        >
+                                            <Star className="w-3 h-3" />
+                                            Rate Items
+                                        </button>
+                                    )}
+
+                                    {/* Already rated badge */}
+                                    {order.status === 'completed' && isAlreadyRated(order) && (
+                                        <span className="text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded flex items-center gap-1 border border-amber-200">
+                                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                            Rated
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
             </div>
+
+            {/* Rating Modal */}
+            {ratingOrder && (
+                <RatingModal
+                    isOpen={!!ratingOrder}
+                    onClose={() => setRatingOrder(null)}
+                    orderId={ratingOrder.id}
+                    customerId={user.id}
+                    orderItems={getRatingItems()}
+                />
+            )}
         </div>
     );
 }

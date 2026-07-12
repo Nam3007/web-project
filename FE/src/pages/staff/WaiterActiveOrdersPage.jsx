@@ -64,13 +64,11 @@ export default function WaiterActiveOrdersPage() {
         onError: (err) => alert('Failed to confirm payment: ' + err.message)
     });
 
-    // Mark completed: update order to completed + free table
+    // Mark completed: update order to completed; backend frees the table
     const markCompletedMutation = useMutation({
         mutationFn: async ({ orderId, tableId }) => {
             await api.put(`/orders/${orderId}`, { status: 'completed' });
-            if (tableId) {
-                await api.patch(`/tables/status/${tableId}/`, { is_occupied: false });
-            }
+            await api.patch(`/tables/status/${tableId}/`, { is_occupied: false });
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['waiterOrders', user?.id]);

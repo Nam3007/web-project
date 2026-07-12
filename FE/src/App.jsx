@@ -16,6 +16,7 @@ import AdminTablePage from './pages/admin/AdminTablePage';
 import AdminPaymentPage from './pages/admin/AdminPaymentPage';
 import AdminCustomerPage from './pages/admin/AdminCustomerPage';
 import AdminCreateStaffPage from './pages/admin/AdminCreateStaffPage';
+import AdminReviewsPage from './pages/admin/AdminReviewsPage';
 
 // Staff Pages
 import StaffLayout from './components/layout/StaffLayout';
@@ -82,6 +83,7 @@ function App() {
                 <Route path="payments" element={<AdminPaymentPage />} />
                 <Route path="customers" element={<AdminCustomerPage />} />
                 <Route path="schedule" element={<AdminSchedulePage />} />
+                <Route path="reviews" element={<AdminReviewsPage />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
 

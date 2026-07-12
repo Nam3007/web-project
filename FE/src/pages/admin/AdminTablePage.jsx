@@ -58,7 +58,7 @@ export default function AdminTablePage() {
     // Toggle Status Mutation (optional manual override)
     const statusMutation = useMutation({
         mutationFn: async ({ id, is_occupied }) => {
-            return api.patch(`/tables/status/${id}/?is_occupied=${is_occupied}`);
+            return api.patch(`/tables/status/${id}/`, { is_occupied });
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['tables']);
