@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from db import engine, Base
-from controller import customer,staff,menu_item,order_item,order,table,payment,staff_schedule,auth,vip_request,upload,item_rating
+from controller import customer,staff,menu_item,order_item,order,table,payment,staff_schedule,auth,vip_request,upload,item_rating,coupon
 
 app = FastAPI(title="Restaurant API")
 
@@ -44,7 +44,7 @@ app.include_router(staff_schedule.router,prefix="/staff-schedules",tags=["Staff 
 app.include_router(auth.router,prefix="/auth",tags=["Authentication"])
 app.include_router(upload.router,prefix="/upload",tags=["Upload"])
 app.include_router(item_rating.router,prefix="/item-ratings",tags=["Item Ratings"])
-
+app.include_router(coupon.router,prefix="/coupons",tags=["Coupons"])
 
 
 # startup event

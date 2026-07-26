@@ -12,8 +12,9 @@ import {
 } from 'lucide-react';
 
 export default function AdminOrdersPage() {
-    const [filterStatus, setFilterStatus] = useState('ALL');
     const [searchId, setSearchId] = useState('');
+    const [filterStatus, setFilterStatus] = useState('ALL');
+    const [sortOrder, setSortOrder] = useState('desc');
     const [selectedOrder, setSelectedOrder] = useState(null);
     const queryClient = useQueryClient();
 
@@ -74,6 +75,9 @@ export default function AdminOrdersPage() {
         const matchesStatus = filterStatus === 'ALL' || order.status === filterStatus;
         const matchesSearch = searchId === '' || order.id.toString().includes(searchId);
         return matchesStatus && matchesSearch;
+    }).sort((a, b) => {
+        if (sortOrder === 'desc') return b.id - a.id;
+        return a.id - b.id;
     });
 
     const getStatusColor = (status) => {
@@ -117,12 +121,24 @@ export default function AdminOrdersPage() {
                         >
                             <option value="ALL">All Status</option>
                             <option value="pending">Pending</option>
+                            <option value="queued">In Queue</option>
                             <option value="confirmed">Confirmed</option>
                             <option value="preparing">Preparing</option>
                             <option value="delivered">Delivered</option>
                             <option value="cancelled">Cancelled</option>
+                            <option value="pending_confirmation">Pending Confirmation</option>
+                            <option value="completed">Completed</option>
                         </select>
                     </div>
+
+                    <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-white cursor-pointer"
+                    >
+                        <option value="desc">Newest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
                 </div>
             </div>
 
@@ -160,7 +176,7 @@ export default function AdminOrdersPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-medium text-gray-900">
-                                            ${order.final_amount.toFixed(2)}
+                                            {order.final_amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
@@ -249,14 +265,14 @@ export default function AdminOrdersPage() {
                                                 <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                                                 {item.notes && <p className="text-xs text-amber-600 mt-1">Note: {item.notes}</p>}
                                             </div>
-                                            <p className="font-bold text-gray-900">${item.sub_total.toFixed(2)}</p>
+                                            <p className="font-bold text-gray-900">{item.sub_total.toFixed(2)}</p>
                                         </div>
                                     ))}
 
                                     <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
                                         <span className="font-bold text-gray-900">Total</span>
                                         <span className="font-bold text-primary text-lg">
-                                            ${orderItems.reduce((acc, curr) => acc + curr.sub_total, 0).toFixed(2)}
+                                            {orderItems.reduce((acc, curr) => acc + curr.sub_total, 0).toFixed(2)}
                                         </span>
                                     </div>
                                 </div>

@@ -90,7 +90,11 @@ class OrderService:
         return self.repository.find_by_customer_id(db, customer_id)
     
     def get_amounts_paid_by_order_id(self, db: Session , order_id: int) ->float:
-        return self.repository.calculate_total_amount(db, order_id)
+        order = self.repository.get_by_id(db, order_id)
+        if not order:
+            return 0.0
+        # Include 8% tax to match frontend calculation
+        return float(order.final_amount) * 1.08
     
     def find_by_status(self, db: Session, status: OrderStatus) -> List[Order]:
         return self.repository.find_by_status(db, status)
@@ -105,3 +109,31 @@ class OrderService:
 
     def find_by_status_and_type(self, db: Session, status: OrderStatus, order_type: OrderType) -> List[Order]:
         return self.repository.find_by_status_and_type(db, status, order_type)
+
+    def find_active_by_customer(self, db: Session, customer_id: int) -> List[Order]:
+        """Returns all active (non-completed, non-cancelled) orders for a customer."""
+        return self.repository.find_active_by_customer(db, customer_id)
+
+    def find_pending_confirmation_shipping(self, db: Session) -> List[Order]:
+        """Returns all shipping orders awaiting admin confirmation."""
+        return self.repository.find_pending_confirmation_shipping(db)
+
+    def find_todays_shipping_orders(self, db: Session) -> List[Order]:
+        """Returns all shipping orders created today."""
+        return self.repository.find_todays_shipping_orders(db)
+
+    def confirm_shipping_order(self, db: Session, order_id: int) -> Order:
+        """Admin confirms a shipping order — enters the chef assignment pipeline."""
+        order = self.get_by_id(db, order_id)
+        if not order:
+            return None
+        if order.status != OrderStatus.pending_confirmation:
+            raise ValueError("Order is not in pending_confirmation status")
+        if order.order_type != OrderType.shipping:
+            raise ValueError("Only shipping orders can be confirmed via this endpoint")
+
+        from services.assignmentService import AssignmentService
+        assignment_svc = AssignmentService()
+        order = assignment_svc.try_assign_chef(db, order)
+        assignment_svc.dispatch_queue(db)
+        return order

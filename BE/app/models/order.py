@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 class OrderStatus(str, enum.Enum):
     pending    = "pending"
+    pending_confirmation = "pending_confirmation"
     queued     = "queued"
     preparing  = "preparing"
     ready      = "ready"

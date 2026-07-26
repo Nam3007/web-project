@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 from typing import List
 from db import get_db
@@ -40,6 +42,26 @@ async def get_customer_shipping_orders(
 ):
     """Get a customer's shipping orders (delivering/delivered/paid)."""
     return order_service.find_shipping_by_customer(db, customer_id)
+
+# ── Active orders for customer (both dine-in and shipping) ──────────────────
+@router.get("/active/customer/{customer_id}", response_model=List[OrderResponseDTO])
+async def get_active_orders_by_customer(
+    customer_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get all active (non-completed, non-cancelled) orders for a customer."""
+    return order_service.find_active_by_customer(db, customer_id)
+
+# ── Shipping confirmation endpoints ─────────────────────────────────────────
+@router.get("/shipping/pending-confirmation", response_model=List[OrderResponseDTO])
+async def get_pending_confirmation_shipping(db: Session = Depends(get_db)):
+    """Get all shipping orders awaiting admin confirmation."""
+    return order_service.find_pending_confirmation_shipping(db)
+
+@router.get("/shipping/today", response_model=List[OrderResponseDTO])
+async def get_todays_shipping_orders(db: Session = Depends(get_db)):
+    """Get all shipping orders created today (for admin daily view)."""
+    return order_service.find_todays_shipping_orders(db)
 
 # ── Staff-scoped orders (chef / waiter / delivery dashboard) ────────────────
 @router.get("/staff/{staff_id}", response_model=List[OrderResponseDTO])
@@ -96,6 +118,26 @@ async def update_order(
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
+# ── Apply Coupon ────────────────────────────────────────────────────────────
+@router.patch("/{order_id}/apply-coupon", response_model=OrderResponseDTO)
+async def apply_coupon(
+    order_id: int,
+    coupon_data: dict,  # Expects {"coupon_code": "CODE"}
+    db: Session = Depends(get_db)
+):
+    """Apply a coupon code to an order"""
+    coupon_code = coupon_data.get("coupon_code")
+    if not coupon_code:
+        raise HTTPException(status_code=400, detail="coupon_code is required")
+        
+    try:
+        from services.coupon_service import CouponService
+        coupon_svc = CouponService()
+        order = coupon_svc.apply_coupon_to_order(db, order_id, coupon_code)
+        return order
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 # ── Customer requests completion ────────────────────────────────────────────
 @router.patch("/{order_id}/request-complete", response_model=OrderResponseDTO)
 async def request_complete(
@@ -109,6 +151,39 @@ async def request_complete(
     if order.status != OrderStatus.served:
         raise HTTPException(status_code=400, detail="Order must be in 'served' status to request completion.")
     order.completion_requested = True
+    from repository import OrderRepository
+    OrderRepository().update(db, order)
+    return order
+
+# ── Admin confirms a shipping order ─────────────────────────────────────────
+@router.patch("/{order_id}/confirm-shipping", response_model=OrderResponseDTO)
+async def confirm_shipping_order(
+    order_id: int,
+    db: Session = Depends(get_db)
+):
+    """Admin confirms a shipping order — enters the chef assignment pipeline."""
+    try:
+        order = order_service.confirm_shipping_order(db, order_id)
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        return order
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ── Customer confirms shipping delivery ──────────────────────────────────────
+@router.patch("/{order_id}/customer-confirm-delivery", response_model=OrderResponseDTO)
+async def customer_confirm_delivery(
+    order_id: int,
+    db: Session = Depends(get_db)
+):
+    """Customer confirms they received the shipping order."""
+    order = order_service.get_by_id(db, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status != OrderStatus.delivered:
+        raise HTTPException(status_code=400, detail="Order must be in 'delivered' status to confirm receipt.")
+    
+    order.status = OrderStatus.completed
     from repository import OrderRepository
     OrderRepository().update(db, order)
     return order

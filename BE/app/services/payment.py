@@ -57,29 +57,48 @@ class PaymentService:
         payment = self.repository.update_payment_status(db, payment_id, status)
 
         if payment and status == PaymentStatus.completed:
-            from models import Table, Order, OrderStatus
+            from models import Table, Order, OrderStatus, OrderType
             from services.assignmentService import AssignmentService
 
             order = db.query(Order).filter(Order.id == payment.order_id).first()
             if order:
                 order_model = cast(Any, order)
                 if order_model.status in (OrderStatus.pending, OrderStatus.pending.value):
-                    # Normal flow: paid before eating/prep
-                    order_model.status = OrderStatus.paid
-                    db.add(order)
-                    db.commit()
-                    db.refresh(order)
+                    # Check if this is a shipping order — needs admin confirmation first
+                    if order_model.order_type in (OrderType.shipping, OrderType.shipping.value):
+                        order_model.status = OrderStatus.pending_confirmation
+                        db.add(order)
+                        db.commit()
+                        db.refresh(order)
+                    else:
+                        # Dine-in: normal flow — paid before eating/prep
+                        order_model.status = OrderStatus.paid
+                        db.add(order)
+                        db.commit()
+                        db.refresh(order)
 
-                    assignment_svc = AssignmentService()
-                    assignment_svc.try_assign_chef(db, order_model)
-                    # Safety net: dispatch any remaining queued orders
-                    assignment_svc.dispatch_queue(db)
+                        assignment_svc = AssignmentService()
+                        assignment_svc.try_assign_chef(db, order_model)
+                        # Safety net: dispatch any remaining queued orders
+                        assignment_svc.dispatch_queue(db)
                 elif order_model.status in (OrderStatus.served, OrderStatus.served.value,
                                             OrderStatus.delivered, OrderStatus.delivered.value):
                     # Post-pay flow: paid after eating/delivery
                     order_model.status = OrderStatus.completed
                     db.add(order)
                     db.commit()
+
+                # Generate coupon if eligible
+                try:
+                    from services.coupon_service import CouponService
+                    coupon_svc = CouponService()
+                    # Calculate total spend based on final_amount or total_amount
+                    total_spend = float(order_model.total_amount or 0)
+                    if total_spend > 0:
+                        coupon_svc.generate_coupon_if_eligible(db, order_model.customer_id, total_spend)
+                except Exception as e:
+                    # Don't let coupon generation failure break the payment flow
+                    print(f"Error generating coupon: {e}")
 
         return payment
     

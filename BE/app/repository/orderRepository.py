@@ -79,4 +79,56 @@ class OrderRepository:
             )
             .order_by(Order.created_at.asc())
             .all()
+        )
+
+    def find_active_by_customer(self, db: Session, customer_id: int) -> List[Order]:
+        """Returns all active orders + recently completed (within 24h) for rating."""
+        from sqlalchemy import or_, and_
+        from datetime import datetime, timedelta
+        cutoff = datetime.now() - timedelta(hours=24)
+        return (
+            db.query(Order)
+            .filter(
+                Order.customer_id == customer_id,
+                or_(
+                    # Active orders (not completed, not cancelled)
+                    Order.status.notin_([
+                        OrderStatus.completed,
+                        OrderStatus.cancelled,
+                    ]),
+                    # Recently completed orders (for rating)
+                    and_(
+                        Order.status == OrderStatus.completed,
+                        Order.updated_at >= cutoff,
+                    )
+                )
+            )
+            .order_by(Order.created_at.desc())
+            .all()
+        )
+
+    def find_pending_confirmation_shipping(self, db: Session) -> List[Order]:
+        """Returns all shipping orders awaiting admin confirmation."""
+        return (
+            db.query(Order)
+            .filter(
+                Order.order_type == OrderType.shipping,
+                Order.status == OrderStatus.pending_confirmation,
+            )
+            .order_by(Order.created_at.asc())
+            .all()
+        )
+
+    def find_todays_shipping_orders(self, db: Session) -> List[Order]:
+        """Returns all shipping orders created today (for admin daily view)."""
+        from datetime import datetime, time
+        today_start = datetime.combine(datetime.now().date(), time.min)
+        return (
+            db.query(Order)
+            .filter(
+                Order.order_type == OrderType.shipping,
+                Order.created_at >= today_start,
+            )
+            .order_by(Order.created_at.desc())
+            .all()
         )

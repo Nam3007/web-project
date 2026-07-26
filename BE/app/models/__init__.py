@@ -11,3 +11,4 @@ from .review import Review
 from .vip_request import VipRequest, VipRequestStatus
 from .order_queue import OrderQueue
 from .item_rating import ItemRating
+from .coupon import CouponThreshold, CustomerCoupon, ValidityUnit

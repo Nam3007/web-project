@@ -43,6 +43,7 @@ class OrderResponseDTO(OrderDTO):
     payment_method: Optional[PaymentMethod]
     order_date: datetime
     created_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

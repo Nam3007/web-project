@@ -29,6 +29,18 @@ export default function CustomerCartPage() {
     const [orderType, setOrderType] = useState('dine_in');
     const [shippingAddress, setShippingAddress] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('QR');
+    const [selectedCouponCode, setSelectedCouponCode] = useState('');
+
+    // Fetch user coupons
+    const { data: coupons = [] } = useQuery({
+        queryKey: ['myCoupons', user?.id],
+        queryFn: async () => {
+            if (!user?.id) return [];
+            const res = await api.get(`/coupons/customer/${user.id}`);
+            return res.data;
+        },
+        enabled: !!user?.id
+    });
 
     // Fetch Tables
     const { data: tables = [], isLoading: tablesLoading } = useQuery({
@@ -176,6 +188,13 @@ export default function CustomerCartPage() {
                     menu_item_id: cartItem.item.id,
                     quantity: cartItem.quantity,
                     notes: cartItem.notes || ''
+                });
+            }
+
+            // 2.5 Apply coupon if selected
+            if (selectedCouponCode) {
+                await api.patch(`/orders/${orderId}/apply-coupon`, {
+                    coupon_code: selectedCouponCode
                 });
             }
 
@@ -444,6 +463,26 @@ export default function CustomerCartPage() {
                     <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
                         <h2 className="text-xl font-bold text-gray-800">Order Summary</h2>
 
+                        {coupons.length > 0 && (
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Available Coupons
+                                </label>
+                                <select 
+                                    value={selectedCouponCode}
+                                    onChange={(e) => setSelectedCouponCode(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-gray-50"
+                                >
+                                    <option value="">-- Select a Coupon --</option>
+                                    {coupons.map(coupon => (
+                                        <option key={coupon.id} value={coupon.code}>
+                                            {coupon.discount_percentage}% OFF (Code: {coupon.code})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
                         <div className="space-y-3 pb-6 border-b border-gray-100">
                             <div className="flex justify-between text-gray-600">
                                 <span>Subtotal</span>
@@ -453,9 +492,22 @@ export default function CustomerCartPage() {
                                 <span>Tax (8%)</span>
                                 <span>{(cartTotal * 0.08).toLocaleString('vi-VN')}₫ </span>
                             </div>
+                            {selectedCouponCode && (
+                                <div className="flex justify-between text-green-600 font-medium">
+                                    <span>Discount ({coupons.find(c => c.code === selectedCouponCode)?.discount_percentage}%)</span>
+                                    <span>-{(cartTotal * (coupons.find(c => c.code === selectedCouponCode)?.discount_percentage / 100)).toLocaleString('vi-VN')}₫</span>
+                                </div>
+                            )}
                             <div className="flex justify-between text-xl font-bold text-gray-900 pt-2">
                                 <span>Total</span>
-                                <span>{(cartTotal * 1.08).toLocaleString('vi-VN')}₫ </span>
+                                <span>
+                                    {(() => {
+                                        const tax = cartTotal * 0.08;
+                                        const discountPercent = selectedCouponCode ? coupons.find(c => c.code === selectedCouponCode)?.discount_percentage : 0;
+                                        const discount = cartTotal * (discountPercent / 100);
+                                        return (cartTotal + tax - discount).toLocaleString('vi-VN');
+                                    })()}₫
+                                </span>
                             </div>
                         </div>
 

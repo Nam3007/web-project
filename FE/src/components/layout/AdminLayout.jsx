@@ -1,5 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api/axios';
 import {
     LayoutDashboard,
     ShoppingBag,
@@ -10,7 +12,9 @@ import {
     LogOut,
     ChefHat,
     MenuSquare,
-    Star
+    Star,
+    Truck,
+    Ticket
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -23,8 +27,20 @@ export default function AdminLayout() {
         navigate('/login');
     };
 
+    const { data: pendingShipping = [] } = useQuery({
+        queryKey: ['pendingShipping'],
+        queryFn: async () => {
+            const res = await api.get('/orders/shipping/pending-confirmation');
+            return res.data;
+        },
+        refetchInterval: 10000
+    });
+    
+    const pendingShippingCount = pendingShipping.length;
+
     const navItems = [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Shipping Confirm', path: '/admin/shipping-confirm', icon: Truck },
         { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
         { name: 'Menu', path: '/admin/menu', icon: MenuSquare },
         { name: 'Customers', path: '/admin/customers', icon: Users },
@@ -33,6 +49,7 @@ export default function AdminLayout() {
         { name: 'Payments', path: '/admin/payments', icon: CreditCard },
         { name: 'Schedule', path: '/admin/schedule', icon: CalendarRange },
         { name: 'Reviews', path: '/admin/reviews', icon: Star },
+        { name: 'Discount Coupons', path: '/admin/coupons', icon: Ticket },
     ];
 
     return (
@@ -57,13 +74,20 @@ export default function AdminLayout() {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                                className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
                                     ? 'bg-primary text-white shadow-lg shadow-primary/30'
                                     : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
                                     }`}
                             >
-                                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-primary transition-colors'}`} />
-                                <span className="font-medium">{item.name}</span>
+                                <div className="flex items-center gap-3">
+                                    <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-primary transition-colors'}`} />
+                                    <span className="font-medium">{item.name}</span>
+                                </div>
+                                {item.path === '/admin/shipping-confirm' && pendingShippingCount > 0 && (
+                                    <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${isActive ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
+                                        {pendingShippingCount}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}

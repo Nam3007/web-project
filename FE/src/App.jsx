@@ -32,8 +32,10 @@ import CustomerMenuPage from './pages/customer/CustomerMenuPage';
 import CustomerCartPage from './pages/customer/CustomerCartPage';
 import CustomerOrdersPage from './pages/customer/CustomerOrdersPage';
 import CustomerTablePage from './pages/customer/CustomerTablePage';
-import CustomerShippingPage from './pages/customer/CustomerShippingPage';
+import CustomerActiveOrderPage from './pages/customer/CustomerActiveOrderPage';
 import QRPaymentPage from './pages/customer/QRPaymentPage';
+import AdminOrderConfirmPage from './pages/admin/AdminOrderConfirmPage';
+import AdminDiscountCouponPage from './pages/admin/AdminDiscountCouponPage';
 
 
 
@@ -57,7 +59,7 @@ function App() {
                 <Route path="/tables" element={<CustomerTablePage />} />
                 <Route path="/cart" element={<CustomerCartPage />} />
                 <Route path="/orders" element={<CustomerOrdersPage />} />
-                <Route path="/shipping" element={<CustomerShippingPage />} />
+                <Route path="/active-orders" element={<CustomerActiveOrderPage />} />
                 <Route path="/qr-payment" element={<QRPaymentPage />} />
               </Route>
 
@@ -84,6 +86,8 @@ function App() {
                 <Route path="customers" element={<AdminCustomerPage />} />
                 <Route path="schedule" element={<AdminSchedulePage />} />
                 <Route path="reviews" element={<AdminReviewsPage />} />
+                <Route path="coupons" element={<AdminDiscountCouponPage />} />
+                <Route path="shipping-confirm" element={<AdminOrderConfirmPage />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
 

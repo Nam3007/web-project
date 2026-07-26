@@ -8,6 +8,9 @@ from .reviewDTO import ReviewCreateDTO, ReviewUpdateDTO, ReviewResponse
 from .staff_scheduleDTO import StaffScheduleCreateDTO, StaffScheduleUpdateDTO, StaffScheduleResponse
 from .staffDTO import StaffCreateDTO, StaffUpdateDTO, StaffResponse
 from .tableDTO import TableCreateDTO, TableUpdateDTO, TableResponse, TableStatusUpdateDTO
-from .LoginDTO import LoginRequestDTO, LoginResponseDTO
+from .vip_requestDTO import VipRequestCreate, VipRequestUpdate, VipRequestResponse
 from .orderQueueDTO import OrderQueueResponse
 from .item_ratingDTO import ItemRatingCreateDTO, ItemRatingBulkCreateDTO, ItemRatingResponse, ItemRatingSummaryResponse
+from .couponDTO import CouponThresholdCreateDTO, CouponThresholdUpdateDTO, CouponThresholdResponseDTO, CustomerCouponResponseDTO, ApplyCouponDTO
+from .LoginDTO import *
+from .RegisterDTO import *

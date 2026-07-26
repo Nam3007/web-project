@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, History, LogOut, UtensilsCrossed, Truck } from 'lucide-react';
+import { ShoppingBag, User, History, LogOut, UtensilsCrossed, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -33,8 +33,8 @@ export default function CustomerLayout() {
                                 {user && (
                                     <>
                                         <NavLink to="/tables" current={location.pathname}>Tables</NavLink>
+                                        <NavLink to="/active-orders" current={location.pathname}>My Orders</NavLink>
                                         <NavLink to="/orders" current={location.pathname}> Order History</NavLink>
-                                        <NavLink to="/shipping" current={location.pathname}>Shipping</NavLink>
                                     </>
                                 )}
                             </div>
@@ -92,7 +92,7 @@ export default function CustomerLayout() {
                         <MobileNavLink to="/tables" icon={UtensilsCrossed} label="Tables" current={location.pathname} />
                         <MobileNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
                         <MobileNavLink to="/orders" icon={History} label="Orders" current={location.pathname} />
-                        <MobileNavLink to="/shipping" icon={Truck} label="Shipping" current={location.pathname} />
+                        <MobileNavLink to="/active-orders" icon={ClipboardList} label="My Orders" current={location.pathname} />
                         <button onClick={handleLogout} className="flex flex-col items-center justify-center gap-1 text-gray-400">
                             <LogOut className="w-6 h-6" />
                             <span className="text-[10px] font-medium">Logout</span>

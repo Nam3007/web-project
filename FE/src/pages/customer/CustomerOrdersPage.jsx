@@ -207,7 +207,7 @@ export default function CustomerOrdersPage() {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {myOrders.map(order => (
+                        {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(order => (
                             <div key={order.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
                                     <div className="p-3 bg-gray-50 rounded-xl">

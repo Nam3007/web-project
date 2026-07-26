@@ -11,6 +11,7 @@ from .review import ReviewService
 from .auth import AuthService
 from .assignmentService import AssignmentService
 from .item_rating import ItemRatingService
+from .coupon_service import CouponService
 
 
 __all__ = [
