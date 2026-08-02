@@ -97,6 +97,7 @@ export default function AdminOrderConfirmPage() {
         switch (status) {
             case 'pending': return 'Pending Payment';
             case 'pending_confirmation': return 'Awaiting Confirmation';
+            case 'confirmed': return 'Confirmed';
             case 'paid': return 'Paid';
             case 'queued': return 'In Queue';
             case 'preparing': return 'Preparing';
@@ -112,6 +113,7 @@ export default function AdminOrderConfirmPage() {
     const getStatusStyle = (status) => {
         switch (status) {
             case 'pending_confirmation': return 'bg-amber-100 text-amber-800 border-amber-300';
+            case 'confirmed': return 'bg-teal-100 text-teal-800 border-teal-200';
             case 'preparing': return 'bg-blue-100 text-blue-800 border-blue-200';
             case 'ready': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
             case 'delivering': return 'bg-cyan-100 text-cyan-800 border-cyan-200';

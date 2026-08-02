@@ -33,7 +33,7 @@ class AssignmentService:
             db.commit()
             db.refresh(order)
         else:
-            order.status = OrderStatus.queued
+            # Keep current status — order_queue tracks the waiting state
             db.add(order)
             db.commit()
             db.refresh(order)
@@ -66,7 +66,7 @@ class AssignmentService:
             db.commit()
             db.refresh(order)
         else:
-            order.status = OrderStatus.queued
+            # Keep current status (ready) — order_queue tracks the waiting state
             db.add(order)
             db.commit()
             db.refresh(order)

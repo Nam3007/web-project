@@ -132,6 +132,12 @@ class OrderService:
         if order.order_type != OrderType.shipping:
             raise ValueError("Only shipping orders can be confirmed via this endpoint")
 
+        # Mark as confirmed first so progress bar advances past "Confirming"
+        order.status = OrderStatus.confirmed
+        db.add(order)
+        db.commit()
+        db.refresh(order)
+
         from services.assignmentService import AssignmentService
         assignment_svc = AssignmentService()
         order = assignment_svc.try_assign_chef(db, order)

@@ -120,6 +120,7 @@ export default function CustomerOrdersPage() {
         switch (status) {
             case 'pending': return 'bg-amber-100 text-amber-700';
             case 'paid': return 'bg-emerald-100 text-emerald-700';
+            case 'confirmed': return 'bg-teal-100 text-teal-700';
             case 'preparing': return 'bg-blue-100 text-blue-700';
             case 'ready': return 'bg-indigo-100 text-indigo-700';
             case 'served': return 'bg-purple-100 text-purple-700';
@@ -133,6 +134,7 @@ export default function CustomerOrdersPage() {
         switch (status) {
             case 'pending':   return 'Awaiting Payment';
             case 'paid':      return 'Paid — Assigning Chef';
+            case 'confirmed': return 'Confirmed — Assigning Chef';
             case 'queued':    return 'In Queue';
             case 'preparing': return 'Being Prepared';
             case 'ready':     return 'Ready — Assigning Staff';

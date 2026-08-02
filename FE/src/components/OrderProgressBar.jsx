@@ -1,4 +1,4 @@
-import { Check, Clock, ChefHat, UtensilsCrossed, Truck, PackageCheck, CreditCard, ShieldCheck, CircleDot } from 'lucide-react';
+import { Check, Clock, ChefHat, UtensilsCrossed, Truck, PackageCheck, CreditCard, ShieldCheck, CircleDot, CheckCircle2 } from 'lucide-react';
 
 const DINE_IN_STEPS = [
     { key: 'pending', label: 'Pending', icon: Clock },
@@ -13,6 +13,7 @@ const SHIPPING_STEPS = [
     { key: 'pending', label: 'Pending', icon: Clock },
     { key: 'paid', label: 'Paid', icon: CreditCard },
     { key: 'pending_confirmation', label: 'Confirming', icon: ShieldCheck },
+    { key: 'confirmed', label: 'Confirmed', icon: CheckCircle2 },
     { key: 'preparing', label: 'Preparing', icon: ChefHat },
     { key: 'ready', label: 'Ready', icon: UtensilsCrossed },
     { key: 'delivering', label: 'Delivering', icon: Truck },
@@ -20,9 +21,9 @@ const SHIPPING_STEPS = [
     { key: 'completed', label: 'Completed', icon: Check },
 ];
 
-// Map queued status to the same visual position as its preceding step
+// Legacy fallback: old orders might still have 'queued' in DB
 const STATUS_ALIASES = {
-    queued: 'paid',
+    queued: 'confirmed',
 };
 
 export default function OrderProgressBar({ status, orderType = 'dine_in' }) {
