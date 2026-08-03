@@ -247,7 +247,7 @@ export default function CustomerActiveOrderPage() {
                 <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" aria-hidden="true" />
                 <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/12 to-transparent" aria-hidden="true" />
                 <div className="absolute right-8 bottom-4 text-[10px] text-blue-100/60 font-semibold tracking-wide uppercase pointer-events-none">
-                    Live updates every 10s
+                    
                 </div>
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -262,7 +262,7 @@ export default function CustomerActiveOrderPage() {
                     <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
                         <Package className="w-4 h-4 text-blue-300" />
                         <span className="text-sm font-bold text-white tabular-nums">{visibleOrders.length}</span>
-                        <span className="text-xs text-blue-200/60 hidden sm:inline">active</span>
+                        <span className="text-xs text-blue-200/60 hidden sm:inline">Orders</span>
                     </div>
                 </div>
             </div>
@@ -526,6 +526,33 @@ export default function CustomerActiveOrderPage() {
                     })}
                 </div>
             )}
+
+            {/* ── Page Footer ───────────────────────────────── */}
+            <footer className="relative mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white shadow-xl">
+                <div className="absolute inset-0 pointer-events-none opacity-60 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.16)_1px,transparent_0)] [background-size:18px_18px]" aria-hidden="true" />
+                <div className="relative z-10 px-6 py-6 sm:px-8 sm:py-7 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-200/70">Customer Dashboard</p>
+                        <h2 className="mt-2 text-lg sm:text-xl font-bold tracking-tight">Keep track of every order from one place.</h2>
+                        <p className="mt-1 text-sm text-slate-300">Your active orders refresh automatically while the kitchen and delivery team update status.</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                        <button
+                            onClick={() => window.location.href = '/menu'}
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-900 transition-transform hover:scale-[1.01] active:scale-[0.98]"
+                        >
+                            Browse Menu
+                        </button>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 active:scale-[0.98]"
+                        >
+                            Refresh Orders
+                        </button>
+                    </div>
+                </div>
+            </footer>
 
             {/* ── Rating Modal ─────────────────────────────────── */}
             {ratingOrder && (
