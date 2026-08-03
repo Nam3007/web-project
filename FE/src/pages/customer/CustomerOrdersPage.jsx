@@ -155,13 +155,9 @@ export default function CustomerOrdersPage() {
                     <div>
                         <h2 className="text-2xl font-bold flex items-center gap-2">
                             <Crown className={`w-6 h-6 ${isVip ? 'text-amber-400' : 'text-gray-400'}`} />
-                            {isVip ? 'VIP Member' : 'Member Status'}
+                            {user.full_name} 
                         </h2>
-                        <p className="opacity-80 mt-1">
-                            {isVip
-                                ? "Thank you for being one of our most valued customers!"
-                                : `Spend $${VIP_THRESHOLD} to unlock VIP benefits.`}
-                        </p>
+                        
                     </div>
                     <div className="text-right">
                         <p className="text-sm opacity-60">Total Spent</p>
@@ -169,31 +165,7 @@ export default function CustomerOrdersPage() {
                     </div>
                 </div>
 
-                {!isVip && (
-                    <div className="mt-6 relative z-10">
-                        <div className="flex justify-between text-xs mb-2 font-medium opacity-80">
-                            <span>$0</span>
-                            <span>${VIP_THRESHOLD}</span>
-                        </div>
-                        <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-gradient-to-r from-amber-300 to-amber-500 transition-all duration-1000"
-                                style={{ width: `${progress}%` }}
-                            ></div>
-                        </div>
-
-                        {totalSpent >= VIP_THRESHOLD && (
-                            <button
-                                onClick={() => requestVipMutation.mutate()}
-                                disabled={requestVipMutation.isPending}
-                                className="mt-4 w-full py-3 bg-amber-400 hover:bg-amber-300 text-gray-900 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
-                            >
-                                {requestVipMutation.isPending ? <Loader className="w-5 h-5 animate-spin" /> : <Crown className="w-5 h-5" />}
-                                Request VIP Status
-                            </button>
-                        )}
-                    </div>
-                )}
+                
 
                 {/* Decoration */}
                 <Crown className="absolute -bottom-4 -right-4 w-32 h-32 text-white/5 rotate-12" />
