@@ -15,9 +15,9 @@ export default function CustomerLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100/60 flex flex-col">
             {/* Navbar */}
-            <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+            <nav className="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center gap-8">
@@ -80,12 +80,12 @@ export default function CustomerLayout() {
             </nav>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
                 <Outlet />
             </main>
 
             {/* Mobile Nav Bottom */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-3 z-50 pb-safe">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-gray-200 shadow-[0_-8px_24px_rgba(15,23,42,0.06)] flex justify-around p-3 z-50 pb-safe">
                 <MobileNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
                 {user && (
                     <>

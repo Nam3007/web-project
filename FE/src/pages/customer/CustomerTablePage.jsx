@@ -138,11 +138,11 @@ export default function CustomerTablePage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="customer-page customer-page-wide">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Select Your Table</h1>
+                    <h1 className="customer-page-title">Select Your Table</h1>
                     <p className="text-gray-500 mt-1">Choose an available table for your dining experience</p>
                     <div className="mt-3 flex items-center gap-3">
                         <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full font-medium text-sm border border-emerald-100">
@@ -274,7 +274,7 @@ export default function CustomerTablePage() {
             )}
 
             {/* Info Card */}
-            <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100 flex gap-4 items-start">
+            <div className="customer-card-soft p-5 flex gap-4 items-start">
                 <div className="bg-white p-2 rounded-lg text-blue-600 shrink-0 shadow-sm">
                     <UtensilsCrossed className="w-6 h-6" />
                 </div>
@@ -287,23 +287,6 @@ export default function CustomerTablePage() {
                 </div>
             </div>
 
-            <style>{`
-                @keyframes pulse-ring {
-                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                    70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-                }
-                .animate-pulse-ring {
-                    animation: pulse-ring 2s ease-in-out infinite;
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(-8px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in {
-                    animation: fade-in 0.3s ease-out;
-                }
-            `}</style>
         </div>
     );
 }
