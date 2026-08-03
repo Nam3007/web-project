@@ -16,6 +16,10 @@ const PAYMENT_METHODS = [
     { value: 'digital_wallet', label: 'E-Wallet', icon: Wallet },
 ];
 
+// Keep this empty unless a branded hero image is required.
+const ACTIVE_ORDER_HEADER_BACKGROUND_IMAGE = '';
+const ACTIVE_ORDER_HEADER_OVERLAY = 'linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 58, 138, 0.88) 55%, rgba(49, 46, 129, 0.86) 100%)';
+
 /* ── Status helpers ─────────────────────────────────────────── */
 const STATUS_CONFIG = {
     pending:              { label: 'Pending',            color: 'amber',   strip: 'from-amber-400 to-yellow-400' },
@@ -33,6 +37,35 @@ const STATUS_CONFIG = {
 };
 
 const getConfig = (status) => STATUS_CONFIG[status] || { label: status, color: 'gray', strip: 'from-gray-300 to-gray-400' };
+
+const createDecorativeBackground = (status, orderType) => {
+    const isShipping = orderType === 'shipping';
+    const accentA = isShipping ? '#38bdf8' : '#fb923c';
+    const accentB = status === 'completed' ? '#34d399' : status === 'delivered' ? '#818cf8' : '#60a5fa';
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" fill="none">
+            <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="720" y2="220" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="${accentA}" stop-opacity="0.28" />
+                    <stop offset="0.55" stop-color="${accentB}" stop-opacity="0.16" />
+                    <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+                </linearGradient>
+                <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="12" />
+                </filter>
+            </defs>
+            <rect width="720" height="220" rx="28" fill="url(#g)" />
+            <circle cx="118" cy="64" r="48" fill="${accentA}" fill-opacity="0.22" filter="url(#blur)" />
+            <circle cx="570" cy="50" r="78" fill="${accentB}" fill-opacity="0.18" filter="url(#blur)" />
+            <circle cx="632" cy="178" r="56" fill="${accentA}" fill-opacity="0.14" filter="url(#blur)" />
+            <path d="M-20 174C96 120 188 148 292 114C390 82 470 28 592 60C664 79 706 121 740 138V240H-20V174Z" fill="${accentB}" fill-opacity="0.18" />
+            <path d="M28 28H260" stroke="white" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round" />
+            <path d="M454 34H678" stroke="white" stroke-opacity="0.15" stroke-width="2" stroke-linecap="round" />
+            <path d="M70 182H186" stroke="white" stroke-opacity="0.14" stroke-width="2" stroke-linecap="round" />
+        </svg>
+    `;
+    return `url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}")`;
+};
 
 export default function CustomerActiveOrderPage() {
     const { user } = useAuth();
@@ -165,6 +198,14 @@ export default function CustomerActiveOrderPage() {
     const visibleOrders = orders
         .filter(shouldShowCompletedOrder)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const shouldShowHeaderBackgroundImage = Boolean(ACTIVE_ORDER_HEADER_BACKGROUND_IMAGE.trim());
+    const headerBackgroundStyle = shouldShowHeaderBackgroundImage
+        ? {
+            backgroundImage: `${ACTIVE_ORDER_HEADER_OVERLAY}, url(${ACTIVE_ORDER_HEADER_BACKGROUND_IMAGE})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+        }
+        : undefined;
 
     /* ── Loading skeleton ────────────────────────────────────── */
     if (isLoading) {
@@ -182,10 +223,31 @@ export default function CustomerActiveOrderPage() {
     return (
         <div className="customer-page customer-page-regular pb-8">
             {/* ── Header ──────────────────────────────────────── */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 shadow-xl">
-                <div className="absolute inset-0 opacity-10">
+            <div
+                className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 shadow-xl border border-white/5"
+                style={headerBackgroundStyle}
+            >
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-400 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+                    <div className="absolute bottom-0 left-0 w-56 h-56 bg-indigo-400 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+                    <div className="absolute top-1/2 right-1/3 w-44 h-44 bg-violet-400 rounded-full blur-3xl -translate-y-1/2 opacity-70" />
+                </div>
+                <div
+                    className="absolute inset-0 opacity-[0.08] pointer-events-none [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:18px_18px]"
+                    aria-hidden="true"
+                />
+                <Sparkles className="absolute right-5 top-5 w-5 h-5 text-white/35" aria-hidden="true" />
+                <Sparkles className="absolute left-6 bottom-4 w-4 h-4 text-blue-200/35" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/[0.03] pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-2xl" aria-hidden="true" />
+                <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" aria-hidden="true" />
+                <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden="true" />
+                <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" aria-hidden="true" />
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/12 to-transparent" aria-hidden="true" />
+                <div className="absolute right-8 bottom-4 text-[10px] text-blue-100/60 font-semibold tracking-wide uppercase pointer-events-none">
+                    Live updates every 10s
                 </div>
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -232,16 +294,24 @@ export default function CustomerActiveOrderPage() {
                         const isExpanded = expandedOrders[order.id];
                         const items = allOrderItems[order.id] || [];
                         const cfg = getConfig(order.status);
+                        const cardBackgroundImage = createDecorativeBackground(order.status, order.order_type);
 
                         return (
                             <div
                                 key={order.id}
-                                className="group customer-card hover:shadow-lg hover:border-gray-200 transition-all duration-300 overflow-hidden"
+                                className="group customer-card relative hover:shadow-lg hover:border-gray-200 transition-all duration-300 overflow-hidden"
                             >
+                                <div
+                                    className="absolute inset-0 bg-center bg-cover opacity-90 pointer-events-none"
+                                    style={{ backgroundImage: cardBackgroundImage }}
+                                    aria-hidden="true"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-white/82 to-white/95 pointer-events-none" aria-hidden="true" />
+
                                 {/* ── Gradient strip ──────────────────── */}
                                 <div className={`h-1 w-full bg-gradient-to-r ${cfg.strip}`} />
 
-                                <div className="p-5 sm:p-6 space-y-4">
+                                <div className="relative z-10 p-5 sm:p-6 space-y-4">
                                     {/* ── Row 1: Order info ───────────────── */}
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">

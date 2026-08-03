@@ -25,7 +25,7 @@ export default function CustomerLayout() {
                                 <div className="bg-primary/10 p-2 rounded-lg text-primary">
                                     <UtensilsCrossed className="w-6 h-6" />
                                 </div>
-                                <span className="text-xl font-bold text-gray-800 tracking-tight">River Side</span>
+                                <span className="text-xl font-bold text-gray-800 tracking-tight">Restaurant Customer</span>
                             </Link>
 
                             <div className="hidden md:flex items-center gap-1">
