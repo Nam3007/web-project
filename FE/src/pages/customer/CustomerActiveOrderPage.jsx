@@ -169,7 +169,7 @@ export default function CustomerActiveOrderPage() {
     /* ── Loading skeleton ────────────────────────────────────── */
     if (isLoading) {
         return (
-            <div className="max-w-3xl mx-auto space-y-6 py-4">
+            <div className="customer-page customer-page-regular py-4">
                 <div className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
                 {[1, 2].map(i => (
                     <div key={i} className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
@@ -180,7 +180,7 @@ export default function CustomerActiveOrderPage() {
 
     /* ── Render ───────────────────────────────────────────────── */
     return (
-        <div className="max-w-3xl mx-auto space-y-6 pb-8">
+        <div className="customer-page customer-page-regular pb-8">
             {/* ── Header ──────────────────────────────────────── */}
             <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 shadow-xl">
                 <div className="absolute inset-0 opacity-10">
@@ -207,7 +207,7 @@ export default function CustomerActiveOrderPage() {
 
             {/* ── Empty state ─────────────────────────────────── */}
             {visibleOrders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <div className="customer-card flex flex-col items-center justify-center py-20">
                     <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-5">
                         <ClipboardList className="w-10 h-10 text-gray-200" />
                     </div>
@@ -236,7 +236,7 @@ export default function CustomerActiveOrderPage() {
                         return (
                             <div
                                 key={order.id}
-                                className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-300 overflow-hidden"
+                                className="group customer-card hover:shadow-lg hover:border-gray-200 transition-all duration-300 overflow-hidden"
                             >
                                 {/* ── Gradient strip ──────────────────── */}
                                 <div className={`h-1 w-full bg-gradient-to-r ${cfg.strip}`} />

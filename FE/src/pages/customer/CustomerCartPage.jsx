@@ -251,14 +251,14 @@ export default function CustomerCartPage() {
 
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">Your Cart</h1>
+        <div className="customer-page customer-page-regular">
+            <h1 className="customer-page-title">Your Cart</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Items List (Left) */}
                 <div className="lg:col-span-2 space-y-4">
                     {cart.map((cartItem) => (
-                        <div key={cartItem.item.id} className="flex gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <div key={cartItem.item.id} className="customer-card flex gap-4 p-4">
                             <div className="w-24 h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0">
                                 {cartItem.item.item_image && (
                                     <img src={cartItem.item.item_image} className="w-full h-full object-cover" />
@@ -308,7 +308,7 @@ export default function CustomerCartPage() {
                 <div className="flex flex-col gap-6 h-fit">
 
                     {/* Dining Details */}
-                    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
+                    <div className="customer-card p-6 transition-all hover:shadow-md">
                         <div className="flex items-center gap-2 mb-4 text-gray-800">
                             <UtensilsCrossed className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-bold">Dining Details</h2>
@@ -389,7 +389,7 @@ export default function CustomerCartPage() {
                     </div>
 
                     {/* Payment Method Selection */}
-                    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
+                    <div className="customer-card p-6 transition-all hover:shadow-md">
                         <div className="flex items-center gap-2 mb-4 text-gray-800">
                             <Banknote className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-bold">Payment Method</h2>
@@ -460,7 +460,7 @@ export default function CustomerCartPage() {
                     </div>
 
                     {/* Order Summary */}
-                    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
+                    <div className="customer-card p-6 space-y-6">
                         <h2 className="text-xl font-bold text-gray-800">Order Summary</h2>
 
                         {coupons.length > 0 && (

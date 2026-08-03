@@ -14,3 +14,62 @@
     /* text-gray-900 */
   }
 }
+
+@layer components {
+  .customer-page {
+    @apply space-y-8;
+  }
+
+  .customer-page-narrow {
+    @apply max-w-lg mx-auto;
+  }
+
+  .customer-page-regular {
+    @apply max-w-4xl mx-auto;
+  }
+
+  .customer-page-wide {
+    @apply max-w-6xl mx-auto;
+  }
+
+  .customer-card {
+    @apply bg-white rounded-2xl border border-gray-200 shadow-sm;
+  }
+
+  .customer-card-soft {
+    @apply bg-gray-50 rounded-2xl border border-gray-200;
+  }
+
+  .customer-page-title {
+    @apply text-3xl font-bold text-gray-800;
+  }
+}
+
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}

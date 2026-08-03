@@ -148,7 +148,7 @@ export default function CustomerOrdersPage() {
     };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="customer-page customer-page-regular">
             {/* VIP Status Card */}
             <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
                 <div className="relative z-10 flex justify-between items-start">
@@ -201,16 +201,16 @@ export default function CustomerOrdersPage() {
 
             {/* History */}
             <div className="space-y-6">
-                <h1 className="text-2xl font-bold text-gray-800">Order History</h1>
+                <h1 className="customer-page-title text-2xl">Order History</h1>
 
                 {myOrders.length === 0 ? (
-                    <div className="text-center py-10 bg-white rounded-2xl border border-gray-100">
+                    <div className="customer-card text-center py-10">
                         <p className="text-gray-500">No past orders found.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(order => (
-                            <div key={order.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
+                            <div key={order.id} className="customer-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
                                     <div className="p-3 bg-gray-50 rounded-xl">
                                         <ShoppingBag className="w-6 h-6 text-gray-400" />

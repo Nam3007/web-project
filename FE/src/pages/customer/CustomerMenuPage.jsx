@@ -52,7 +52,7 @@ export default function CustomerMenuPage() {
     if (isLoading) return <div className="text-center py-20">Loading menu...</div>;
 
     return (
-        <div className="space-y-8">
+        <div className="customer-page customer-page-wide">
 
             {/* Table Confirmation Notification */}
             {notification && (
@@ -85,7 +85,7 @@ export default function CustomerMenuPage() {
             </div>
 
             {/* Filters and Search */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-10 bg-gray-50 py-4">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-10 bg-gray-50/95 backdrop-blur py-4 border-b border-gray-200/70">
                 <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
                     <button
                         onClick={() => setSelectedCategory('ALL')}
@@ -130,7 +130,7 @@ export default function CustomerMenuPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {filteredMenu.map(item => (
-                        <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                        <div key={item.id} className="customer-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                             <div className="h-56 overflow-hidden relative">
                                 {item.item_image ? (
                                     <img src={item.item_image} alt={item.item_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
