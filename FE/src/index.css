@@ -13,9 +13,10 @@
 
 @layer base {
   body {
-    background-color: #F8FAFC; /* Slate 50 - Cleaner background */
-    color: #1E293B; /* Slate 800 */
+    background: linear-gradient(135deg, #afa186 0%, #2d4d2d 100%); /* Soft beige to light emerald */
+    color: #1E293B; /* Slate 800 - Note: this is TEXT color, not background color */
     font-family: var(--font-sans);
+    min-height: 100vh;
   }
   
   h1, h2, h3, h4, h5, h6 {

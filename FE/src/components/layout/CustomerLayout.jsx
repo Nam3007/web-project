@@ -16,7 +16,7 @@ export default function CustomerLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
+        <div className="min-h-screen flex flex-col relative overflow-hidden">
             {/* Background Texture */}
             <div className="absolute inset-0 pointer-events-none vietnam-pattern opacity-40 z-0"></div>
 
