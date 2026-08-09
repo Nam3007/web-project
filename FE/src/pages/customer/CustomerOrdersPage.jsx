@@ -148,43 +148,39 @@ export default function CustomerOrdersPage() {
     };
 
     return (
-        <div className="relative mx-auto max-w-4xl space-y-8 pb-8">
-            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between flex-wrap">
-                    <div className="max-w-2x7">
-                        <p className="text-xs font-medium text-emerald-700">Guest Profile</p>
-                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Order History</h1>
-                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Review previous visits, payment methods, and total spend at a glance. Your loyalty progress and rating actions live here too.</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 flex-wrap gap-4 lg:gap-10">
-                        <div className="rounded-2x1 bg-slate-50 p-4">
-                            <p className="text-lg font-medium text-slate-500">Orders</p>
-                            <p className="mt-1 text-2xl font-semibold text-slate-900">{myOrders.length}</p>
-                        </div>
-                        <div className="rounded-2xl bg-emerald-50 p-4">
-                            <p className="text-lg font-medium text-emerald-600">Spent</p>
-                            <p className="mt-1 text-2xl font-semibold text-emerald-700">{totalSpent.toLocaleString('vi-VN')}₫</p>
-                        </div>
+        <div className="customer-page customer-page-regular">
+            {/* VIP Status Card */}
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                <div className="relative z-10 flex justify-between items-start">
+                    <div>
+                        <h2 className="text-2xl font-bold flex items-center gap-2">
+                            <Crown className={`w-6 h-6 ${isVip ? 'text-amber-400' : 'text-gray-400'}`} />
+                            {user.full_name} 
+                        </h2>
                         
                     </div>
+                    <div className="text-right">
+                        <p className="text-sm opacity-60">Total Spent</p>
+                        <p className="text-3xl font-bold text-emerald-400">{totalSpent.toLocaleString('vi-VN')}₫</p>
+                    </div>
                 </div>
-            </section>
+
+                
 
         
 
             {/* History */}
             <div className="space-y-6">
-                <h2 className="text-lg font-semibold tracking-tight text-slate-900">Recent orders</h2>
+                <h1 className="customer-page-title text-2xl">Order History</h1>
 
                 {myOrders.length === 0 ? (
-                    <div className="rounded-[1.75rem] border border-slate-200 bg-white py-10 text-center shadow-sm">
-                        <p className="text-slate-500">No past orders found.</p>
+                    <div className="customer-card text-center py-10">
+                        <p className="text-gray-500">No past orders found.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(order => (
-                            <div key={order.id} className="flex flex-col justify-between gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center">
+                            <div key={order.id} className="customer-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
                                     <div className="rounded-xl bg-slate-50 p-3">
                                         <ShoppingBag className="w-6 h-6 text-slate-400" />

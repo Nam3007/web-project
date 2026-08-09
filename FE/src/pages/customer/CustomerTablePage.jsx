@@ -138,25 +138,21 @@ export default function CustomerTablePage() {
     };
 
     return (
-        <div className="relative space-y-6 pb-6">
+        <div className="customer-page customer-page-wide">
             {/* Header */}
-            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="max-w-2xl">
-                        <p className="text-xs font-medium text-emerald-700">Dining setup</p>
-                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Select Your Table</h1>
-                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Choose an available table for your dining experience, then continue to the menu with your seat already reserved.</p>
-                        <div className="mt-4 flex flex-wrap items-center gap-3">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                {availableCount} available
-                            </span>
-                            <span className="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-600">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                {occupiedCount} occupied
-                            </span>
-                            <span className="rounded-full border border-amber-100 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700">Reserve once, order faster</span>
-                        </div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="customer-page-title">Select Your Table</h1>
+                    <p className="text-gray-500 mt-1">Choose an available table for your dining experience</p>
+                    <div className="mt-3 flex items-center gap-3">
+                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full font-medium text-sm border border-emerald-100">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            {availableCount} available
+                        </span>
+                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-full font-medium text-sm border border-red-100">
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            {occupiedCount} occupied
+                        </span>
                     </div>
 
                     {/* View Toggle */}
@@ -275,7 +271,7 @@ export default function CustomerTablePage() {
             )}
 
             {/* Info Card */}
-            <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100 flex gap-4 items-start">
+            <div className="customer-card-soft p-5 flex gap-4 items-start">
                 <div className="bg-white p-2 rounded-lg text-blue-600 shrink-0 shadow-sm">
                     <UtensilsCrossed className="w-6 h-6" />
                 </div>
@@ -288,23 +284,6 @@ export default function CustomerTablePage() {
                 </div>
             </div>
 
-            <style>{`
-                @keyframes pulse-ring {
-                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                    70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-                }
-                .animate-pulse-ring {
-                    animation: pulse-ring 2s ease-in-out infinite;
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(-8px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in {
-                    animation: fade-in 0.3s ease-out;
-                }
-            `}</style>
         </div>
     );
 }

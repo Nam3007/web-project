@@ -72,45 +72,7 @@ export default function CustomerMenuPage() {
     }
 
     return (
-        <div className="space-y-8 pb-6">
-
-            <div className="space-y-6">
-                {/* Hero / Header */}
-                <section className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-slate-900 text-white shadow-[0_22px_60px_rgba(15,23,42,0.22)]">
-                    <img
-                        src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop"
-                        className="absolute inset-0 h-full w-full object-cover opacity-30"
-                        alt="Restaurant dishes"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/80 to-emerald-950/70" />
-                    <div className="relative flex min-h-[22rem] flex-col justify-between p-6 sm:p-8">
-                        <div className="max-w-2xl space-y-4">
-                            <p className="text-xs font-medium text-emerald-200">
-                                Menu Explorer
-                            </p>
-                            <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">
-                                Our <span className="text-emerald-400">Menu</span>
-                            </h1>
-                            <p className="max-w-xl text-sm leading-6 text-slate-200 sm:text-base">
-                                Browse our dishes, filter by category, and build your cart for dine-in or delivery.
-                            </p>
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            {[
-                                ['Discover', 'Search and filter dishes quickly'],
-                                ['Choose', 'Compare prices, photos, and ratings'],
-                                ['Add', 'Build your cart before checkout'],
-                            ].map(([title, text]) => (
-                                <div key={title} className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-                                    <p className="text-sm font-semibold text-white">{title}</p>
-                                    <p className="mt-1 text-xs leading-5 text-slate-200/80">{text}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            </div>
+        <div className="customer-page customer-page-wide">
 
             {/* Table Confirmation Notification */}
             {notification && (
@@ -128,9 +90,17 @@ export default function CustomerMenuPage() {
                 </div>
             )}
             {/* Filters and Search */}
-            <div className="sticky top-24 z-20 rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="flex gap-2 overflow-x-auto w-full xl:w-auto pb-2 xl:pb-0">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center sticky top-20 z-10 bg-gray-50/95 backdrop-blur py-4 border-b border-gray-200/70">
+                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+                    <button
+                        onClick={() => setSelectedCategory('ALL')}
+                        className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all shadow-sm ${selectedCategory === 'ALL'
+                                ? 'bg-black text-white hover:bg-gray-800'
+                                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                            }`}
+                    >
+                        All
+                    </button>
                     {CATEGORIES.map(cat => (
                             <button
                                 key={cat}
@@ -171,8 +141,8 @@ export default function CustomerMenuPage() {
             ) : (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {filteredMenu.map(item => (
-                        <div key={item.id} className="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                            <div className="relative h-56 overflow-hidden">
+                        <div key={item.id} className="customer-card overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                            <div className="h-56 overflow-hidden relative">
                                 {item.item_image ? (
                                     <img src={item.item_image} alt={item.item_name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                 ) : (
