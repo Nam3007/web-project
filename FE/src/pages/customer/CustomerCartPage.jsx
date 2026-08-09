@@ -254,37 +254,15 @@ export default function CustomerCartPage() {
 
 
     return (
-        <div className="relative mx-auto max-w-6xl space-y-6">
-            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="max-w-2xl">
-                        <p className="text-xs font-medium text-emerald-700">Checkout preview</p>
-                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Your Cart</h1>
-                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Review your dishes, adjust quantities, and choose how you'd like to complete the order.</p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="rounded-2xl bg-slate-50 p-4">
-                            <p className="text-xs font-medium text-slate-500">Items</p>
-                            <p className="mt-1 text-2xl font-semibold text-slate-900">{cart.length}</p>
-                        </div>
-                        <div className="rounded-2xl bg-emerald-50 p-4">
-                            <p className="text-xs font-medium text-emerald-600">Total</p>
-                            <p className="mt-1 text-2xl font-semibold text-emerald-700">{cartTotal.toLocaleString('vi-VN')}₫</p>
-                        </div>
-                        <div className="rounded-2xl bg-amber-50 p-4">
-                            <p className="text-xs font-medium text-amber-600">Payment</p>
-                            <p className="mt-1 text-2xl font-semibold text-amber-700">{paymentMethod}</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div className="customer-page customer-page-regular">
+            <h1 className="customer-page-title">Your Cart</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Items List (Left) */}
                 <div className="lg:col-span-2 space-y-4">
                     {cart.map((cartItem) => (
-                        <div key={cartItem.item.id} className="flex gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
-                            <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                        <div key={cartItem.item.id} className="customer-card flex gap-4 p-4">
+                            <div className="w-24 h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0">
                                 {cartItem.item.item_image && (
                                     <img src={cartItem.item.item_image} className="w-full h-full object-cover" />
                                 )}
@@ -333,10 +311,10 @@ export default function CustomerCartPage() {
                 <div className="flex h-fit flex-col gap-6">
 
                     {/* Dining Details */}
-                    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
-                        <div className="mb-4 flex items-center gap-2 text-slate-900">
-                            <UtensilsCrossed className="w-5 h-5 text-emerald-600" />
-                            <h2 className="text-lg font-semibold">Dining Details</h2>
+                    <div className="customer-card p-6 transition-all hover:shadow-md">
+                        <div className="flex items-center gap-2 mb-4 text-gray-800">
+                            <UtensilsCrossed className="w-5 h-5 text-primary" />
+                            <h2 className="text-lg font-bold">Dining Details</h2>
                         </div>
 
                         {/* Order Type Toggle */}
@@ -412,10 +390,10 @@ export default function CustomerCartPage() {
                     </div>
 
                     {/* Payment Method Selection */}
-                    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
-                        <div className="mb-4 flex items-center gap-2 text-slate-900">
-                            <Banknote className="w-5 h-5 text-emerald-600" />
-                            <h2 className="text-lg font-semibold">Payment Method</h2>
+                    <div className="customer-card p-6 transition-all hover:shadow-md">
+                        <div className="flex items-center gap-2 mb-4 text-gray-800">
+                            <Banknote className="w-5 h-5 text-primary" />
+                            <h2 className="text-lg font-bold">Payment Method</h2>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
@@ -481,8 +459,8 @@ export default function CustomerCartPage() {
                     </div>
 
                     {/* Order Summary */}
-                    <div className="space-y-6 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                        <h2 className="text-xl font-semibold tracking-tight text-slate-900">Order Summary</h2>
+                    <div className="customer-card p-6 space-y-6">
+                        <h2 className="text-xl font-bold text-gray-800">Order Summary</h2>
 
                         {coupons.length > 0 && (
                             <div className="space-y-2">

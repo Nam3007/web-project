@@ -16,6 +16,10 @@ const PAYMENT_METHODS = [
     { value: 'digital_wallet', label: 'E-Wallet', icon: Wallet },
 ];
 
+// Keep this empty unless a branded hero image is required.
+const ACTIVE_ORDER_HEADER_BACKGROUND_IMAGE = '';
+const ACTIVE_ORDER_HEADER_OVERLAY = 'linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 58, 138, 0.88) 55%, rgba(49, 46, 129, 0.86) 100%)';
+
 /* ── Status helpers ─────────────────────────────────────────── */
 const STATUS_CONFIG = {
     pending: { label: 'Pending', color: 'amber', strip: 'from-amber-400 to-yellow-400' },
@@ -33,6 +37,35 @@ const STATUS_CONFIG = {
 };
 
 const getConfig = (status) => STATUS_CONFIG[status] || { label: status, color: 'gray', strip: 'from-gray-300 to-gray-400' };
+
+const createDecorativeBackground = (status, orderType) => {
+    const isShipping = orderType === 'shipping';
+    const accentA = isShipping ? '#38bdf8' : '#fb923c';
+    const accentB = status === 'completed' ? '#34d399' : status === 'delivered' ? '#818cf8' : '#60a5fa';
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" fill="none">
+            <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="720" y2="220" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="${accentA}" stop-opacity="0.28" />
+                    <stop offset="0.55" stop-color="${accentB}" stop-opacity="0.16" />
+                    <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+                </linearGradient>
+                <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="12" />
+                </filter>
+            </defs>
+            <rect width="720" height="220" rx="28" fill="url(#g)" />
+            <circle cx="118" cy="64" r="48" fill="${accentA}" fill-opacity="0.22" filter="url(#blur)" />
+            <circle cx="570" cy="50" r="78" fill="${accentB}" fill-opacity="0.18" filter="url(#blur)" />
+            <circle cx="632" cy="178" r="56" fill="${accentA}" fill-opacity="0.14" filter="url(#blur)" />
+            <path d="M-20 174C96 120 188 148 292 114C390 82 470 28 592 60C664 79 706 121 740 138V240H-20V174Z" fill="${accentB}" fill-opacity="0.18" />
+            <path d="M28 28H260" stroke="white" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round" />
+            <path d="M454 34H678" stroke="white" stroke-opacity="0.15" stroke-width="2" stroke-linecap="round" />
+            <path d="M70 182H186" stroke="white" stroke-opacity="0.14" stroke-width="2" stroke-linecap="round" />
+        </svg>
+    `;
+    return `url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}")`;
+};
 
 export default function CustomerActiveOrderPage() {
     const { user } = useAuth();
@@ -165,12 +198,20 @@ export default function CustomerActiveOrderPage() {
     const visibleOrders = orders
         .filter(shouldShowCompletedOrder)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const shouldShowHeaderBackgroundImage = Boolean(ACTIVE_ORDER_HEADER_BACKGROUND_IMAGE.trim());
+    const headerBackgroundStyle = shouldShowHeaderBackgroundImage
+        ? {
+            backgroundImage: `${ACTIVE_ORDER_HEADER_OVERLAY}, url(${ACTIVE_ORDER_HEADER_BACKGROUND_IMAGE})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+        }
+        : undefined;
 
     /* ── Loading skeleton ────────────────────────────────────── */
     if (isLoading) {
         return (
-            <div className="mx-auto max-w-4xl space-y-6 py-4">
-                <div className="h-24 rounded-[2rem] bg-white/70 animate-pulse" />
+            <div className="customer-page customer-page-regular py-4">
+                <div className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
                 {[1, 2].map(i => (
                     <div key={i} className="h-64 rounded-[1.75rem] bg-white/70 animate-pulse" />
                 ))}
@@ -180,29 +221,57 @@ export default function CustomerActiveOrderPage() {
 
     /* ── Render ───────────────────────────────────────────────── */
     return (
-        <div className="relative mx-auto max-w-4xl space-y-6 pb-8">
+        <div className="customer-page customer-page-regular pb-8">
             {/* ── Header ──────────────────────────────────────── */}
-            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="max-w-2xl">
-                        <p className="text-xs font-medium text-emerald-700">Live order tracking</p>
-                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Active Orders</h1>
-                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Track your dine-in and delivery orders, confirm delivery when needed, and keep the flow of your meal clear.</p>
+            <div
+                className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 shadow-xl border border-white/5"
+                style={headerBackgroundStyle}
+            >
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+                    <div className="absolute bottom-0 left-0 w-56 h-56 bg-indigo-400 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+                    <div className="absolute top-1/2 right-1/3 w-44 h-44 bg-violet-400 rounded-full blur-3xl -translate-y-1/2 opacity-70" />
+                </div>
+                <div
+                    className="absolute inset-0 opacity-[0.08] pointer-events-none [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:18px_18px]"
+                    aria-hidden="true"
+                />
+                <Sparkles className="absolute right-5 top-5 w-5 h-5 text-white/35" aria-hidden="true" />
+                <Sparkles className="absolute left-6 bottom-4 w-4 h-4 text-blue-200/35" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/[0.03] pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-2xl" aria-hidden="true" />
+                <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" aria-hidden="true" />
+                <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden="true" />
+                <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" aria-hidden="true" />
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/12 to-transparent" aria-hidden="true" />
+                <div className="absolute right-8 bottom-4 text-[10px] text-blue-100/60 font-semibold tracking-wide uppercase pointer-events-none">
+                    
+                </div>
+                <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
+                            <ClipboardList className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-white tracking-tight">Active Orders</h1>
+                            <p className="text-sm text-blue-200/70 mt-0.5">Track your dine-in & delivery orders</p>
+                        </div>
                     </div>
-                    <div className="grid gap-3">
-                        <div className="rounded-2xl bg-slate-50 p-4">
-                            <p className="text-lg font-medium text-slate-950">Active</p>
-                            <p className="mt-1 text-2xl font-semibold text-slate-900">{visibleOrders.length}</p>
-                        </div>            
+                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+                        <Package className="w-4 h-4 text-blue-300" />
+                        <span className="text-sm font-bold text-white tabular-nums">{visibleOrders.length}</span>
+                        <span className="text-xs text-blue-200/60 hidden sm:inline">Orders</span>
                     </div>
                 </div>
             </section>
 
             {/* ── Empty state ─────────────────────────────────── */}
             {visibleOrders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-slate-200 bg-white py-20 shadow-sm">
-                    <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 text-slate-200">
-                        <ClipboardList className="w-10 h-10" />
+                <div className="customer-card flex flex-col items-center justify-center py-20">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-5">
+                        <ClipboardList className="w-10 h-10 text-gray-200" />
                     </div>
                     <h2 className="mb-1 text-lg font-semibold text-slate-700">No active orders</h2>
                     <p className="mb-6 text-sm text-slate-500">Place an order from the menu to track it here.</p>
@@ -225,13 +294,24 @@ export default function CustomerActiveOrderPage() {
                         const isExpanded = expandedOrders[order.id];
                         const items = allOrderItems[order.id] || [];
                         const cfg = getConfig(order.status);
+                        const cardBackgroundImage = createDecorativeBackground(order.status, order.order_type);
 
                         return (
-                            <div key={order.id} className="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                            <div
+                                key={order.id}
+                                className="group customer-card relative hover:shadow-lg hover:border-gray-200 transition-all duration-300 overflow-hidden"
+                            >
+                                <div
+                                    className="absolute inset-0 bg-center bg-cover opacity-90 pointer-events-none"
+                                    style={{ backgroundImage: cardBackgroundImage }}
+                                    aria-hidden="true"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-white/82 to-white/95 pointer-events-none" aria-hidden="true" />
+
                                 {/* ── Gradient strip ──────────────────── */}
                                 <div className={`h-1 w-full bg-gradient-to-r ${cfg.strip}`} />
 
-                                <div className="p-5 sm:p-6 space-y-4">
+                                <div className="relative z-10 p-5 sm:p-6 space-y-4">
                                     {/* ── Row 1: Order info ───────────────── */}
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -444,6 +524,33 @@ export default function CustomerActiveOrderPage() {
                     })}
                 </div>
             )}
+
+            {/* ── Page Footer ───────────────────────────────── */}
+            <footer className="relative mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white shadow-xl">
+                <div className="absolute inset-0 pointer-events-none opacity-60 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.16)_1px,transparent_0)] [background-size:18px_18px]" aria-hidden="true" />
+                <div className="relative z-10 px-6 py-6 sm:px-8 sm:py-7 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-200/70">Customer Dashboard</p>
+                        <h2 className="mt-2 text-lg sm:text-xl font-bold tracking-tight">Keep track of every order from one place.</h2>
+                        <p className="mt-1 text-sm text-slate-300">Your active orders refresh automatically while the kitchen and delivery team update status.</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                        <button
+                            onClick={() => window.location.href = '/menu'}
+                            className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-900 transition-transform hover:scale-[1.01] active:scale-[0.98]"
+                        >
+                            Browse Menu
+                        </button>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 active:scale-[0.98]"
+                        >
+                            Refresh Orders
+                        </button>
+                    </div>
+                </div>
+            </footer>
 
             {/* ── Rating Modal ─────────────────────────────────── */}
             {ratingOrder && (

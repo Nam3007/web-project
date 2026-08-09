@@ -53,7 +53,7 @@ export default function StaffLayout() {
                         <ChefHat className="w-6 h-6" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800 tracking-tight">River Side</h2>
+                        <h2 className="text-xl font-bold text-gray-800 tracking-tight">Restaurant Staff</h2>
                         <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Staff Portal</p>
                     </div>
                 </div>

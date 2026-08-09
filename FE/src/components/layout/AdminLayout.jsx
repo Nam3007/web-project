@@ -61,7 +61,7 @@ export default function AdminLayout() {
                         <ChefHat className="w-6 h-6 text-primary" />
                     </div>
                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        River Side
+                        Restaurant Admin
                     </span>
                 </div>
 
