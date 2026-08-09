@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote } from 'lucide-react';
+import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote, CheckCircle2 } from 'lucide-react';
 
 const SELECTED_TABLE_STORAGE_KEY = 'selectedTable';
 
@@ -115,16 +115,20 @@ export default function CustomerCartPage() {
     const { data: activeOrder } = useQuery({
         queryKey: ['myActiveOrder'],
         queryFn: async () => {
-            // In a real app, endpoint should be /orders/active/me
-            // Here we fetch all and filter client side for demo
-            const res = await api.get('/orders/');
-            const myOrders = res.data.filter(o => o.customer_id === user.id);
-            // Find most recent active order
-            const active = myOrders
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                .find(o => o.status !== 'paid' && o.status !== 'cancelled' && o.status !== 'completed');
-            return active || null;
-        }
+            try {
+                const res = await api.get(`/orders/active/customer/${user.id}`);
+                const myOrders = res.data || [];
+                // Find most recent active order
+                const active = myOrders
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                    .find(o => o.status !== 'paid' && o.status !== 'cancelled' && o.status !== 'completed');
+                return active || null;
+            } catch (err) {
+                if (err.response?.status === 404) return null;
+                throw err;
+            }
+        },
+        enabled: !!user
     });
 
     // Auto-select table if active order exists

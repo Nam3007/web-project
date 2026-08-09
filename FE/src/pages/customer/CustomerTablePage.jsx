@@ -26,7 +26,7 @@ export default function CustomerTablePage() {
         queryKey: ['myActiveOrder'],
         queryFn: async () => {
             try {
-                const res = await api.get('/orders/active');
+                const res = await api.get(`/orders/active/customer/${user.id}`);
                 return res.data; // Can be an array or single order depending on backend
             } catch (err) {
                 if (err.response?.status === 404) return null;
