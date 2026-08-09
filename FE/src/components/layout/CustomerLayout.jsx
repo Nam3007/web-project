@@ -16,26 +16,17 @@ export default function CustomerLayout() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f8f4ec] text-slate-900">
-            <div className="pointer-events-none fixed inset-0 overflow-hidden">
-                <div className="absolute -top-24 right-[-6rem] h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
-                <div className="absolute top-40 left-[-5rem] h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-orange-200/25 blur-3xl" />
-            </div>
-
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100/60 flex flex-col">
             {/* Navbar */}
-            <nav className="sticky top-0 z-50 border-b border-white/60 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-18 items-center justify-between gap-4 py-3">
-                        <div className="flex items-center gap-6">
-                            <Link to="/menu" className="flex items-center gap-3">
-                                <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-amber-500 p-2.5 text-white shadow-lg shadow-emerald-200/60">
-                                    <UtensilsCrossed className="h-5 w-5" />
+            <nav className="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16">
+                        <div className="flex items-center gap-8">
+                            <Link to="/menu" className="flex items-center gap-2">
+                                <div className="bg-primary/10 p-2 rounded-lg text-primary">
+                                    <UtensilsCrossed className="w-6 h-6" />
                                 </div>
-                                <div>
-                                    <span className="block text-lg font-semibold tracking-tight text-slate-900">River Side</span>
-                                    <span className="block text-[11px] uppercase tracking-[0.24em] text-slate-400">Restaurant Experience</span>
-                                </div>
+                                <span className="text-xl font-bold text-gray-800 tracking-tight">Restaurant Customer</span>
                             </Link>
 
                             <div className="hidden md:flex items-center gap-1 rounded-2xl bg-slate-100/80 p-1.5">
@@ -111,13 +102,12 @@ export default function CustomerLayout() {
             </div>
 
             {/* Main Content */}
-            <main className="relative z-10 flex-1 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
                 <Outlet />
             </main>
 
             {/* Mobile Nav Bottom */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/70 bg-white/90 px-3 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl pb-safe">
-                <div className="flex justify-around gap-2">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-gray-200 shadow-[0_-8px_24px_rgba(15,23,42,0.06)] flex justify-around p-3 z-50 pb-safe">
                 <MobileNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
                 {user && (
                     <>

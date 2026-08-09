@@ -136,7 +136,7 @@ export default function QRPaymentPage() {
     }
 
     return (
-        <div className="max-w-lg mx-auto py-6">
+        <div className="customer-page customer-page-narrow py-6">
             {/* Back Button */}
             <button
                 onClick={() => navigate('/orders')}
@@ -256,15 +256,6 @@ export default function QRPaymentPage() {
                 </div>
             </div>
 
-            <style>{`
-                @keyframes bounce-slow {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-10px); }
-                }
-                .animate-bounce-slow {
-                    animation: bounce-slow 2s ease-in-out infinite;
-                }
-            `}</style>
         </div>
     );
 }
