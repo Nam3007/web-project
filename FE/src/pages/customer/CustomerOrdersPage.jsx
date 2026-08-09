@@ -132,13 +132,13 @@ export default function CustomerOrdersPage() {
 
     const getStatusLabel = (status) => {
         switch (status) {
-            case 'pending':   return 'Awaiting Payment';
-            case 'paid':      return 'Paid — Assigning Chef';
+            case 'pending': return 'Awaiting Payment';
+            case 'paid': return 'Paid — Assigning Chef';
             case 'confirmed': return 'Confirmed — Assigning Chef';
-            case 'queued':    return 'In Queue';
+            case 'queued': return 'In Queue';
             case 'preparing': return 'Being Prepared';
-            case 'ready':     return 'Ready — Assigning Staff';
-            case 'served':    return 'Served';
+            case 'ready': return 'Ready — Assigning Staff';
+            case 'served': return 'Served';
             case 'completed': return 'Completed';
             case 'cancelled': return 'Cancelled';
             case 'delivering': return 'Out for Delivery';
@@ -167,9 +167,7 @@ export default function CustomerOrdersPage() {
 
                 
 
-                {/* Decoration */}
-                <Crown className="absolute -bottom-4 -right-4 w-32 h-32 text-white/5 rotate-12" />
-            </div>
+        
 
             {/* History */}
             <div className="space-y-6">
@@ -184,12 +182,12 @@ export default function CustomerOrdersPage() {
                         {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(order => (
                             <div key={order.id} className="customer-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-gray-50 rounded-xl">
-                                        <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                    <div className="rounded-xl bg-slate-50 p-3">
+                                        <ShoppingBag className="w-6 h-6 text-slate-400" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-gray-900">Order #{order.id}</h3>
-                                        <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                                        <h3 className="font-semibold tracking-tight text-slate-900">Order #{order.id}</h3>
+                                        <div className="mt-1 flex items-center gap-4 text-sm text-slate-500">
                                             <span className="flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" />
                                                 {new Date(order.created_at).toLocaleDateString()}
@@ -204,11 +202,10 @@ export default function CustomerOrdersPage() {
                                     <div className="flex items-center gap-4">
                                         {/* Payment method badge */}
                                         {order.payment_method && (
-                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                                order.payment_method === 'QR'
+                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${order.payment_method === 'QR'
                                                     ? 'bg-blue-50 text-blue-600 border border-blue-200'
                                                     : 'bg-green-50 text-green-600 border border-green-200'
-                                            }`}>
+                                                }`}>
                                                 {order.payment_method === 'QR' ? <QrCode className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
                                                 {order.payment_method}
                                             </span>
@@ -218,8 +215,8 @@ export default function CustomerOrdersPage() {
                                             {getStatusLabel(order.status)}
                                         </span>
 
-                                        <p className="font-bold text-lg text-gray-900 flex items-center gap-1">
-                                           
+                                        <p className="flex items-center gap-1 text-lg font-semibold text-slate-900">
+
                                             {order.total_amount.toLocaleString('vi-VN')} ₫
                                         </p>
                                     </div>
@@ -261,7 +258,7 @@ export default function CustomerOrdersPage() {
                                     {shouldShowRateButton(order) && (
                                         <button
                                             onClick={() => setRatingOrder(order)}
-                                            className="text-xs text-white font-semibold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all shadow-sm shadow-amber-200"
+                                            className="text-xs text-white font-semibold bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all"
                                         >
                                             <Star className="w-3 h-3" />
                                             Rate Items

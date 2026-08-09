@@ -22,18 +22,18 @@ const ACTIVE_ORDER_HEADER_OVERLAY = 'linear-gradient(135deg, rgba(15, 23, 42, 0.
 
 /* ── Status helpers ─────────────────────────────────────────── */
 const STATUS_CONFIG = {
-    pending:              { label: 'Pending',            color: 'amber',   strip: 'from-amber-400 to-yellow-400' },
-    pending_confirmation: { label: 'Awaiting Confirm',   color: 'amber',   strip: 'from-amber-400 to-orange-400' },
-    confirmed:            { label: 'Confirmed',          color: 'teal',    strip: 'from-teal-400 to-emerald-400' },
-    paid:                 { label: 'Paid',               color: 'emerald', strip: 'from-emerald-400 to-green-400' },
-    queued:               { label: 'In Queue',           color: 'sky',     strip: 'from-sky-400 to-blue-400' },
-    preparing:            { label: 'Preparing',          color: 'blue',    strip: 'from-blue-500 to-indigo-500' },
-    ready:                { label: 'Ready',              color: 'indigo',  strip: 'from-indigo-500 to-violet-500' },
-    served:               { label: 'Served',             color: 'purple',  strip: 'from-purple-500 to-fuchsia-500' },
-    delivering:           { label: 'Out for Delivery',   color: 'cyan',    strip: 'from-cyan-400 to-blue-400' },
-    delivered:            { label: 'Delivered',          color: 'emerald', strip: 'from-emerald-500 to-green-500' },
-    completed:            { label: 'Completed',          color: 'green',   strip: 'from-green-500 to-emerald-600' },
-    cancelled:            { label: 'Cancelled',          color: 'red',     strip: 'from-red-400 to-rose-400' },
+    pending: { label: 'Pending', color: 'amber', strip: 'from-amber-400 to-yellow-400' },
+    pending_confirmation: { label: 'Awaiting Confirm', color: 'amber', strip: 'from-amber-400 to-orange-400' },
+    confirmed: { label: 'Confirmed', color: 'teal', strip: 'from-teal-400 to-emerald-400' },
+    paid: { label: 'Paid', color: 'emerald', strip: 'from-emerald-400 to-green-400' },
+    queued: { label: 'In Queue', color: 'sky', strip: 'from-sky-400 to-blue-400' },
+    preparing: { label: 'Preparing', color: 'blue', strip: 'from-blue-500 to-indigo-500' },
+    ready: { label: 'Ready', color: 'indigo', strip: 'from-indigo-500 to-violet-500' },
+    served: { label: 'Served', color: 'purple', strip: 'from-purple-500 to-fuchsia-500' },
+    delivering: { label: 'Out for Delivery', color: 'cyan', strip: 'from-cyan-400 to-blue-400' },
+    delivered: { label: 'Delivered', color: 'emerald', strip: 'from-emerald-500 to-green-500' },
+    completed: { label: 'Completed', color: 'green', strip: 'from-green-500 to-emerald-600' },
+    cancelled: { label: 'Cancelled', color: 'red', strip: 'from-red-400 to-rose-400' },
 };
 
 const getConfig = (status) => STATUS_CONFIG[status] || { label: status, color: 'gray', strip: 'from-gray-300 to-gray-400' };
@@ -153,7 +153,7 @@ export default function CustomerActiveOrderPage() {
         if (orders.length > 0 && Object.keys(expandedOrders).length === 0) {
             setExpandedOrders({ [orders[0].id]: true });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orders]);
 
     const shouldShowRateButton = (order) => {
@@ -213,7 +213,7 @@ export default function CustomerActiveOrderPage() {
             <div className="customer-page customer-page-regular py-4">
                 <div className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
                 {[1, 2].map(i => (
-                    <div key={i} className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
+                    <div key={i} className="h-64 rounded-[1.75rem] bg-white/70 animate-pulse" />
                 ))}
             </div>
         );
@@ -265,7 +265,7 @@ export default function CustomerActiveOrderPage() {
                         <span className="text-xs text-blue-200/60 hidden sm:inline">Orders</span>
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* ── Empty state ─────────────────────────────────── */}
             {visibleOrders.length === 0 ? (
@@ -273,11 +273,11 @@ export default function CustomerActiveOrderPage() {
                     <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-5">
                         <ClipboardList className="w-10 h-10 text-gray-200" />
                     </div>
-                    <h2 className="text-lg font-bold text-gray-700 mb-1">No active orders</h2>
-                    <p className="text-sm text-gray-400 mb-6">Place an order from the menu to track it here</p>
+                    <h2 className="mb-1 text-lg font-semibold text-slate-700">No active orders</h2>
+                    <p className="mb-6 text-sm text-slate-500">Place an order from the menu to track it here.</p>
                     <button
                         onClick={() => window.location.href = '/menu'}
-                        className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-200 active:scale-[0.97]"
+                        className="group flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-200 transition-all hover:bg-emerald-700 active:scale-[0.97]"
                     >
                         Browse Menu
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -319,19 +319,17 @@ export default function CustomerActiveOrderPage() {
                                                 <span className="text-lg font-bold text-gray-900 tabular-nums">Order #{order.id}</span>
 
                                                 {/* Type badge */}
-                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg border ${
-                                                    isShipping
+                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg border ${isShipping
                                                         ? 'bg-blue-50 text-blue-700 border-blue-200'
                                                         : 'bg-orange-50 text-orange-700 border-orange-200'
-                                                }`}>
+                                                    }`}>
                                                     {isShipping ? <Truck className="w-3.5 h-3.5" /> : <UtensilsCrossed className="w-3.5 h-3.5" />}
                                                     {isShipping ? 'Delivery' : 'Dine-in'}
                                                 </span>
 
                                                 {/* Status badge */}
-                                                <span className={`inline-flex items-center px-2.5 py-1 text-[11px] font-bold rounded-lg bg-${cfg.color}-50 text-${cfg.color}-700 border border-${cfg.color}-200 ${
-                                                    order.status === 'pending_confirmation' ? 'animate-pulse' : ''
-                                                }`}>
+                                                <span className={`inline-flex items-center px-2.5 py-1 text-[11px] font-bold rounded-lg bg-${cfg.color}-50 text-${cfg.color}-700 border border-${cfg.color}-200 ${order.status === 'pending_confirmation' ? 'animate-pulse' : ''
+                                                    }`}>
                                                     {cfg.label}
                                                 </span>
                                             </div>
@@ -427,7 +425,7 @@ export default function CustomerActiveOrderPage() {
                                             {!isPayingThis ? (
                                                 <button
                                                     onClick={() => setPayingOrderId(order.id)}
-                                                    className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 active:scale-[0.98]"
+                                                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 active:scale-[0.98]"
                                                 >
                                                     <CreditCard className="w-5 h-5" />
                                                     Pay Now
@@ -446,7 +444,7 @@ export default function CustomerActiveOrderPage() {
                                                                     className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-bold transition-all active:scale-[0.97] ${active
                                                                         ? 'border-emerald-500 bg-emerald-600 text-white shadow-md shadow-emerald-200'
                                                                         : 'border-gray-200 bg-white text-gray-600 hover:border-emerald-300'
-                                                                    }`}
+                                                                        }`}
                                                                 >
                                                                     <MIcon className="w-5 h-5" />
                                                                     {m.label}
@@ -495,7 +493,7 @@ export default function CustomerActiveOrderPage() {
                                         <button
                                             onClick={() => confirmDeliveryMutation.mutate(order.id)}
                                             disabled={confirmDeliveryMutation.isPending}
-                                            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-200/50 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60"
+                                            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60"
                                         >
                                             <CheckCircle2 className="w-5 h-5" />
                                             {confirmDeliveryMutation.isPending ? 'Confirming...' : 'Confirm Received'}
@@ -506,7 +504,7 @@ export default function CustomerActiveOrderPage() {
                                     {shouldShowRateButton(order) && (
                                         <button
                                             onClick={() => setRatingOrder(order)}
-                                            className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-200/50 flex items-center justify-center gap-2 active:scale-[0.98]"
+                                            className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 active:scale-[0.98]"
                                         >
                                             <Sparkles className="w-5 h-5" />
                                             Rate Your Experience

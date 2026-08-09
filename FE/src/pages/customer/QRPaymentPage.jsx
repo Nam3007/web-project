@@ -126,7 +126,7 @@ export default function QRPaymentPage() {
                 </p>
                 <p className="text-sm text-gray-400 mb-6">Your order is now being prepared by our kitchen.</p>
                 <button
-                    onClick={() => navigate('/orders')}
+                    onClick={() => navigate('/active-orders')}
                     className="px-8 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all"
                 >
                     View My Orders

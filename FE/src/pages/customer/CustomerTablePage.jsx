@@ -154,32 +154,32 @@ export default function CustomerTablePage() {
                             {occupiedCount} occupied
                         </span>
                     </div>
-                </div>
 
-                {/* View Toggle */}
-                <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        <Grid3x3 className="w-4 h-4" />
-                        List
-                    </button>
+                    {/* View Toggle */}
+                    <div className="flex gap-1 rounded-2xl bg-slate-100 p-1.5">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${viewMode === 'grid' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            <Grid3x3 className="w-4 h-4" />
+                            Table view
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             {/* Selected Table Banner */}
             {selectedTable && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex justify-between items-center animate-fade-in">
+                <div className="flex flex-col gap-4 rounded-[1.75rem] border border-emerald-200 bg-emerald-50/90 p-4 shadow-sm animate-fade-in lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-200">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-200">
                             <UtensilsCrossed className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <p className="font-bold text-gray-800">
+                            <p className="font-bold text-slate-900">
                                 {tableSelectionLocked ? `Table ${selectedTable.table_number} In Use` : `Table ${selectedTable.table_number} Selected`}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-slate-600">
                                 {tableSelectionLocked
                                     ? 'You have an active order. Complete it before choosing another table.'
                                     : `${selectedTable.table_size} seats • Available`
@@ -192,13 +192,13 @@ export default function CustomerTablePage() {
                             <>
                                 <button
                                     onClick={() => setSelectedTable(null)}
-                                    className="text-sm text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                                    className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
                                 >
                                     Clear
                                 </button>
                                 <button
                                     onClick={handleConfirmTable}
-                                    className="flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition-colors shadow-md shadow-blue-200"
+                                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-emerald-200 transition-colors hover:bg-emerald-700"
                                 >
                                     <CheckCircle2 className="w-4 h-4" />
                                     Confirm Table
@@ -210,7 +210,7 @@ export default function CustomerTablePage() {
             )}
 
             {tableSelectionLocked && activeOrder && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800">
+                <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 text-amber-900">
                     <p className="font-semibold">Table selection is locked until your current order is completed.</p>
                     <p className="text-sm mt-1">Current order #{activeOrder.id} is still active at table {activeOrder.table_id}.</p>
                 </div>
@@ -218,48 +218,45 @@ export default function CustomerTablePage() {
 
             {/* GRID/LIST VIEW */}
             {viewMode === 'grid' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-6">
                     {orderedTables.map(table => (
                         <div
                             key={table.id}
                             onClick={() => !table.is_occupied && !tableSelectionLocked && handleTableSelect(table)}
-                            className={`rounded-2xl border-2 p-6 flex flex-col items-center justify-center space-y-3 transition-all ${
-                                (tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
-                                    ? 'bg-blue-50 border-blue-400 shadow-lg shadow-blue-100 ring-2 ring-blue-200'
+                            className={`flex flex-col items-center justify-center space-y-3 rounded-[1.5rem] border-2 p-5 transition-all ${(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'border-emerald-400 bg-emerald-50 shadow-lg shadow-emerald-100 ring-2 ring-emerald-200'
                                     : table.is_occupied
-                                        ? 'bg-red-50 border-red-100 opacity-70 cursor-not-allowed'
+                                        ? 'border-rose-100 bg-rose-50/80 opacity-70 cursor-not-allowed'
                                         : tableSelectionLocked
-                                            ? 'bg-white border-gray-100 opacity-70 cursor-not-allowed'
-                                            : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-800 cursor-pointer'
-                            }`}
+                                            ? 'border-slate-100 bg-white/80 opacity-70 cursor-not-allowed'
+                                            : 'cursor-pointer border-slate-100 bg-white/90 shadow-sm hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md'
+                                }`}
                         >
-                            <div className={`p-4 rounded-full ${
-                                (tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
-                                    ? 'bg-blue-100 text-blue-600'
+                            <div className={`p-4 rounded-full ${(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'bg-emerald-100 text-emerald-700'
                                     : table.is_occupied
                                         ? 'bg-gray-200 text-gray-500'
                                         : tableSelectionLocked
                                             ? 'bg-gray-100 text-gray-400'
                                             : 'bg-emerald-100 text-emerald-600'
-                            }`}>
+                                }`}>
                                 <UtensilsCrossed className="w-8 h-8" />
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-800">{table.table_number}</h3>
+                            <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{table.table_number}</h3>
 
-                            <div className="flex items-center gap-1.5 text-sm text-gray-500 font-medium bg-white/50 px-3 py-1 rounded-full border border-gray-100">
+                            <div className="flex items-center gap-1.5 rounded-full border border-slate-100 bg-white px-3 py-1 text-sm font-medium text-slate-500">
                                 <Users className="w-4 h-4" />
                                 <span>{table.table_size} Seats</span>
                             </div>
 
-                            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                                (tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
-                                    ? 'bg-blue-100 text-blue-600'
+                            <div className={`px-3 py-1 rounded-full text-xs font-medium ${(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'bg-emerald-100 text-emerald-700'
                                     : table.is_occupied
-                                        ? 'bg-red-100 text-red-600'
+                                        ? 'bg-rose-100 text-rose-600'
                                         : tableSelectionLocked
-                                            ? 'bg-gray-100 text-gray-500'
-                                        : 'bg-emerald-100 text-emerald-600'
-                            }`}>
+                                            ? 'bg-slate-100 text-slate-500'
+                                            : 'bg-emerald-100 text-emerald-700'
+                                }`}>
                                 {(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
                                     ? 'Selected'
                                     : table.is_occupied

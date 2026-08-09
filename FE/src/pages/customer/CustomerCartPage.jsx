@@ -144,8 +144,8 @@ export default function CustomerCartPage() {
                 setSelectedTable(parsed.id.toString());
             } catch (_) { /* ignore malformed data */ }
         }
-    // Only run once on mount — activeOrder may not be loaded yet, handled by the effect above
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // Only run once on mount — activeOrder may not be loaded yet, handled by the effect above
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Force QR when shipping is selected
@@ -232,18 +232,21 @@ export default function CustomerCartPage() {
 
     if (cart.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-32 text-center">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6 text-gray-300">
-                    <Trash2 className="w-10 h-10" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-24 text-center shadow-sm">
+                <div className="relative mx-auto flex flex-col items-center justify-center">
+                    <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                        <Trash2 className="w-10 h-10" />
+                    </div>
+                    <p className="text-xs font-medium text-emerald-700">Your order basket</p>
+                    <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Your cart is empty</h2>
+                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">Looks like you haven't added any delicious items yet. Browse the menu to start building your meal.</p>
+                    <button
+                        onClick={() => navigate('/menu')}
+                        className="mt-8 rounded-full bg-emerald-600 px-8 py-3 font-semibold text-white shadow-sm transition-all hover:bg-emerald-700"
+                    >
+                        Browse Menu
+                    </button>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Your cart is empty</h2>
-                <p className="text-gray-500 mb-8">Looks like you haven't added any delicious items yet.</p>
-                <button
-                    onClick={() => navigate('/menu')}
-                    className="px-8 py-3 bg-primary text-white rounded-full font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all"
-                >
-                    Browse Menu
-                </button>
             </div>
         )
     }
@@ -268,12 +271,12 @@ export default function CustomerCartPage() {
                             <div className="flex-1 flex flex-col justify-between">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <h3 className="font-bold text-gray-900">{cartItem.item.item_name}</h3>
-                                        <p className="text-sm text-gray-500 line-clamp-1">{cartItem.item.item_description}</p>
+                                        <h3 className="font-semibold tracking-tight text-slate-900">{cartItem.item.item_name}</h3>
+                                        <p className="text-sm text-slate-500 line-clamp-1">{cartItem.item.item_description}</p>
                                     </div>
                                     <button
                                         onClick={() => removeFromCart(cartItem.item.id)}
-                                        className="text-gray-300 hover:text-red-500"
+                                        className="text-slate-300 transition-colors hover:text-rose-500"
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>
@@ -283,20 +286,20 @@ export default function CustomerCartPage() {
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => updateQuantity(cartItem.item.id, -1)}
-                                            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50"
                                         >
                                             <Minus className="w-4 h-4" />
                                         </button>
                                         <span className="font-bold w-4 text-center">{cartItem.quantity}</span>
                                         <button
                                             onClick={() => updateQuantity(cartItem.item.id, 1)}
-                                            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50"
                                         >
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <span className="font-bold text-lg text-primary">
-                                        {(cartItem.item.item_price * cartItem.quantity).toLocaleString('vi-VN')}₫ 
+                                    <span className="text-lg font-semibold text-emerald-700">
+                                        {(cartItem.item.item_price * cartItem.quantity).toLocaleString('vi-VN')}₫
                                     </span>
                                 </div>
                             </div>
@@ -305,7 +308,7 @@ export default function CustomerCartPage() {
                 </div>
 
                 {/* Right Column: Table Selection + Summary */}
-                <div className="flex flex-col gap-6 h-fit">
+                <div className="flex h-fit flex-col gap-6">
 
                     {/* Dining Details */}
                     <div className="customer-card p-6 transition-all hover:shadow-md">
@@ -316,25 +319,23 @@ export default function CustomerCartPage() {
 
                         {/* Order Type Toggle */}
                         {!activeOrder && (
-                            <div className="flex bg-gray-100 rounded-xl p-1 gap-1 mb-4">
+                            <div className="mb-4 flex gap-1 rounded-2xl bg-slate-100 p-1">
                                 <button
                                     onClick={() => setOrderType('dine_in')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
-                                        orderType === 'dine_in'
-                                            ? 'bg-white text-primary shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                    }`}
+                                        className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all ${orderType === 'dine_in'
+                                            ? 'bg-white text-emerald-700 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
                                 >
                                     <UtensilsCrossed className="w-4 h-4" />
                                     Dine-in
                                 </button>
                                 <button
                                     onClick={() => setOrderType('shipping')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
-                                        orderType === 'shipping'
-                                            ? 'bg-white text-blue-600 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                    }`}
+                                        className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all ${orderType === 'shipping'
+                                            ? 'bg-white text-sky-700 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
                                 >
                                     <Truck className="w-4 h-4" />
                                     Shipping
@@ -343,21 +344,21 @@ export default function CustomerCartPage() {
                         )}
 
                         {activeOrder ? (
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
                                 <p className="font-bold mb-1">Active Order #{activeOrder.id}</p>
                                 <p>You are seated at <span className="font-bold">Table {activeOrder.table_id}</span>.</p>
                                 <p className="mt-2 text-xs opacity-75">Items will be added to this order.</p>
                             </div>
                         ) : orderType === 'dine_in' ? (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Select Your Table</label>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">Select Your Table</label>
                                 {tablesLoading ? (
-                                    <div className="animate-pulse h-10 bg-gray-100 rounded-lg"></div>
+                                    <div className="h-10 animate-pulse rounded-lg bg-slate-100"></div>
                                 ) : (
                                     <select
                                         value={selectedTable}
                                         onChange={(e) => updateSelectedTable(e.target.value ? Number(e.target.value) : null)}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white appearance-none"
+                                        className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
                                         style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                                     >
                                         <option value="">-- Choose a Table --</option>
@@ -368,11 +369,11 @@ export default function CustomerCartPage() {
                                         ))}
                                     </select>
                                 )}
-                                <p className="text-xs text-gray-400 mt-2">Only available tables are shown.</p>
+                                <p className="mt-2 text-xs text-slate-400">Only available tables are shown.</p>
                             </div>
                         ) : (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
                                     <MapPin className="w-4 h-4 text-blue-500" />
                                     Delivery Address
                                 </label>
@@ -381,9 +382,9 @@ export default function CustomerCartPage() {
                                     onChange={(e) => setShippingAddress(e.target.value)}
                                     placeholder="Enter your full delivery address..."
                                     rows={3}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 resize-none text-sm"
+                                    className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
                                 />
-                                <p className="text-xs text-gray-400 mt-2">We'll deliver to this address.</p>
+                                <p className="mt-2 text-xs text-slate-400">We'll deliver to this address.</p>
                             </div>
                         )}
                     </div>
@@ -399,61 +400,59 @@ export default function CustomerCartPage() {
                             {/* QR Payment Option */}
                             <button
                                 onClick={() => setPaymentMethod('QR')}
-                                className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                                    paymentMethod === 'QR'
-                                        ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100'
-                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
-                                }`}
+                                className={`relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all ${paymentMethod === 'QR'
+                                        ? 'border-sky-500 bg-sky-50 shadow-md shadow-sky-100'
+                                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
                             >
                                 {paymentMethod === 'QR' && (
-                                    <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500">
                                         <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </div>
                                 )}
-                                <div className={`p-3 rounded-xl ${paymentMethod === 'QR' ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                                    <QrCode className={`w-7 h-7 ${paymentMethod === 'QR' ? 'text-blue-600' : 'text-gray-500'}`} />
+                                <div className={`rounded-xl p-3 ${paymentMethod === 'QR' ? 'bg-sky-100' : 'bg-slate-100'}`}>
+                                    <QrCode className={`w-7 h-7 ${paymentMethod === 'QR' ? 'text-sky-700' : 'text-slate-500'}`} />
                                 </div>
-                                <span className={`text-sm font-bold ${paymentMethod === 'QR' ? 'text-blue-700' : 'text-gray-600'}`}>
+                                <span className={`text-sm font-semibold ${paymentMethod === 'QR' ? 'text-sky-700' : 'text-slate-600'}`}>
                                     QR Transfer
                                 </span>
-                                <span className="text-[10px] text-gray-400">Instant payment</span>
+                                <span className="text-[10px] text-slate-400">Instant payment</span>
                             </button>
 
                             {/* Cash Option — disabled for shipping */}
                             <button
                                 onClick={() => orderType !== 'shipping' && setPaymentMethod('cash')}
                                 disabled={orderType === 'shipping'}
-                                className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                                    orderType === 'shipping'
-                                        ? 'border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed'
+                                className={`relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all ${orderType === 'shipping'
+                                        ? 'cursor-not-allowed border-slate-100 bg-slate-50 opacity-50'
                                         : paymentMethod === 'cash'
-                                            ? 'border-green-500 bg-green-50 shadow-md shadow-green-100'
-                                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
-                                }`}
+                                            ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100'
+                                            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
                             >
                                 {paymentMethod === 'cash' && orderType !== 'shipping' && (
-                                    <div className="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
                                         <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </div>
                                 )}
-                                <div className={`p-3 rounded-xl ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                                    <Banknote className={`w-7 h-7 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-green-600' : 'text-gray-500'}`} />
+                                <div className={`rounded-xl p-3 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                                    <Banknote className={`w-7 h-7 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-emerald-700' : 'text-slate-500'}`} />
                                 </div>
-                                <span className={`text-sm font-bold ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-green-700' : 'text-gray-600'}`}>
+                                <span className={`text-sm font-semibold ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-emerald-700' : 'text-slate-600'}`}>
                                     Cash
                                 </span>
-                                <span className="text-[10px] text-gray-400">
+                                <span className="text-[10px] text-slate-400">
                                     {orderType === 'shipping' ? 'Not available' : 'Pay at counter'}
                                 </span>
                             </button>
                         </div>
 
                         {orderType === 'shipping' && (
-                            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded-lg mt-3 text-center">
+                            <p className="mt-3 rounded-lg bg-amber-50 p-2 text-center text-xs text-amber-700">
                                 Shipping orders require QR payment
                             </p>
                         )}
@@ -465,13 +464,13 @@ export default function CustomerCartPage() {
 
                         {coupons.length > 0 && (
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">
+                                <label className="block text-sm font-medium text-slate-700">
                                     Available Coupons
                                 </label>
-                                <select 
+                                <select
                                     value={selectedCouponCode}
                                     onChange={(e) => setSelectedCouponCode(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-gray-50"
+                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
                                 >
                                     <option value="">-- Select a Coupon --</option>
                                     {coupons.map(coupon => (
@@ -483,22 +482,22 @@ export default function CustomerCartPage() {
                             </div>
                         )}
 
-                        <div className="space-y-3 pb-6 border-b border-gray-100">
-                            <div className="flex justify-between text-gray-600">
+                        <div className="space-y-3 border-b border-slate-100 pb-6">
+                            <div className="flex justify-between text-slate-600">
                                 <span>Subtotal</span>
                                 <span>{cartTotal.toLocaleString('vi-VN')}₫ </span>
                             </div>
-                            <div className="flex justify-between text-gray-600">
+                            <div className="flex justify-between text-slate-600">
                                 <span>Tax (8%)</span>
                                 <span>{(cartTotal * 0.08).toLocaleString('vi-VN')}₫ </span>
                             </div>
                             {selectedCouponCode && (
-                                <div className="flex justify-between text-green-600 font-medium">
+                                <div className="flex justify-between font-medium text-emerald-700">
                                     <span>Discount ({coupons.find(c => c.code === selectedCouponCode)?.discount_percentage}%)</span>
                                     <span>-{(cartTotal * (coupons.find(c => c.code === selectedCouponCode)?.discount_percentage / 100)).toLocaleString('vi-VN')}₫</span>
                                 </div>
                             )}
-                            <div className="flex justify-between text-xl font-bold text-gray-900 pt-2">
+                            <div className="flex justify-between pt-2 text-xl font-semibold text-slate-900">
                                 <span>Total</span>
                                 <span>
                                     {(() => {
@@ -514,11 +513,10 @@ export default function CustomerCartPage() {
                         <button
                             onClick={() => placeOrderMutation.mutate()}
                             disabled={placeOrderMutation.isPending || (!activeOrder && orderType === 'dine_in' && !selectedTable) || (!activeOrder && orderType === 'shipping' && !shippingAddress.trim())}
-                            className={`w-full py-4 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                                paymentMethod === 'QR'
-                                    ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/30'
-                                    : 'bg-green-600 hover:bg-green-700 shadow-green-600/30'
-                            }`}
+                                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-lg font-semibold text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-50 ${paymentMethod === 'QR'
+                                    ? 'bg-sky-600 hover:bg-sky-700'
+                                    : 'bg-emerald-600 hover:bg-emerald-700'
+                                }`}
                         >
                             {placeOrderMutation.isPending ? 'Processing...' : (
                                 <>
@@ -527,7 +525,7 @@ export default function CustomerCartPage() {
                                 </>
                             )}
                         </button>
-                        <p className="text-xs text-center text-gray-400">
+                        <p className="text-center text-xs text-slate-400">
                             {paymentMethod === 'QR'
                                 ? "You'll be redirected to scan the QR code."
                                 : "Waiter will confirm your cash payment."
