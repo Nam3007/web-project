@@ -148,147 +148,191 @@ export default function CustomerOrdersPage() {
     };
 
     return (
-        <div className="customer-page customer-page-regular">
-            {/* VIP Status Card */}
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                <div className="relative z-10 flex justify-between items-start">
-                    <div>
-                        <h2 className="text-2xl font-bold flex items-center gap-2">
-                            <Crown className={`w-6 h-6 ${isVip ? 'text-amber-400' : 'text-gray-400'}`} />
-                            {user.full_name} 
-                        </h2>
-                        
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm opacity-60">Total Spent</p>
-                        <p className="text-3xl font-bold text-emerald-400">{totalSpent.toLocaleString('vi-VN')}₫</p>
+        <div className="customer-page customer-page-wide pb-12 relative">
+            <div className="absolute inset-0 pointer-events-none vietnam-pattern opacity-10 z-0"></div>
+            
+            <div className="relative z-10 space-y-8">
+                {/* VIP Status Card */}
+                <div className="relative overflow-hidden bg-gradient-to-br from-emerald-800 via-emerald-900 to-emerald-950 rounded-[2rem] p-8 text-white shadow-xl shadow-emerald-900/10 border border-emerald-700/50">
+                    <div className="absolute inset-0 opacity-30 pointer-events-none vietnam-pattern"></div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-20"></div>
+                    <div className="absolute bottom-0 left-0 w-56 h-56 bg-emerald-500 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4 opacity-20"></div>
+
+                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div className="flex items-center gap-5">
+                            <div className={`w-16 h-16 backdrop-blur-md rounded-2xl flex items-center justify-center border shadow-inner ${isVip ? 'bg-amber-500/20 border-amber-400/30' : 'bg-white/10 border-white/20'}`}>
+                                <Crown className={`w-8 h-8 ${isVip ? 'text-amber-400' : 'text-emerald-200'}`} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-emerald-300/80 mb-1">
+                                    {isVip ? 'VIP Member' : 'Valued Customer'}
+                                </p>
+                                <h2 className="text-3xl font-bold tracking-tight font-serif text-white">
+                                    {user.full_name}
+                                </h2>
+                            </div>
+                        </div>
+                        <div className="text-left md:text-right bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 shadow-inner w-full md:w-auto">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-200/80 mb-1">Total Spent</p>
+                            <p className="text-3xl font-bold text-amber-400 tabular-nums">{totalSpent.toLocaleString('vi-VN')}₫</p>
+                            {!isVip && (
+                                <div className="mt-3">
+                                    <div className="flex justify-between text-xs font-medium text-emerald-200 mb-1">
+                                        <span>Progress to VIP</span>
+                                        <span>{Math.round(progress)}%</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-black/20 rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full" style={{ width: `${progress}%` }}></div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-
                 
-
-        
-
-            {/* History */}
-            <div className="space-y-6">
-                <h1 className="customer-page-title text-2xl">Order History</h1>
-
-                {myOrders.length === 0 ? (
-                    <div className="customer-card text-center py-10">
-                        <p className="text-gray-500">No past orders found.</p>
+                {/* History */}
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between px-2">
+                        <h1 className="text-2xl font-bold font-serif text-slate-900 flex items-center gap-2">
+                            <ShoppingBag className="w-6 h-6 text-emerald-600" />
+                            Order History
+                        </h1>
+                        <span className="text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{myOrders.length} Orders</span>
                     </div>
-                ) : (
-                    <div className="space-y-4">
-                        {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(order => (
-                            <div key={order.id} className="customer-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    <div className="rounded-xl bg-slate-50 p-3">
-                                        <ShoppingBag className="w-6 h-6 text-slate-400" />
+
+                    {myOrders.length === 0 ? (
+                        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/80 px-6 py-20 text-center shadow-[0_16px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+                            <div className="mb-6 flex h-24 w-24 mx-auto items-center justify-center rounded-full bg-emerald-50 shadow-inner">
+                                <ShoppingBag className="w-10 h-10 text-emerald-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 font-serif mb-2">No past orders found</h3>
+                            <p className="text-slate-500 max-w-sm mx-auto">Your order history will appear here once you place your first order.</p>
+                            <button
+                                onClick={() => window.location.href = '/menu'}
+                                className="mt-8 rounded-full bg-emerald-600 px-8 py-3 font-bold text-white shadow-lg shadow-emerald-200 transition-all hover:-translate-y-1"
+                            >
+                                Browse Menu
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {[...myOrders].map(order => (
+                                <div key={order.id} className="group relative rounded-[1.5rem] border border-white/70 bg-white/80 p-5 sm:p-6 shadow-sm backdrop-blur-xl transition-all hover:shadow-md hover:border-emerald-200 overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5">
+                                    <div className="absolute inset-0 pointer-events-none vietnam-pattern opacity-[0.02]"></div>
+                                    
+                                    <div className="relative z-10 flex items-start gap-4">
+                                        <div className="rounded-2xl bg-emerald-50 p-4 border border-emerald-100/50 shadow-inner shrink-0">
+                                            <ShoppingBag className="w-6 h-6 text-emerald-500" />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <h3 className="text-lg font-bold tracking-tight text-slate-900">Order #{order.id}</h3>
+                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${getStatusStyle(order.status)} border border-current/10`}>
+                                                    {getStatusLabel(order.status)}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm font-medium text-slate-500 flex-wrap">
+                                                <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                                    {new Date(order.created_at).toLocaleDateString()}
+                                                </span>
+                                                {order.table_id && (
+                                                    <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 px-2 py-1 rounded-md border border-orange-100">
+                                                        Table {order.table_id}
+                                                    </span>
+                                                )}
+                                                {order.payment_method && (
+                                                    <span className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-bold uppercase ${order.payment_method === 'QR'
+                                                            ? 'bg-sky-50 text-sky-700 border border-sky-100'
+                                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                                        }`}>
+                                                        {order.payment_method === 'QR' ? <QrCode className="w-3.5 h-3.5" /> : <Banknote className="w-3.5 h-3.5" />}
+                                                        {order.payment_method}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold tracking-tight text-slate-900">Order #{order.id}</h3>
-                                        <div className="mt-1 flex items-center gap-4 text-sm text-slate-500">
-                                            <span className="flex items-center gap-1">
-                                                <Calendar className="w-3 h-3" />
-                                                {new Date(order.created_at).toLocaleDateString()}
-                                            </span>
-                                            <span>•</span>
-                                            <span>Table {order.table_id}</span>
+
+                                    <div className="relative z-10 flex flex-col md:items-end gap-3 border-t border-slate-100 md:border-t-0 pt-4 md:pt-0 mt-2 md:mt-0">
+                                        <div className="flex items-center justify-between md:justify-end gap-6 w-full">
+                                            <p className="text-sm font-bold text-slate-400 uppercase tracking-wider md:hidden">Total</p>
+                                            <p className="text-xl font-bold text-emerald-700 tabular-nums bg-emerald-50/80 px-4 py-1.5 rounded-xl border border-emerald-100/50">
+                                                {order.total_amount.toLocaleString('vi-VN')} ₫
+                                            </p>
+                                        </div>
+
+                                        <div className="flex flex-wrap items-center gap-2 justify-end w-full">
+                                            {/* Status message for pending orders */}
+                                            {order.status === 'pending' && order.payment_method === 'cash' && (
+                                                <span className="text-[11px] text-amber-700 font-bold bg-amber-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-amber-200 shadow-sm">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    Waiting for waiter
+                                                </span>
+                                            )}
+                                            {order.status === 'pending' && order.payment_method === 'QR' && (
+                                                <span className="text-[11px] text-sky-700 font-bold bg-sky-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-sky-200 shadow-sm">
+                                                    <QrCode className="w-3.5 h-3.5" />
+                                                    QR payment pending
+                                                </span>
+                                            )}
+
+                                            {/* Request Complete button for served dine_in orders */}
+                                            {order.status === 'served' && order.order_type === 'dine_in' && (
+                                                order.completion_requested ? (
+                                                    <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-3 py-2 rounded-xl flex items-center gap-1.5 border border-emerald-200 shadow-sm">
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        Completion Requested
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => requestCompleteMutation.mutate(order.id)}
+                                                        disabled={requestCompleteMutation.isPending}
+                                                        className="text-xs text-white font-bold bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shadow-orange-200 transition-all active:scale-[0.98] disabled:opacity-60"
+                                                    >
+                                                        <Bell className="w-4 h-4" />
+                                                        Request Complete
+                                                    </button>
+                                                )
+                                            )}
+
+                                            {/* Rate Items button for completed dine-in orders */}
+                                            {shouldShowRateButton(order) && (
+                                                <button
+                                                    onClick={() => setRatingOrder(order)}
+                                                    className="text-xs text-white font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md shadow-amber-200 transition-all active:scale-[0.98]"
+                                                >
+                                                    <Star className="w-4 h-4" />
+                                                    Rate Items
+                                                </button>
+                                            )}
+
+                                            {/* Already rated badge */}
+                                            {order.status === 'completed' && isAlreadyRated(order) && (
+                                                <span className="text-[11px] text-amber-700 font-bold bg-amber-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-amber-200 shadow-sm">
+                                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                                    Rated
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-                                <div className="flex flex-col items-end gap-2">
-                                    <div className="flex items-center gap-4">
-                                        {/* Payment method badge */}
-                                        {order.payment_method && (
-                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${order.payment_method === 'QR'
-                                                    ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                                                    : 'bg-green-50 text-green-600 border border-green-200'
-                                                }`}>
-                                                {order.payment_method === 'QR' ? <QrCode className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
-                                                {order.payment_method}
-                                            </span>
-                                        )}
-
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
-                                            {getStatusLabel(order.status)}
-                                        </span>
-
-                                        <p className="flex items-center gap-1 text-lg font-semibold text-slate-900">
-
-                                            {order.total_amount.toLocaleString('vi-VN')} ₫
-                                        </p>
-                                    </div>
-
-                                    {/* Status message for pending orders */}
-                                    {order.status === 'pending' && order.payment_method === 'cash' && (
-                                        <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            Waiting for waiter to confirm cash
-                                        </span>
-                                    )}
-                                    {order.status === 'pending' && order.payment_method === 'QR' && (
-                                        <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded flex items-center gap-1">
-                                            <QrCode className="w-3 h-3" />
-                                            QR payment in progress
-                                        </span>
-                                    )}
-
-                                    {/* Request Complete button for served dine_in orders */}
-                                    {order.status === 'served' && order.order_type === 'dine_in' && (
-                                        order.completion_requested ? (
-                                            <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded flex items-center gap-1 border border-green-200">
-                                                <CheckCircle className="w-3 h-3" />
-                                                Completion Requested
-                                            </span>
-                                        ) : (
-                                            <button
-                                                onClick={() => requestCompleteMutation.mutate(order.id)}
-                                                disabled={requestCompleteMutation.isPending}
-                                                className="text-xs text-white font-semibold bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded flex items-center gap-1 transition-colors disabled:opacity-60"
-                                            >
-                                                <Bell className="w-3 h-3" />
-                                                Request Complete
-                                            </button>
-                                        )
-                                    )}
-
-                                    {/* Rate Items button for completed dine-in orders */}
-                                    {shouldShowRateButton(order) && (
-                                        <button
-                                            onClick={() => setRatingOrder(order)}
-                                            className="text-xs text-white font-semibold bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all"
-                                        >
-                                            <Star className="w-3 h-3" />
-                                            Rate Items
-                                        </button>
-                                    )}
-
-                                    {/* Already rated badge */}
-                                    {order.status === 'completed' && isAlreadyRated(order) && (
-                                        <span className="text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded flex items-center gap-1 border border-amber-200">
-                                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                                            Rated
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                {/* Rating Modal */}
+                {ratingOrder && (
+                    <RatingModal
+                        isOpen={!!ratingOrder}
+                        onClose={() => setRatingOrder(null)}
+                        orderId={ratingOrder.id}
+                        customerId={user.id}
+                        orderItems={getRatingItems()}
+                    />
                 )}
             </div>
-
-            {/* Rating Modal */}
-            {ratingOrder && (
-                <RatingModal
-                    isOpen={!!ratingOrder}
-                    onClose={() => setRatingOrder(null)}
-                    orderId={ratingOrder.id}
-                    customerId={user.id}
-                    orderItems={getRatingItems()}
-                />
-            )}
         </div>
     );
 }

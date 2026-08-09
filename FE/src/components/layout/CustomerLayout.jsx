@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, History, LogOut, UtensilsCrossed, ClipboardList, TableProperties, ReceiptText } from 'lucide-react';
+import { ShoppingBag, History, LogOut, UtensilsCrossed, TableProperties, ReceiptText, MapPin, Phone, Instagram, Facebook } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -16,20 +16,27 @@ export default function CustomerLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100/60 flex flex-col">
+        <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
+            {/* Background Texture */}
+            <div className="absolute inset-0 pointer-events-none vietnam-pattern opacity-40 z-0"></div>
+
             {/* Navbar */}
-            <nav className="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+            <nav className="bg-white/80 backdrop-blur-xl border-b border-emerald-100/50 sticky top-0 z-50 shadow-sm transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
+                    <div className="flex justify-between h-20 items-center">
                         <div className="flex items-center gap-8">
-                            <Link to="/menu" className="flex items-center gap-2">
-                                <div className="bg-primary/10 p-2 rounded-lg text-primary">
-                                    <UtensilsCrossed className="w-6 h-6" />
+                            <Link to="/menu" className="flex items-center gap-3 group">
+                                <div className="bg-gradient-to-br from-primary to-secondary p-2.5 rounded-2xl text-white shadow-lg shadow-emerald-200 group-hover:scale-105 transition-transform duration-300 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <UtensilsCrossed className="w-6 h-6 relative z-10" />
                                 </div>
-                                <span className="text-xl font-bold text-gray-800 tracking-tight">Restaurant Customer</span>
+                                <div>
+                                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-tight font-serif">River Side</h1>
+                                    <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-700/60 font-semibold mt-0.5">Restaurant</p>
+                                </div>
                             </Link>
 
-                            <div className="hidden md:flex items-center gap-1 rounded-2xl bg-slate-100/80 p-1.5">
+                            <div className="hidden md:flex items-center gap-2 rounded-full bg-slate-100/60 p-1.5 border border-slate-200/50">
                                 <NavLink to="/menu" current={location.pathname}>Menu</NavLink>
                                 {user && (
                                     <>
@@ -41,38 +48,38 @@ export default function CustomerLayout() {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             {user && (
                                 <>
-                                    <Link to="/cart" className="relative rounded-2xl border border-transparent bg-white/90 p-2.5 text-slate-600 shadow-sm transition-all hover:border-emerald-200 hover:text-emerald-600">
-                                        <ShoppingBag className="h-5 w-5" />
+                                    <Link to="/cart" className="relative group p-2.5">
+                                        <div className="absolute inset-0 bg-emerald-50 rounded-2xl scale-0 group-hover:scale-100 transition-transform duration-200 origin-center"></div>
+                                        <ShoppingBag className="h-5 w-5 text-slate-600 group-hover:text-primary relative z-10 transition-colors" />
                                         {cartCount > 0 && (
-                                            <span className="absolute -right-1 -top-1 inline-flex items-center justify-center rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-bold leading-none text-white shadow-lg shadow-rose-200">
+                                            <span className="absolute 0 top-0 right-0 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-accent text-[11px] font-bold text-white shadow-md shadow-accent/40 z-20 border-2 border-white animate-bounce-slow">
                                                 {cartCount}
                                             </span>
                                         )}
                                     </Link>
-
-                                    <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                                    <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
                                 </>
                             )}
 
                             {user ? (
-                                <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 px-3 py-2">
-                                    <div className="hidden md:block text-right">
-                                        <p className="text-xs font-semibold text-emerald-700">{user.full_name}</p>
-                                        <p className="text-[11px] text-emerald-600/70">Welcome back</p>
+                                <div className="flex items-center gap-3">
+                                    <div className="hidden sm:flex flex-col items-end mr-2">
+                                        <span className="text-sm font-semibold text-slate-800">{user.full_name}</span>
+                                        <span className="text-[10px] font-medium text-primary bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">VIP Member</span>
                                     </div>
                                     <button
                                         onClick={handleLogout}
-                                        className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white hover:text-rose-500"
+                                        className="rounded-xl p-2.5 text-slate-400 transition-all duration-200 hover:bg-rose-50 hover:text-rose-500"
                                         title="Sign Out"
                                     >
                                         <LogOut className="h-5 w-5" />
                                     </button>
                                 </div>
                             ) : (
-                                <Link to="/login" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition-colors hover:bg-emerald-700">
+                                <Link to="/login" className="rounded-xl bg-gradient-to-r from-primary to-secondary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/50 transition-all hover:shadow-emerald-200 hover:-translate-y-0.5 active:translate-y-0">
                                     Sign In
                                 </Link>
                             )}
@@ -81,33 +88,85 @@ export default function CustomerLayout() {
                 </div>
             </nav>
 
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 px-5 py-4 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/8 via-white/0 to-amber-500/8" />
-                    <div className="relative flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700/80">{pageMeta.kicker}</p>
-                            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{pageMeta.title}</h1>
-                            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">{pageMeta.description}</p>
+            {/* Premium Page Banner */}
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-10">
+                <div className="relative overflow-hidden rounded-[2rem] bg-white shadow-sm border border-emerald-50 p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/50 to-transparent"></div>
+                    <div className="absolute -right-20 -top-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors duration-700"></div>
+                    
+                    <div className="relative z-10 max-w-2xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/50 border border-emerald-200/50 text-emerald-800 text-[10px] font-bold uppercase tracking-widest mb-4">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-soft"></span>
+                            {pageMeta.kicker}
                         </div>
-                        <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-600">
-                            {pageMeta.badges.map((badge) => (
-                                <span key={badge} className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-emerald-700">
-                                    {badge}
-                                </span>
-                            ))}
-                        </div>
+                        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight font-serif">{pageMeta.title}</h1>
+                        <p className="mt-3 text-slate-500 leading-relaxed max-w-lg">{pageMeta.description}</p>
+                    </div>
+
+                    <div className="relative z-10 flex flex-wrap gap-2">
+                        {pageMeta.badges.map((badge, idx) => (
+                            <span key={badge} className={`rounded-xl px-3.5 py-2 text-xs font-semibold shadow-sm border ${idx === 0 ? 'bg-primary text-white border-primary shadow-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200 transition-colors'}`}>
+                                {badge}
+                            </span>
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-12 relative z-10">
                 <Outlet />
             </main>
 
+            {/* Medium Footer */}
+            <footer className="bg-slate-900 text-slate-300 relative overflow-hidden z-10 border-t-4 border-primary mt-auto">
+                <div className="absolute inset-0 vietnam-pattern opacity-10"></div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                        <div className="text-center md:text-left space-y-4">
+                            <h2 className="text-2xl font-serif font-bold text-white tracking-wide">River Side</h2>
+                            <p className="text-sm text-slate-400 max-w-xs mx-auto md:mx-0 leading-relaxed">
+                                Experience the fresh flavors of modern Vietnamese cuisine in a casual upscale setting.
+                            </p>
+                        </div>
+                        <div className="flex flex-col items-center space-y-3">
+                            <div className="flex items-center gap-2 text-sm">
+                                <MapPin className="w-4 h-4 text-accent" />
+                                <span>123 Culinary Ave, Food District</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                                <Phone className="w-4 h-4 text-accent" />
+                                <span>+84 123 456 789</span>
+                            </div>
+                            <div className="flex gap-4 mt-2">
+                                <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors text-white">
+                                    <Instagram className="w-4 h-4" />
+                                </a>
+                                <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors text-white">
+                                    <Facebook className="w-4 h-4" />
+                                </a>
+                            </div>
+                        </div>
+                        <div className="text-center md:text-right">
+                            <div className="inline-flex flex-col gap-2">
+                                <Link to="/menu" className="text-sm hover:text-white transition-colors">Browse Menu</Link>
+                                <Link to="/tables" className="text-sm hover:text-white transition-colors">Reserve Table</Link>
+                                <Link to="/orders" className="text-sm hover:text-white transition-colors">Order History</Link>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-12 pt-8 border-t border-slate-800 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <p>© {new Date().getFullYear()} River Side Restaurant. All rights reserved.</p>
+                        <div className="flex gap-4">
+                            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
             {/* Mobile Nav Bottom */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-gray-200 shadow-[0_-8px_24px_rgba(15,23,42,0.06)] flex justify-around p-3 z-50 pb-safe">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] flex justify-around p-3 pb-safe z-50">
                 <MobileNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
                 {user && (
                     <>
@@ -115,13 +174,8 @@ export default function CustomerLayout() {
                         <MobileNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
                         <MobileNavLink to="/orders" icon={History} label="History" current={location.pathname} />
                         <MobileNavLink to="/active-orders" icon={ReceiptText} label="Live" current={location.pathname} />
-                        <button onClick={handleLogout} className="flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500">
-                            <LogOut className="h-5 w-5" />
-                            <span className="text-[10px] font-medium">Logout</span>
-                        </button>
                     </>
                 )}
-                </div>
             </div>
         </div>
     );
@@ -130,45 +184,49 @@ export default function CustomerLayout() {
 function getPageMeta(pathname, user) {
     if (pathname.startsWith('/tables')) {
         return {
-            kicker: 'Choose your seat',
+            kicker: 'Dining Setup',
             title: 'Table Selection',
-            description: 'Pick an available table before heading to the menu. If you already have an active order, the selection stays locked to protect your order flow.',
-            badges: ['Select table', 'See availability', 'Continue to menu'],
+            description: 'Pick an available table before heading to the menu. Secure your spot for a seamless dining experience.',
+            badges: ['Select Table', 'View Layout'],
         };
     }
-
     if (pathname.startsWith('/cart')) {
         return {
-            kicker: 'Review your basket',
+            kicker: 'Review Basket',
             title: 'Your Cart',
-            description: 'Check the dishes you picked, adjust quantities, choose how you want to pay, and place the order when you are ready.',
-            badges: ['Edit items', 'Choose payment', 'Checkout'],
+            description: 'Review your selections, adjust quantities, and choose your preferred payment method to place your order.',
+            badges: ['Checkout', 'QR Payment Available'],
         };
     }
-
     if (pathname.startsWith('/active-orders')) {
         return {
-            kicker: 'Live status',
+            kicker: 'Live Status',
             title: 'Active Orders',
-            description: 'Track what is being prepared right now, confirm delivery when needed, and rate items after the meal is complete.',
-            badges: ['Track progress', 'Confirm delivery', 'Rate items'],
+            description: 'Track your meal from kitchen to table in real-time. View status updates and confirm delivery.',
+            badges: ['Track Progress', 'Live Updates'],
         };
     }
-
     if (pathname.startsWith('/orders')) {
         return {
-            kicker: 'Order history',
+            kicker: 'Order History',
             title: 'Past Orders',
-            description: 'Review previous visits, payment methods, and order totals at a glance so returning to a favorite meal is easy.',
-            badges: ['History','Reorder context'],
+            description: 'Review your previous dining experiences, reorder favorites, and manage your VIP status progress.',
+            badges: ['History', 'Reorder'],
         };
     }
-
+    if (pathname.startsWith('/qr-payment')) {
+        return {
+            kicker: 'Secure Checkout',
+            title: 'QR Payment',
+            description: 'Complete your order by scanning the VietQR code. Fast, secure, and instant confirmation.',
+            badges: ['Scan to Pay', 'Instant Confirm'],
+        };
+    }
     return {
-        kicker: 'Welcome',
-        title: user ? 'Browse the Menu' : 'Explore the Menu',
-        description: 'Discover dishes, search by name, and build your cart from a warm restaurant-style menu experience.',
-        badges: ['Browse dishes', 'Search dishes by name', 'Add to cart'],
+        kicker: 'Welcome Back',
+        title: user ? 'Explore Our Menu' : 'Discover Fresh Flavors',
+        description: 'Browse our curated selection of modern Vietnamese dishes, crafted with fresh herbs and authentic ingredients.',
+        badges: ['Signatures', 'Fresh Ingredients', 'Add to Cart'],
     };
 }
 
@@ -177,7 +235,7 @@ function NavLink({ to, children, current }) {
     return (
         <Link
             to={to}
-            className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${active ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${active ? 'bg-white text-primary shadow-sm ring-1 ring-slate-900/5' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
                 }`}
         >
             {children}
@@ -185,20 +243,19 @@ function NavLink({ to, children, current }) {
     )
 }
 
-// eslint-disable-next-line no-unused-vars
 function MobileNavLink({ to, icon: IconComponent, label, current, count }) {
     const active = current === to;
     return (
-        <Link to={to} className={`flex flex-col items-center justify-center gap-1 relative rounded-xl px-2 py-1.5 ${active ? 'text-emerald-700' : 'text-slate-400'}`}>
-            <div className="relative">
-                <IconComponent className="w-6 h-6" />
+        <Link to={to} className={`flex flex-col items-center justify-center gap-1 relative w-16 transition-colors ${active ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}>
+            <div className={`relative p-1.5 rounded-xl transition-all duration-300 ${active ? 'bg-emerald-50' : ''}`}>
+                <IconComponent className={`w-6 h-6 transition-transform duration-300 ${active ? 'scale-110' : ''}`} />
                 {count > 0 && (
-                    <span className="absolute -top-1 -right-2 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white border-2 border-white">
                         {count}
                     </span>
                 )}
             </div>
-            <span className="text-[10px] font-medium">{label}</span>
+            <span className={`text-[10px] font-medium transition-all ${active ? 'font-bold' : ''}`}>{label}</span>
         </Link>
     )
 }
