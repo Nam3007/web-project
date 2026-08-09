@@ -7,10 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#4F46E5', // Indigo
-        secondary: '#10B981', // Emerald
-        accent: '#FBBF24', // Amber
-      }
+        primary: '#d4a853',
+        secondary: '#10B981',
+        accent: '#FBBF24',
+      },
+      fontFamily: {
+        serif: ['Playfair Display', 'Georgia', 'Times New Roman', 'serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
     },
   },
   plugins: [],
