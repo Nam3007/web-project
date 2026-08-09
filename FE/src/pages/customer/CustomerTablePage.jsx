@@ -3,8 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { Users, UtensilsCrossed, CheckCircle2, Info, Armchair } from 'lucide-react';
-import { WarmPageWrapper, SectionHeading, PageHero, WarmCard, GoldButton, FlourishOrnament } from '../../components/RestaurantDecorations';
+import { Users, UtensilsCrossed, Grid3x3, CheckCircle2 } from 'lucide-react';
 
 const SELECTED_TABLE_STORAGE_KEY = 'selectedTable';
 
@@ -21,6 +20,7 @@ function readStoredSelectedTable() {
 }
 
 export default function CustomerTablePage() {
+    const [viewMode, setViewMode] = useState('grid');
     const [selectedTable, setSelectedTable] = useState(null);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -65,20 +65,7 @@ export default function CustomerTablePage() {
         }
     }, [tables, tableSelectionLocked]);
 
-    if (isLoading) {
-        return (
-            <WarmPageWrapper pattern="tables">
-                <div className="space-y-8 animate-pulse">
-                    <div className="h-32 bg-r-warm/10 rounded-3xl" />
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                            <div key={i} className="h-44 bg-r-warm/10 rounded-2xl" />
-                        ))}
-                    </div>
-                </div>
-            </WarmPageWrapper>
-        );
-    }
+    if (isLoading) return <div className="text-center py-20">Loading tables...</div>;
 
     const orderedTables = [...tables].sort((a, b) => {
         const leftNumber = Number(a.table_number);
@@ -151,168 +138,173 @@ export default function CustomerTablePage() {
     };
 
     return (
-        <WarmPageWrapper pattern="tables">
-            <div className="space-y-6">
-                {/* ── Header ───────────────────────────────────────── */}
-                <PageHero
-                    title="Choose Your Spot"
-                    subtitle="Select an available table for your dining experience"
-                    icon={Armchair}
-                    accentWord="Spot"
-                    pattern="tables"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 bg-green-500/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-green-500/20">
-                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                            <span className="text-sm font-bold text-green-300 font-sans tabular-nums">{availableCount}</span>
-                            <span className="text-xs text-green-400/60 hidden sm:inline font-sans">free</span>
-                        </div>
-                        <div className="flex items-center gap-2 bg-red-500/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-red-500/20">
-                            <span className="w-2 h-2 rounded-full bg-red-400" />
-                            <span className="text-sm font-bold text-red-300 font-sans tabular-nums">{occupiedCount}</span>
-                            <span className="text-xs text-red-400/60 hidden sm:inline font-sans">taken</span>
+        <div className="relative space-y-6 pb-6">
+            {/* Header */}
+            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-2xl">
+                        <p className="text-xs font-medium text-emerald-700">Dining setup</p>
+                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Select Your Table</h1>
+                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Choose an available table for your dining experience, then continue to the menu with your seat already reserved.</p>
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                {availableCount} available
+                            </span>
+                            <span className="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-600">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                {occupiedCount} occupied
+                            </span>
+                            <span className="rounded-full border border-amber-100 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700">Reserve once, order faster</span>
                         </div>
                     </div>
-                </PageHero>
 
-                {/* ── Selected Table Banner ─────────────────────────── */}
-                {selectedTable && (
-                    <div className="p-4 md:p-5 bg-r-gold/8 border border-r-gold/25 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-r-gold/20 rounded-full flex items-center justify-center shadow-lg shadow-r-gold/10 border border-r-gold/30">
-                                <UtensilsCrossed className="w-6 h-6 text-r-gold" />
-                            </div>
-                            <div>
-                                <p className="font-serif font-bold text-r-text text-lg">
-                                    {tableSelectionLocked ? `Table ${selectedTable.table_number} In Use` : `Table ${selectedTable.table_number} Selected`}
-                                </p>
-                                <p className="text-sm text-r-muted font-sans">
-                                    {tableSelectionLocked
-                                        ? 'You have an active order. Complete it before choosing another table.'
-                                        : `${selectedTable.table_size} seats • Ready for you`
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            {!tableSelectionLocked && (
-                                <>
-                                    <button
-                                        onClick={() => setSelectedTable(null)}
-                                        className="text-sm text-r-muted hover:text-r-text font-medium px-3 py-2 rounded-xl hover:bg-r-cream transition-colors font-sans"
-                                    >
-                                        Clear
-                                    </button>
-                                    <GoldButton onClick={handleConfirmTable} className="px-5 py-2.5 text-sm flex-1 sm:flex-none">
-                                        <CheckCircle2 className="w-4 h-4" />
-                                        Confirm & View Menu
-                                    </GoldButton>
-                                </>
-                            )}
-                        </div>
+                    {/* View Toggle */}
+                    <div className="flex gap-1 rounded-2xl bg-slate-100 p-1.5">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${viewMode === 'grid' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            <Grid3x3 className="w-4 h-4" />
+                            Table view
+                        </button>
                     </div>
-                )}
-
-                {/* ── Active Order Lock Warning ─────────────────────── */}
-                {tableSelectionLocked && activeOrder && (
-                    <div className="p-4 bg-amber-50 border border-amber-200/60 rounded-2xl text-amber-800 font-sans">
-                        <p className="font-semibold text-sm">Table selection is locked until your current order is completed.</p>
-                        <p className="text-xs mt-1 text-amber-700/70">Current order #{activeOrder.id} is still active at table {activeOrder.table_id}.</p>
-                    </div>
-                )}
-
-                {/* ── Table Grid ────────────────────────────────────── */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                    {orderedTables.map((table, idx) => {
-                        const isSelected = tableSelectionLocked
-                            ? activeOrder?.table_id === table.id
-                            : selectedTable?.id === table.id;
-                        const isOccupied = table.is_occupied;
-                        const isLocked = tableSelectionLocked && !isSelected;
-
-                        return (
-                            <div
-                                key={table.id}
-                                onClick={() => !isOccupied && !tableSelectionLocked && handleTableSelect(table)}
-                                className={`rounded-2xl border-2 p-5 md:p-6 flex flex-col items-center justify-center space-y-3 transition-all duration-300 animate-fade-in-up ${
-                                    isSelected
-                                        ? 'bg-r-gold/8 border-r-gold shadow-lg shadow-r-gold/10 ring-2 ring-r-gold/30'
-                                        : isOccupied
-                                            ? 'bg-r-cream/50 border-r-border/30 opacity-60 cursor-not-allowed'
-                                            : isLocked
-                                                ? 'bg-white/40 border-r-border/30 opacity-50 cursor-not-allowed'
-                                                : 'bg-white/70 border-r-border/40 shadow-sm hover:shadow-lg hover:border-r-gold/40 hover:bg-white cursor-pointer hover:shadow-r-gold/5'
-                                }`}
-                                style={{ animationDelay: `${Math.min(idx * 50, 400)}ms` }}
-                            >
-                                <div className={`p-4 rounded-full transition-colors ${
-                                    isSelected
-                                        ? 'bg-r-gold/15 text-r-gold'
-                                        : isOccupied
-                                            ? 'bg-red-100/60 text-red-400'
-                                            : isLocked
-                                                ? 'bg-r-cream text-r-muted/50'
-                                                : 'bg-r-cream text-r-warm'
-                                }`}>
-                                    <UtensilsCrossed className="w-7 h-7 md:w-8 md:h-8" />
-                                </div>
-
-                                <h3 className="text-2xl font-serif font-bold text-r-text">{table.table_number}</h3>
-
-                                <div className="flex items-center gap-1.5 text-sm text-r-muted font-medium font-sans bg-r-cream/50 px-3 py-1 rounded-full border border-r-border/30">
-                                    <Users className="w-4 h-4" />
-                                    <span>{table.table_size} Seats</span>
-                                </div>
-
-                                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-sans ${
-                                    isSelected
-                                        ? 'bg-r-gold/15 text-r-gold border border-r-gold/20'
-                                        : isOccupied
-                                            ? 'bg-red-50 text-red-500 border border-red-200/50'
-                                            : isLocked
-                                                ? 'bg-r-cream text-r-muted border border-r-border/30'
-                                                : 'bg-green-50 text-green-600 border border-green-200/50'
-                                }`}>
-                                    {isSelected
-                                        ? '✦ Selected'
-                                        : isOccupied
-                                            ? 'Occupied'
-                                            : isLocked
-                                                ? 'Locked'
-                                                : 'Available'}
-                                </div>
-                            </div>
-                        );
-                    })}
                 </div>
+            </section>
 
-                {/* ── How to Order Card ─────────────────────────────── */}
-                <WarmCard className="!bg-r-dark/95 !border-r-gold/15 grain-overlay">
-                    <div className="relative z-10 flex gap-4 items-start">
-                        <div className="bg-r-gold/15 p-3 rounded-xl border border-r-gold/20 shrink-0">
-                            <Info className="w-5 h-5 text-r-gold" />
+            {/* Selected Table Banner */}
+            {selectedTable && (
+                <div className="flex flex-col gap-4 rounded-[1.75rem] border border-emerald-200 bg-emerald-50/90 p-4 shadow-sm animate-fade-in lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-200">
+                            <UtensilsCrossed className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h3 className="font-serif font-bold text-r-cream text-lg mb-2">How to Order?</h3>
-                            <div className="space-y-2 text-sm font-sans text-r-cream/60">
-                                <p className="flex items-start gap-2">
-                                    <span className="w-5 h-5 bg-r-gold/20 text-r-gold rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
-                                    Select an available table from the grid above
-                                </p>
-                                <p className="flex items-start gap-2">
-                                    <span className="w-5 h-5 bg-r-gold/20 text-r-gold rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
-                                    Confirm your table and browse the menu
-                                </p>
-                                <p className="flex items-start gap-2">
-                                    <span className="w-5 h-5 bg-r-gold/20 text-r-gold rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
-                                    Add items to your cart and choose payment method
-                                </p>
-                            </div>
-                            <FlourishOrnament className="mt-4 opacity-30" size="sm" />
+                            <p className="font-bold text-slate-900">
+                                {tableSelectionLocked ? `Table ${selectedTable.table_number} In Use` : `Table ${selectedTable.table_number} Selected`}
+                            </p>
+                            <p className="text-sm text-slate-600">
+                                {tableSelectionLocked
+                                    ? 'You have an active order. Complete it before choosing another table.'
+                                    : `${selectedTable.table_size} seats • Available`
+                                }
+                            </p>
                         </div>
                     </div>
-                </WarmCard>
+                    <div className="flex items-center gap-2">
+                        {!tableSelectionLocked && (
+                            <>
+                                <button
+                                    onClick={() => setSelectedTable(null)}
+                                    className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    onClick={handleConfirmTable}
+                                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-emerald-200 transition-colors hover:bg-emerald-700"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Confirm Table
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {tableSelectionLocked && activeOrder && (
+                <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 text-amber-900">
+                    <p className="font-semibold">Table selection is locked until your current order is completed.</p>
+                    <p className="text-sm mt-1">Current order #{activeOrder.id} is still active at table {activeOrder.table_id}.</p>
+                </div>
+            )}
+
+            {/* GRID/LIST VIEW */}
+            {viewMode === 'grid' && (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-6">
+                    {orderedTables.map(table => (
+                        <div
+                            key={table.id}
+                            onClick={() => !table.is_occupied && !tableSelectionLocked && handleTableSelect(table)}
+                            className={`flex flex-col items-center justify-center space-y-3 rounded-[1.5rem] border-2 p-5 transition-all ${(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'border-emerald-400 bg-emerald-50 shadow-lg shadow-emerald-100 ring-2 ring-emerald-200'
+                                    : table.is_occupied
+                                        ? 'border-rose-100 bg-rose-50/80 opacity-70 cursor-not-allowed'
+                                        : tableSelectionLocked
+                                            ? 'border-slate-100 bg-white/80 opacity-70 cursor-not-allowed'
+                                            : 'cursor-pointer border-slate-100 bg-white/90 shadow-sm hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md'
+                                }`}
+                        >
+                            <div className={`p-4 rounded-full ${(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'bg-emerald-100 text-emerald-700'
+                                    : table.is_occupied
+                                        ? 'bg-gray-200 text-gray-500'
+                                        : tableSelectionLocked
+                                            ? 'bg-gray-100 text-gray-400'
+                                            : 'bg-emerald-100 text-emerald-600'
+                                }`}>
+                                <UtensilsCrossed className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{table.table_number}</h3>
+
+                            <div className="flex items-center gap-1.5 rounded-full border border-slate-100 bg-white px-3 py-1 text-sm font-medium text-slate-500">
+                                <Users className="w-4 h-4" />
+                                <span>{table.table_size} Seats</span>
+                            </div>
+
+                            <div className={`px-3 py-1 rounded-full text-xs font-medium ${(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'bg-emerald-100 text-emerald-700'
+                                    : table.is_occupied
+                                        ? 'bg-rose-100 text-rose-600'
+                                        : tableSelectionLocked
+                                            ? 'bg-slate-100 text-slate-500'
+                                            : 'bg-emerald-100 text-emerald-700'
+                                }`}>
+                                {(tableSelectionLocked ? activeOrder?.table_id === table.id : selectedTable?.id === table.id)
+                                    ? 'Selected'
+                                    : table.is_occupied
+                                        ? 'Occupied'
+                                        : tableSelectionLocked
+                                            ? 'Locked'
+                                            : 'Free'}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Info Card */}
+            <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100 flex gap-4 items-start">
+                <div className="bg-white p-2 rounded-lg text-blue-600 shrink-0 shadow-sm">
+                    <UtensilsCrossed className="w-6 h-6" />
+                </div>
+                <div>
+                    <h3 className="font-bold text-blue-900">How to Order?</h3>
+                    <p className="text-blue-700 text-sm mt-1">
+                        Select an available table, then head to the <strong>Menu</strong> to add items to your cart.
+                        Choose your payment method (QR or Cash) at checkout and your order will be sent to the kitchen!
+                    </p>
+                </div>
             </div>
-        </WarmPageWrapper>
+
+            <style>{`
+                @keyframes pulse-ring {
+                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+                    70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+                }
+                .animate-pulse-ring {
+                    animation: pulse-ring 2s ease-in-out infinite;
+                }
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(-8px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.3s ease-out;
+                }
+            `}</style>
+        </div>
     );
 }

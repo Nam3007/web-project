@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Calendar, Crown, Loader, QrCode, Banknote, Clock, Bell, CheckCircle, Star, History } from 'lucide-react';
+import { ShoppingBag, Calendar, DollarSign, ChevronRight, Crown, Loader, QrCode, Banknote, Clock, Bell, CheckCircle, Star } from 'lucide-react';
 import RatingModal from '../../components/RatingModal';
-import { WarmPageWrapper, SectionHeading, WarmCard, GoldButton, FlourishOrnament } from '../../components/RestaurantDecorations';
 
 const VIP_THRESHOLD = 500;
 
@@ -112,45 +111,34 @@ export default function CustomerOrdersPage() {
             }));
     };
 
-    if (isLoading) {
-        return (
-            <WarmPageWrapper>
-                <div className="max-w-3xl mx-auto space-y-8 animate-pulse">
-                    <div className="h-44 bg-r-warm/10 rounded-2xl" />
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-24 bg-r-warm/10 rounded-2xl" />
-                    ))}
-                </div>
-            </WarmPageWrapper>
-        );
-    }
+    if (isLoading) return <div className="text-center py-20">Loading orders...</div>;
 
     const isVip = user.role === 'vip_customer';
     const progress = Math.min((totalSpent / VIP_THRESHOLD) * 100, 100);
 
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'pending': return 'bg-amber-50 text-amber-700 border-amber-200';
-            case 'paid': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-            case 'confirmed': return 'bg-teal-50 text-teal-700 border-teal-200';
-            case 'preparing': return 'bg-blue-50 text-blue-700 border-blue-200';
-            case 'ready': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-            case 'served': return 'bg-purple-50 text-purple-700 border-purple-200';
-            case 'completed': return 'bg-green-50 text-green-700 border-green-200';
-            case 'cancelled': return 'bg-red-50 text-red-600 border-red-200';
-            default: return 'bg-gray-50 text-gray-700 border-gray-200';
+            case 'pending': return 'bg-amber-100 text-amber-700';
+            case 'paid': return 'bg-emerald-100 text-emerald-700';
+            case 'confirmed': return 'bg-teal-100 text-teal-700';
+            case 'preparing': return 'bg-blue-100 text-blue-700';
+            case 'ready': return 'bg-indigo-100 text-indigo-700';
+            case 'served': return 'bg-purple-100 text-purple-700';
+            case 'completed': return 'bg-green-100 text-green-700';
+            case 'cancelled': return 'bg-red-100 text-red-700';
+            default: return 'bg-gray-100 text-gray-700';
         }
     };
 
     const getStatusLabel = (status) => {
         switch (status) {
-            case 'pending':   return 'Awaiting Payment';
-            case 'paid':      return 'Paid — Assigning Chef';
+            case 'pending': return 'Awaiting Payment';
+            case 'paid': return 'Paid — Assigning Chef';
             case 'confirmed': return 'Confirmed — Assigning Chef';
-            case 'queued':    return 'In Queue';
+            case 'queued': return 'In Queue';
             case 'preparing': return 'Being Prepared';
-            case 'ready':     return 'Ready — Assigning Staff';
-            case 'served':    return 'Served';
+            case 'ready': return 'Ready — Assigning Staff';
+            case 'served': return 'Served';
             case 'completed': return 'Completed';
             case 'cancelled': return 'Cancelled';
             case 'delivering': return 'Out for Delivery';
@@ -160,196 +148,151 @@ export default function CustomerOrdersPage() {
     };
 
     return (
-        <WarmPageWrapper pattern="dots">
-            <div className="max-w-3xl mx-auto space-y-8">
-                {/* ── VIP Status Card ──────────────────────────────── */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-r-dark via-r-wood to-r-warm rounded-2xl p-6 md:p-8 text-r-cream shadow-xl grain-overlay">
-                    {/* Warm glow effects */}
-                    <div className="absolute inset-0">
-                        <div className="absolute top-0 right-0 w-56 h-56 bg-r-gold/10 rounded-full blur-3xl -translate-y-1/3 translate-x-1/4" />
-                        <div className="absolute bottom-0 left-0 w-40 h-40 bg-amber-700/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+        <div className="relative mx-auto max-w-4xl space-y-8 pb-8">
+            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between flex-wrap">
+                    <div className="max-w-2x7">
+                        <p className="text-xs font-medium text-emerald-700">Guest Profile</p>
+                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Order History</h1>
+                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Review previous visits, payment methods, and total spend at a glance. Your loyalty progress and rating actions live here too.</p>
                     </div>
-
-                    <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start gap-4">
-                        <div>
-                            <h2 className="text-2xl md:text-3xl font-serif font-bold flex items-center gap-3">
-                                <Crown className={`w-7 h-7 ${isVip ? 'text-r-gold animate-gentle-float' : 'text-r-cream/30'}`} />
-                                {isVip ? 'VIP Member' : 'Member Status'}
-                            </h2>
-                            <p className="text-r-cream/50 mt-1.5 font-sans text-sm max-w-sm">
-                                {isVip
-                                    ? "Thank you for being one of our most valued guests!"
-                                    : `Spend $${VIP_THRESHOLD} to unlock VIP benefits.`}
-                            </p>
+                    
+                    <div className="grid grid-cols-2 flex-wrap gap-4 lg:gap-10">
+                        <div className="rounded-2x1 bg-slate-50 p-4">
+                            <p className="text-lg font-medium text-slate-500">Orders</p>
+                            <p className="mt-1 text-2xl font-semibold text-slate-900">{myOrders.length}</p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs text-r-cream/30 font-sans uppercase tracking-wider font-semibold">Total Spent</p>
-                            <p className="text-3xl md:text-4xl font-bold text-r-gold font-sans tabular-nums">{totalSpent.toLocaleString('vi-VN')}₫</p>
+                        <div className="rounded-2xl bg-emerald-50 p-4">
+                            <p className="text-lg font-medium text-emerald-600">Spent</p>
+                            <p className="mt-1 text-2xl font-semibold text-emerald-700">{totalSpent.toLocaleString('vi-VN')}₫</p>
                         </div>
+                        
                     </div>
-
-                    {!isVip && (
-                        <div className="mt-6 relative z-10">
-                            <div className="flex justify-between text-xs mb-2 font-medium text-r-cream/40 font-sans">
-                                <span>$0</span>
-                                <span>${VIP_THRESHOLD}</span>
-                            </div>
-                            <div className="h-3 bg-r-cream/10 rounded-full overflow-hidden backdrop-blur-sm border border-r-cream/5">
-                                <div
-                                    className="h-full bg-gradient-to-r from-r-gold to-r-gold-light transition-all duration-1000 rounded-full"
-                                    style={{ width: `${progress}%` }}
-                                />
-                            </div>
-
-                            {totalSpent >= VIP_THRESHOLD && (
-                                <GoldButton
-                                    onClick={() => requestVipMutation.mutate()}
-                                    disabled={requestVipMutation.isPending}
-                                    className="mt-5 w-full py-3 text-sm"
-                                >
-                                    {requestVipMutation.isPending ? <Loader className="w-5 h-5 animate-spin" /> : <Crown className="w-5 h-5" />}
-                                    Request VIP Status
-                                </GoldButton>
-                            )}
-                        </div>
-                    )}
-
-                    <FlourishOrnament className="mt-5 opacity-30" size="sm" />
-
-                    {/* Background decoration */}
-                    <Crown className="absolute -bottom-6 -right-6 w-36 h-36 text-r-cream/[0.03] rotate-12" />
                 </div>
+            </section>
 
-                {/* ── Order History ─────────────────────────────────── */}
-                <div className="space-y-6">
-                    <SectionHeading
-                        title="Order History"
-                        subtitle={`${myOrders.length} order${myOrders.length !== 1 ? 's' : ''} placed`}
-                        icon={History}
-                    />
+        
 
-                    {myOrders.length === 0 ? (
-                        <div className="text-center py-14 bg-white/60 backdrop-blur-sm rounded-2xl border border-r-border/40">
-                            <ShoppingBag className="w-10 h-10 text-r-muted/30 mx-auto mb-3" />
-                            <p className="text-r-muted font-sans">No past orders found.</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((order, idx) => (
-                                <div
-                                    key={order.id}
-                                    className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-r-border/40 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-lg hover:border-r-gold/20 hover:shadow-r-gold/5 transition-all duration-300 animate-fade-in"
-                                    style={{ animationDelay: `${Math.min(idx * 60, 400)}ms` }}
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <div className="p-3 bg-r-cream rounded-xl border border-r-border/30">
-                                            <ShoppingBag className="w-5 h-5 text-r-muted" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-serif font-bold text-r-text text-base">Order #{order.id}</h3>
-                                            <div className="flex items-center gap-3 text-sm text-r-muted mt-1 font-sans">
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar className="w-3 h-3" />
-                                                    {new Date(order.created_at).toLocaleDateString()}
-                                                </span>
-                                                <span className="text-r-border">•</span>
-                                                <span>Table {order.table_id}</span>
-                                            </div>
-                                        </div>
+            {/* History */}
+            <div className="space-y-6">
+                <h2 className="text-lg font-semibold tracking-tight text-slate-900">Recent orders</h2>
+
+                {myOrders.length === 0 ? (
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-white py-10 text-center shadow-sm">
+                        <p className="text-slate-500">No past orders found.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {[...myOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(order => (
+                            <div key={order.id} className="flex flex-col justify-between gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center">
+                                <div className="flex items-start gap-4">
+                                    <div className="rounded-xl bg-slate-50 p-3">
+                                        <ShoppingBag className="w-6 h-6 text-slate-400" />
                                     </div>
-
-                                    <div className="flex flex-col items-end gap-2">
-                                        <div className="flex items-center gap-3 flex-wrap justify-end">
-                                            {/* Payment method badge */}
-                                            {order.payment_method && (
-                                                <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase font-sans ${
-                                                    order.payment_method === 'QR'
-                                                        ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                                                        : 'bg-green-50 text-green-600 border border-green-200'
-                                                }`}>
-                                                    {order.payment_method === 'QR' ? <QrCode className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
-                                                    {order.payment_method}
-                                                </span>
-                                            )}
-
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold font-sans border ${getStatusStyle(order.status)}`}>
-                                                {getStatusLabel(order.status)}
+                                    <div>
+                                        <h3 className="font-semibold tracking-tight text-slate-900">Order #{order.id}</h3>
+                                        <div className="mt-1 flex items-center gap-4 text-sm text-slate-500">
+                                            <span className="flex items-center gap-1">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(order.created_at).toLocaleDateString()}
                                             </span>
-
-                                            <p className="font-bold text-lg text-r-gold font-sans tabular-nums">
-                                                {order.total_amount.toLocaleString('vi-VN')} ₫
-                                            </p>
+                                            <span>•</span>
+                                            <span>Table {order.table_id}</span>
                                         </div>
-
-                                        {/* Status message for pending orders */}
-                                        {order.status === 'pending' && order.payment_method === 'cash' && (
-                                            <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded-lg flex items-center gap-1 border border-amber-200/50 font-sans">
-                                                <Clock className="w-3 h-3" />
-                                                Waiting for waiter to confirm cash
-                                            </span>
-                                        )}
-                                        {order.status === 'pending' && order.payment_method === 'QR' && (
-                                            <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-lg flex items-center gap-1 border border-blue-200/50 font-sans">
-                                                <QrCode className="w-3 h-3" />
-                                                QR payment in progress
-                                            </span>
-                                        )}
-
-                                        {/* Request Complete button for served dine_in orders */}
-                                        {order.status === 'served' && order.order_type === 'dine_in' && (
-                                            order.completion_requested ? (
-                                                <span className="text-xs text-green-600 font-semibold bg-green-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1 border border-green-200/50 font-sans">
-                                                    <CheckCircle className="w-3 h-3" />
-                                                    Completion Requested
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    onClick={() => requestCompleteMutation.mutate(order.id)}
-                                                    disabled={requestCompleteMutation.isPending}
-                                                    className="text-xs text-r-dark font-semibold bg-r-gold hover:bg-r-gold-light px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors disabled:opacity-60 font-sans shadow-sm"
-                                                >
-                                                    <Bell className="w-3 h-3" />
-                                                    Request Complete
-                                                </button>
-                                            )
-                                        )}
-
-                                        {/* Rate Items button for completed dine-in orders */}
-                                        {shouldShowRateButton(order) && (
-                                            <button
-                                                onClick={() => setRatingOrder(order)}
-                                                className="text-xs text-white font-semibold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all shadow-sm shadow-amber-200/30 font-sans"
-                                            >
-                                                <Star className="w-3 h-3" />
-                                                Rate Items
-                                            </button>
-                                        )}
-
-                                        {/* Already rated badge */}
-                                        {order.status === 'completed' && isAlreadyRated(order) && (
-                                            <span className="text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded-lg flex items-center gap-1 border border-amber-200/50 font-sans">
-                                                <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                                                Rated
-                                            </span>
-                                        )}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
 
-                {/* Rating Modal */}
-                {ratingOrder && (
-                    <RatingModal
-                        isOpen={!!ratingOrder}
-                        onClose={() => setRatingOrder(null)}
-                        orderId={ratingOrder.id}
-                        customerId={user.id}
-                        orderItems={getRatingItems()}
-                    />
+                                <div className="flex flex-col items-end gap-2">
+                                    <div className="flex items-center gap-4">
+                                        {/* Payment method badge */}
+                                        {order.payment_method && (
+                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${order.payment_method === 'QR'
+                                                    ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                                                    : 'bg-green-50 text-green-600 border border-green-200'
+                                                }`}>
+                                                {order.payment_method === 'QR' ? <QrCode className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
+                                                {order.payment_method}
+                                            </span>
+                                        )}
+
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
+                                            {getStatusLabel(order.status)}
+                                        </span>
+
+                                        <p className="flex items-center gap-1 text-lg font-semibold text-slate-900">
+
+                                            {order.total_amount.toLocaleString('vi-VN')} ₫
+                                        </p>
+                                    </div>
+
+                                    {/* Status message for pending orders */}
+                                    {order.status === 'pending' && order.payment_method === 'cash' && (
+                                        <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded flex items-center gap-1">
+                                            <Clock className="w-3 h-3" />
+                                            Waiting for waiter to confirm cash
+                                        </span>
+                                    )}
+                                    {order.status === 'pending' && order.payment_method === 'QR' && (
+                                        <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded flex items-center gap-1">
+                                            <QrCode className="w-3 h-3" />
+                                            QR payment in progress
+                                        </span>
+                                    )}
+
+                                    {/* Request Complete button for served dine_in orders */}
+                                    {order.status === 'served' && order.order_type === 'dine_in' && (
+                                        order.completion_requested ? (
+                                            <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded flex items-center gap-1 border border-green-200">
+                                                <CheckCircle className="w-3 h-3" />
+                                                Completion Requested
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => requestCompleteMutation.mutate(order.id)}
+                                                disabled={requestCompleteMutation.isPending}
+                                                className="text-xs text-white font-semibold bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded flex items-center gap-1 transition-colors disabled:opacity-60"
+                                            >
+                                                <Bell className="w-3 h-3" />
+                                                Request Complete
+                                            </button>
+                                        )
+                                    )}
+
+                                    {/* Rate Items button for completed dine-in orders */}
+                                    {shouldShowRateButton(order) && (
+                                        <button
+                                            onClick={() => setRatingOrder(order)}
+                                            className="text-xs text-white font-semibold bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all"
+                                        >
+                                            <Star className="w-3 h-3" />
+                                            Rate Items
+                                        </button>
+                                    )}
+
+                                    {/* Already rated badge */}
+                                    {order.status === 'completed' && isAlreadyRated(order) && (
+                                        <span className="text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded flex items-center gap-1 border border-amber-200">
+                                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                            Rated
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
-        </WarmPageWrapper>
+
+            {/* Rating Modal */}
+            {ratingOrder && (
+                <RatingModal
+                    isOpen={!!ratingOrder}
+                    onClose={() => setRatingOrder(null)}
+                    orderId={ratingOrder.id}
+                    customerId={user.id}
+                    orderItems={getRatingItems()}
+                />
+            )}
+        </div>
     );
 }

@@ -1,16 +1,14 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, History, LogOut, UtensilsCrossed, ClipboardList, Menu, X, Phone, MapPin, Clock } from 'lucide-react';
+import { ShoppingBag, History, LogOut, UtensilsCrossed, ClipboardList, TableProperties, ReceiptText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { useState } from 'react';
-import { OrnamentalDivider } from '../RestaurantDecorations';
 
 export default function CustomerLayout() {
     const { user, logout } = useAuth();
     const { cartCount } = useCart();
     const location = useLocation();
     const navigate = useNavigate();
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const pageMeta = getPageMeta(location.pathname, user);
 
     const handleLogout = async () => {
         await logout();
@@ -18,299 +16,199 @@ export default function CustomerLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-r-ivory flex flex-col font-sans">
-            {/* ── Navbar ────────────────────────────────────────── */}
-            <nav className="bg-r-dark/95 backdrop-blur-md border-b border-r-gold/10 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16 md:h-18">
-                        {/* Left: Logo + Nav */}
-                        <div className="flex items-center gap-6 lg:gap-10">
-                            <Link to="/menu" className="flex items-center gap-3 group">
-                                <div className="w-9 h-9 bg-r-gold/15 rounded-xl flex items-center justify-center border border-r-gold/25 group-hover:bg-r-gold/25 transition-colors">
-                                    <UtensilsCrossed className="w-5 h-5 text-r-gold" />
+        <div className="min-h-screen flex flex-col bg-[#f8f4ec] text-slate-900">
+            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div className="absolute -top-24 right-[-6rem] h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
+                <div className="absolute top-40 left-[-5rem] h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-orange-200/25 blur-3xl" />
+            </div>
+
+            {/* Navbar */}
+            <nav className="sticky top-0 z-50 border-b border-white/60 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-18 items-center justify-between gap-4 py-3">
+                        <div className="flex items-center gap-6">
+                            <Link to="/menu" className="flex items-center gap-3">
+                                <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-amber-500 p-2.5 text-white shadow-lg shadow-emerald-200/60">
+                                    <UtensilsCrossed className="h-5 w-5" />
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-lg font-serif font-bold text-r-cream tracking-tight leading-tight">
-                                        River <span className="text-r-gold">Side</span>
-                                    </span>
-                                    <span className="text-[9px] text-r-gold/40 uppercase tracking-[0.2em] font-sans font-medium leading-tight hidden sm:block">
-                                        Fine Dining
-                                    </span>
+                                <div>
+                                    <span className="block text-lg font-semibold tracking-tight text-slate-900">River Side</span>
+                                    <span className="block text-[11px] uppercase tracking-[0.24em] text-slate-400">Restaurant Experience</span>
                                 </div>
                             </Link>
 
-                            <div className="hidden md:flex items-center gap-1">
-                                <DesktopNavLink to="/menu" current={location.pathname}>Menu</DesktopNavLink>
+                            <div className="hidden md:flex items-center gap-1 rounded-2xl bg-slate-100/80 p-1.5">
+                                <NavLink to="/menu" current={location.pathname}>Menu</NavLink>
                                 {user && (
                                     <>
-                                        <DesktopNavLink to="/tables" current={location.pathname}>Tables</DesktopNavLink>
-                                        <DesktopNavLink to="/active-orders" current={location.pathname}>My Orders</DesktopNavLink>
-                                        <DesktopNavLink to="/orders" current={location.pathname}>History</DesktopNavLink>
+                                        <NavLink to="/tables" current={location.pathname}>Tables</NavLink>
+                                        <NavLink to="/active-orders" current={location.pathname}>Live Orders</NavLink>
+                                        <NavLink to="/orders" current={location.pathname}>History</NavLink>
                                     </>
                                 )}
                             </div>
                         </div>
 
-                        {/* Right: Cart + User */}
                         <div className="flex items-center gap-3">
                             {user && (
                                 <>
-                                    <Link
-                                        to="/cart"
-                                        className="relative p-2.5 text-r-cream/60 hover:text-r-gold transition-colors rounded-xl hover:bg-r-gold/10"
-                                    >
-                                        <ShoppingBag className="w-5 h-5" />
+                                    <Link to="/cart" className="relative rounded-2xl border border-transparent bg-white/90 p-2.5 text-slate-600 shadow-sm transition-all hover:border-emerald-200 hover:text-emerald-600">
+                                        <ShoppingBag className="h-5 w-5" />
                                         {cartCount > 0 && (
-                                            <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-r-dark bg-r-gold rounded-full shadow-md shadow-r-gold/30">
+                                            <span className="absolute -right-1 -top-1 inline-flex items-center justify-center rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-bold leading-none text-white shadow-lg shadow-rose-200">
                                                 {cartCount}
                                             </span>
                                         )}
                                     </Link>
 
-                                    <div className="h-5 w-px bg-r-gold/15 mx-1 hidden md:block" />
+                                    <div className="h-6 w-px bg-slate-200 mx-1"></div>
                                 </>
                             )}
 
                             {user ? (
-                                <div className="hidden md:flex items-center gap-3">
-                                    <div className="text-right">
-                                        <p className="text-xs font-semibold text-r-gold font-sans">{user.full_name}</p>
+                                <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 px-3 py-2">
+                                    <div className="hidden md:block text-right">
+                                        <p className="text-xs font-semibold text-emerald-700">{user.full_name}</p>
+                                        <p className="text-[11px] text-emerald-600/70">Welcome back</p>
                                     </div>
                                     <button
                                         onClick={handleLogout}
-                                        className="p-2 text-r-cream/40 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10"
+                                        className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white hover:text-rose-500"
                                         title="Sign Out"
                                     >
-                                        <LogOut className="w-4 h-4" />
+                                        <LogOut className="h-5 w-5" />
                                     </button>
                                 </div>
                             ) : (
-                                <Link
-                                    to="/login"
-                                    className="hidden md:inline-flex text-sm font-bold text-r-gold hover:text-r-gold-light transition-colors px-4 py-2 rounded-xl border border-r-gold/30 hover:bg-r-gold/10"
-                                >
+                                <Link to="/login" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition-colors hover:bg-emerald-700">
                                     Sign In
                                 </Link>
                             )}
-
-                            {/* Mobile hamburger */}
-                            <button
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="md:hidden p-2 text-r-cream/60 hover:text-r-gold transition-colors"
-                            >
-                                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                            </button>
                         </div>
                     </div>
                 </div>
-
-                {/* Mobile Menu Dropdown */}
-                {mobileMenuOpen && (
-                    <div className="md:hidden bg-r-dark/98 border-t border-r-gold/10 animate-fade-in">
-                        <div className="px-4 py-4 space-y-1">
-                            <MobileMenuLink to="/menu" current={location.pathname} onClick={() => setMobileMenuOpen(false)}>Menu</MobileMenuLink>
-                            {user && (
-                                <>
-                                    <MobileMenuLink to="/tables" current={location.pathname} onClick={() => setMobileMenuOpen(false)}>Tables</MobileMenuLink>
-                                    <MobileMenuLink to="/cart" current={location.pathname} onClick={() => setMobileMenuOpen(false)}>
-                                        Cart {cartCount > 0 && <span className="ml-2 bg-r-gold text-r-dark text-[10px] font-bold px-1.5 py-0.5 rounded-full">{cartCount}</span>}
-                                    </MobileMenuLink>
-                                    <MobileMenuLink to="/active-orders" current={location.pathname} onClick={() => setMobileMenuOpen(false)}>My Orders</MobileMenuLink>
-                                    <MobileMenuLink to="/orders" current={location.pathname} onClick={() => setMobileMenuOpen(false)}>History</MobileMenuLink>
-                                </>
-                            )}
-                            <div className="pt-3 mt-3 border-t border-r-gold/10">
-                                {user ? (
-                                    <button
-                                        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                                        className="flex items-center gap-2 w-full px-4 py-2.5 text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-medium transition-colors"
-                                    >
-                                        <LogOut className="w-4 h-4" />
-                                        Sign Out
-                                    </button>
-                                ) : (
-                                    <Link
-                                        to="/login"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="block text-center px-4 py-2.5 bg-r-gold/10 text-r-gold font-bold rounded-xl text-sm border border-r-gold/20"
-                                    >
-                                        Sign In
-                                    </Link>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </nav>
 
-            {/* ── Main Content ──────────────────────────────────── */}
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 px-5 py-4 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/8 via-white/0 to-amber-500/8" />
+                    <div className="relative flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                        <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700/80">{pageMeta.kicker}</p>
+                            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{pageMeta.title}</h1>
+                            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">{pageMeta.description}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-600">
+                            {pageMeta.badges.map((badge) => (
+                                <span key={badge} className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-emerald-700">
+                                    {badge}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <main className="relative z-10 flex-1 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <Outlet />
             </main>
 
-            {/* ── Footer ────────────────────────────────────────── */}
-            <footer className="bg-r-dark text-r-cream/80 mt-auto">
-                {/* Gold ornamental divider */}
-                <div className="h-px bg-gradient-to-r from-transparent via-r-gold/40 to-transparent" />
-
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
-                        {/* Column 1: Branding */}
-                        <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 bg-r-gold/15 rounded-xl flex items-center justify-center border border-r-gold/20">
-                                    <UtensilsCrossed className="w-5 h-5 text-r-gold" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-serif font-bold text-r-cream">
-                                        River <span className="text-r-gold">Side</span>
-                                    </h3>
-                                </div>
-                            </div>
-                            <p className="text-sm text-r-cream/50 leading-relaxed font-sans max-w-xs">
-                                Experience culinary excellence with fresh ingredients and masterful recipes.
-                                A fine dining destination for unforgettable moments.
-                            </p>
-                            <OrnamentalDivider className="mt-5 opacity-40" />
-                        </div>
-
-                        {/* Column 2: Contact */}
-                        <div>
-                            <h4 className="text-sm font-bold text-r-gold uppercase tracking-wider font-sans mb-4">
-                                Visit Us
-                            </h4>
-                            <div className="space-y-3 text-sm font-sans">
-                                <div className="flex items-start gap-3 text-r-cream/60">
-                                    <MapPin className="w-4 h-4 text-r-gold/60 mt-0.5 shrink-0" />
-                                    <span>123 Riverside Boulevard<br />District 1, Ho Chi Minh City</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-r-cream/60">
-                                    <Phone className="w-4 h-4 text-r-gold/60 shrink-0" />
-                                    <span>+84 28 1234 5678</span>
-                                </div>
-                                <div className="flex items-start gap-3 text-r-cream/60">
-                                    <Clock className="w-4 h-4 text-r-gold/60 mt-0.5 shrink-0" />
-                                    <div>
-                                        <p>Mon – Fri: 11:00 – 22:00</p>
-                                        <p>Sat – Sun: 10:00 – 23:00</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Column 3: Quick Links */}
-                        <div>
-                            <h4 className="text-sm font-bold text-r-gold uppercase tracking-wider font-sans mb-4">
-                                Quick Links
-                            </h4>
-                            <div className="grid grid-cols-2 gap-2 text-sm font-sans">
-                                <FooterLink to="/menu">Our Menu</FooterLink>
-                                <FooterLink to="/tables">Reserve Table</FooterLink>
-                                {user && (
-                                    <>
-                                        <FooterLink to="/cart">Your Cart</FooterLink>
-                                        <FooterLink to="/active-orders">Active Orders</FooterLink>
-                                        <FooterLink to="/orders">Order History</FooterLink>
-                                    </>
-                                )}
-                                {!user && <FooterLink to="/login">Sign In</FooterLink>}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Bottom bar */}
-                    <div className="mt-10 pt-6 border-t border-r-gold/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-r-cream/30 font-sans">
-                        <p>© {new Date().getFullYear()} River Side Restaurant. All rights reserved.</p>
-                        <p className="font-serif italic text-r-gold/30">
-                            "Where every meal tells a story"
-                        </p>
-                    </div>
-                </div>
-            </footer>
-
-            {/* ── Mobile Bottom Nav ─────────────────────────────── */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-r-dark/95 backdrop-blur-md border-t border-r-gold/10 flex justify-around px-2 py-2 z-50 pb-safe">
-                <MobileBottomNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
+            {/* Mobile Nav Bottom */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/70 bg-white/90 px-3 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl pb-safe">
+                <div className="flex justify-around gap-2">
+                <MobileNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
                 {user && (
                     <>
-                        <MobileBottomNavLink to="/tables" icon={UtensilsCrossed} label="Tables" current={location.pathname} />
-                        <MobileBottomNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
-                        <MobileBottomNavLink to="/active-orders" icon={ClipboardList} label="Orders" current={location.pathname} />
-                        <MobileBottomNavLink to="/orders" icon={History} label="History" current={location.pathname} />
+                        <MobileNavLink to="/tables" icon={TableProperties} label="Tables" current={location.pathname} />
+                        <MobileNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
+                        <MobileNavLink to="/orders" icon={History} label="History" current={location.pathname} />
+                        <MobileNavLink to="/active-orders" icon={ReceiptText} label="Live" current={location.pathname} />
+                        <button onClick={handleLogout} className="flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500">
+                            <LogOut className="h-5 w-5" />
+                            <span className="text-[10px] font-medium">Logout</span>
+                        </button>
                     </>
                 )}
+                </div>
             </div>
         </div>
     );
 }
 
-/* ── Sub-components ────────────────────────────────────────── */
+function getPageMeta(pathname, user) {
+    if (pathname.startsWith('/tables')) {
+        return {
+            kicker: 'Choose your seat',
+            title: 'Table Selection',
+            description: 'Pick an available table before heading to the menu. If you already have an active order, the selection stays locked to protect your order flow.',
+            badges: ['Select table', 'See availability', 'Continue to menu'],
+        };
+    }
 
-function DesktopNavLink({ to, children, current }) {
+    if (pathname.startsWith('/cart')) {
+        return {
+            kicker: 'Review your basket',
+            title: 'Your Cart',
+            description: 'Check the dishes you picked, adjust quantities, choose how you want to pay, and place the order when you are ready.',
+            badges: ['Edit items', 'Choose payment', 'Checkout'],
+        };
+    }
+
+    if (pathname.startsWith('/active-orders')) {
+        return {
+            kicker: 'Live status',
+            title: 'Active Orders',
+            description: 'Track what is being prepared right now, confirm delivery when needed, and rate items after the meal is complete.',
+            badges: ['Track progress', 'Confirm delivery', 'Rate items'],
+        };
+    }
+
+    if (pathname.startsWith('/orders')) {
+        return {
+            kicker: 'Order history',
+            title: 'Past Orders',
+            description: 'Review previous visits, payment methods, and order totals at a glance so returning to a favorite meal is easy.',
+            badges: ['History','Reorder context'],
+        };
+    }
+
+    return {
+        kicker: 'Welcome',
+        title: user ? 'Browse the Menu' : 'Explore the Menu',
+        description: 'Discover dishes, search by name, and build your cart from a warm restaurant-style menu experience.',
+        badges: ['Browse dishes', 'Search dishes by name', 'Add to cart'],
+    };
+}
+
+function NavLink({ to, children, current }) {
     const active = current === to;
     return (
         <Link
             to={to}
-            className={`relative px-4 py-2 rounded-xl text-sm font-medium font-sans transition-all duration-200 ${
-                active
-                    ? 'text-r-gold bg-r-gold/10'
-                    : 'text-r-cream/60 hover:text-r-cream hover:bg-white/5'
-            }`}
-        >
-            {children}
-            {active && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-r-gold rounded-full" />
-            )}
-        </Link>
-    );
-}
-
-function MobileMenuLink({ to, children, current, onClick }) {
-    const active = current === to;
-    return (
-        <Link
-            to={to}
-            onClick={onClick}
-            className={`flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                active
-                    ? 'bg-r-gold/10 text-r-gold'
-                    : 'text-r-cream/60 hover:bg-white/5 hover:text-r-cream'
-            }`}
+            className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${active ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                }`}
         >
             {children}
         </Link>
-    );
+    )
 }
 
-function MobileBottomNavLink({ to, icon: IconComponent, label, current, count }) {
+// eslint-disable-next-line no-unused-vars
+function MobileNavLink({ to, icon: IconComponent, label, current, count }) {
     const active = current === to;
     return (
-        <Link to={to} className={`flex flex-col items-center justify-center gap-0.5 relative px-3 py-1 rounded-xl transition-colors ${
-            active ? 'text-r-gold' : 'text-r-cream/40'
-        }`}>
+        <Link to={to} className={`flex flex-col items-center justify-center gap-1 relative rounded-xl px-2 py-1.5 ${active ? 'text-emerald-700' : 'text-slate-400'}`}>
             <div className="relative">
-                <IconComponent className="w-5 h-5" />
+                <IconComponent className="w-6 h-6" />
                 {count > 0 && (
-                    <span className="absolute -top-1.5 -right-2.5 bg-r-gold text-r-dark text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+                    <span className="absolute -top-1 -right-2 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
                         {count}
                     </span>
                 )}
             </div>
-            <span className="text-[10px] font-medium font-sans">{label}</span>
-            {active && (
-                <span className="absolute -bottom-1.5 w-3 h-0.5 bg-r-gold rounded-full" />
-            )}
+            <span className="text-[10px] font-medium">{label}</span>
         </Link>
-    );
-}
-
-function FooterLink({ to, children }) {
-    return (
-        <Link
-            to={to}
-            className="text-r-cream/50 hover:text-r-gold transition-colors py-1 inline-block"
-        >
-            {children}
-        </Link>
-    );
+    )
 }

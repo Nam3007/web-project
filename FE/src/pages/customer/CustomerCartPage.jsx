@@ -4,8 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote, ShoppingBag, Tag } from 'lucide-react';
-import { WarmPageWrapper, SectionHeading, WarmCard, GoldButton, FlourishOrnament, WarmEmptyState } from '../../components/RestaurantDecorations';
+import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote } from 'lucide-react';
 
 const SELECTED_TABLE_STORAGE_KEY = 'selectedTable';
 
@@ -145,8 +144,8 @@ export default function CustomerCartPage() {
                 setSelectedTable(parsed.id.toString());
             } catch (_) { /* ignore malformed data */ }
         }
-    // Only run once on mount — activeOrder may not be loaded yet, handled by the effect above
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // Only run once on mount — activeOrder may not be loaded yet, handled by the effect above
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Force QR when shipping is selected
@@ -233,286 +232,296 @@ export default function CustomerCartPage() {
 
     if (cart.length === 0) {
         return (
-            <WarmPageWrapper>
-                <WarmEmptyState
-                    icon={ShoppingBag}
-                    title="Your cart is empty"
-                    subtitle="Looks like you haven't added any delicious items yet."
-                    action={
-                        <GoldButton onClick={() => navigate('/menu')} className="px-8 py-3 text-sm">
-                            Browse Menu
-                            <ArrowRight className="w-4 h-4" />
-                        </GoldButton>
-                    }
-                />
-            </WarmPageWrapper>
-        );
+            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-24 text-center shadow-sm">
+                <div className="relative mx-auto flex flex-col items-center justify-center">
+                    <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                        <Trash2 className="w-10 h-10" />
+                    </div>
+                    <p className="text-xs font-medium text-emerald-700">Your order basket</p>
+                    <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Your cart is empty</h2>
+                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">Looks like you haven't added any delicious items yet. Browse the menu to start building your meal.</p>
+                    <button
+                        onClick={() => navigate('/menu')}
+                        className="mt-8 rounded-full bg-emerald-600 px-8 py-3 font-semibold text-white shadow-sm transition-all hover:bg-emerald-700"
+                    >
+                        Browse Menu
+                    </button>
+                </div>
+            </div>
+        )
     }
 
+
+
     return (
-        <WarmPageWrapper pattern="dots">
-            <div className="max-w-5xl mx-auto">
-                {/* Page Header */}
-                <SectionHeading
-                    title="Your Cart"
-                    subtitle={`${cart.length} item${cart.length > 1 ? 's' : ''} ready to order`}
-                    className="mb-8"
-                />
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* ── Items List (Left) ────────────────────────── */}
-                    <div className="lg:col-span-2 space-y-4">
-                        {cart.map((cartItem, idx) => (
-                            <div
-                                key={cartItem.item.id}
-                                className="flex gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-r-border/40 shadow-sm hover:shadow-md hover:border-r-gold/20 transition-all duration-300 animate-fade-in"
-                                style={{ animationDelay: `${idx * 80}ms` }}
-                            >
-                                <div className="w-24 h-24 bg-r-cream rounded-xl overflow-hidden shrink-0 border border-r-border/30">
-                                    {cartItem.item.item_image && (
-                                        <img src={cartItem.item.item_image} alt={cartItem.item.item_name} className="w-full h-full object-cover" />
-                                    )}
-                                </div>
-
-                                <div className="flex-1 flex flex-col justify-between min-w-0">
-                                    <div className="flex justify-between items-start gap-2">
-                                        <div className="min-w-0">
-                                            <h3 className="font-serif font-bold text-r-text truncate">{cartItem.item.item_name}</h3>
-                                            <p className="text-sm text-r-muted line-clamp-1 font-sans">{cartItem.item.item_description}</p>
-                                        </div>
-                                        <button
-                                            onClick={() => removeFromCart(cartItem.item.id)}
-                                            className="text-r-muted/40 hover:text-red-500 transition-colors p-1 shrink-0"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-
-                                    <div className="flex justify-between items-end mt-2">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => updateQuantity(cartItem.item.id, -1)}
-                                                className="w-8 h-8 rounded-full border border-r-border flex items-center justify-center text-r-text hover:bg-r-cream hover:border-r-gold/30 transition-colors"
-                                            >
-                                                <Minus className="w-3.5 h-3.5" />
-                                            </button>
-                                            <span className="font-bold w-5 text-center text-r-text font-sans tabular-nums">{cartItem.quantity}</span>
-                                            <button
-                                                onClick={() => updateQuantity(cartItem.item.id, 1)}
-                                                className="w-8 h-8 rounded-full border border-r-border flex items-center justify-center text-r-text hover:bg-r-cream hover:border-r-gold/30 transition-colors"
-                                            >
-                                                <Plus className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                        <span className="font-bold text-lg text-r-gold font-sans tabular-nums">
-                                            {(cartItem.item.item_price * cartItem.quantity).toLocaleString('vi-VN')}₫
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+        <div className="relative mx-auto max-w-6xl space-y-6">
+            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-2xl">
+                        <p className="text-xs font-medium text-emerald-700">Checkout preview</p>
+                        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Your Cart</h1>
+                        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Review your dishes, adjust quantities, and choose how you'd like to complete the order.</p>
                     </div>
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="rounded-2xl bg-slate-50 p-4">
+                            <p className="text-xs font-medium text-slate-500">Items</p>
+                            <p className="mt-1 text-2xl font-semibold text-slate-900">{cart.length}</p>
+                        </div>
+                        <div className="rounded-2xl bg-emerald-50 p-4">
+                            <p className="text-xs font-medium text-emerald-600">Total</p>
+                            <p className="mt-1 text-2xl font-semibold text-emerald-700">{cartTotal.toLocaleString('vi-VN')}₫</p>
+                        </div>
+                        <div className="rounded-2xl bg-amber-50 p-4">
+                            <p className="text-xs font-medium text-amber-600">Payment</p>
+                            <p className="mt-1 text-2xl font-semibold text-amber-700">{paymentMethod}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    {/* ── Right Column: Details + Summary ──────────── */}
-                    <div className="flex flex-col gap-6 h-fit">
-
-                        {/* Dining Details */}
-                        <WarmCard>
-                            <div className="flex items-center gap-2 mb-4">
-                                <UtensilsCrossed className="w-5 h-5 text-r-gold" />
-                                <h2 className="text-lg font-serif font-bold text-r-text">Dining Details</h2>
-                            </div>
-
-                            {/* Order Type Toggle */}
-                            {!activeOrder && (
-                                <div className="flex bg-r-cream rounded-xl p-1 gap-1 mb-4 border border-r-border/40">
-                                    <button
-                                        onClick={() => setOrderType('dine_in')}
-                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all font-sans ${
-                                            orderType === 'dine_in'
-                                                ? 'bg-white text-r-gold shadow-sm border border-r-gold/20'
-                                                : 'text-r-muted hover:text-r-text'
-                                        }`}
-                                    >
-                                        <UtensilsCrossed className="w-4 h-4" />
-                                        Dine-in
-                                    </button>
-                                    <button
-                                        onClick={() => setOrderType('shipping')}
-                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all font-sans ${
-                                            orderType === 'shipping'
-                                                ? 'bg-white text-r-gold shadow-sm border border-r-gold/20'
-                                                : 'text-r-muted hover:text-r-text'
-                                        }`}
-                                    >
-                                        <Truck className="w-4 h-4" />
-                                        Delivery
-                                    </button>
-                                </div>
-                            )}
-
-                            {activeOrder ? (
-                                <div className="bg-r-gold/10 border border-r-gold/20 rounded-xl p-4 text-sm">
-                                    <p className="font-bold mb-1 text-r-text font-sans">Active Order #{activeOrder.id}</p>
-                                    <p className="text-r-muted font-sans">You are seated at <span className="font-bold text-r-gold">Table {activeOrder.table_id}</span>.</p>
-                                    <p className="mt-2 text-xs text-r-muted/70 font-sans">Items will be added to this order.</p>
-                                </div>
-                            ) : orderType === 'dine_in' ? (
-                                <div>
-                                    <label className="block text-sm font-medium text-r-text mb-2 font-sans">Select Your Table</label>
-                                    {tablesLoading ? (
-                                        <div className="animate-pulse h-12 bg-r-cream rounded-xl" />
-                                    ) : (
-                                        <select
-                                            value={selectedTable}
-                                            onChange={(e) => updateSelectedTable(e.target.value ? Number(e.target.value) : null)}
-                                            className="w-full px-4 py-3 border border-r-border rounded-xl focus:outline-none focus:ring-2 focus:ring-r-gold/20 focus:border-r-gold bg-white appearance-none font-sans text-r-text"
-                                            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238a7562' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
-                                        >
-                                            <option value="">-- Choose a Table --</option>
-                                            {orderedTables.map(t => (
-                                                <option key={t.id} value={t.id} disabled={t.is_occupied}>
-                                                    Table {t.table_number} ({t.table_size} seats) {t.is_occupied ? '- Occupied' : ''}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    )}
-                                    <p className="text-xs text-r-muted/60 mt-2 font-sans">Only available tables are shown.</p>
-                                </div>
-                            ) : (
-                                <div>
-                                    <label className="block text-sm font-medium text-r-text mb-2 flex items-center gap-1.5 font-sans">
-                                        <MapPin className="w-4 h-4 text-r-gold" />
-                                        Delivery Address
-                                    </label>
-                                    <textarea
-                                        value={shippingAddress}
-                                        onChange={(e) => setShippingAddress(e.target.value)}
-                                        placeholder="Enter your full delivery address..."
-                                        rows={3}
-                                        className="w-full px-4 py-3 border border-r-border rounded-xl focus:outline-none focus:ring-2 focus:ring-r-gold/20 focus:border-r-gold resize-none text-sm font-sans text-r-text bg-white placeholder:text-r-muted/50"
-                                    />
-                                    <p className="text-xs text-r-muted/60 mt-2 font-sans">We'll deliver to this address.</p>
-                                </div>
-                            )}
-                        </WarmCard>
-
-                        {/* Payment Method */}
-                        <WarmCard>
-                            <div className="flex items-center gap-2 mb-4">
-                                <Banknote className="w-5 h-5 text-r-gold" />
-                                <h2 className="text-lg font-serif font-bold text-r-text">Payment Method</h2>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                {/* QR */}
-                                <button
-                                    onClick={() => setPaymentMethod('QR')}
-                                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all font-sans ${
-                                        paymentMethod === 'QR'
-                                            ? 'border-r-gold bg-r-gold/5 shadow-md shadow-r-gold/10'
-                                            : 'border-r-border/50 bg-white hover:border-r-gold/30 hover:bg-r-cream/50'
-                                    }`}
-                                >
-                                    {paymentMethod === 'QR' && (
-                                        <div className="absolute top-2 right-2 w-5 h-5 bg-r-gold rounded-full flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                    )}
-                                    <div className={`p-3 rounded-xl ${paymentMethod === 'QR' ? 'bg-r-gold/15' : 'bg-r-cream'}`}>
-                                        <QrCode className={`w-7 h-7 ${paymentMethod === 'QR' ? 'text-r-gold' : 'text-r-muted'}`} />
-                                    </div>
-                                    <span className={`text-sm font-bold ${paymentMethod === 'QR' ? 'text-r-gold' : 'text-r-text'}`}>
-                                        QR Transfer
-                                    </span>
-                                    <span className="text-[10px] text-r-muted">Instant payment</span>
-                                </button>
-
-                                {/* Cash */}
-                                <button
-                                    onClick={() => orderType !== 'shipping' && setPaymentMethod('cash')}
-                                    disabled={orderType === 'shipping'}
-                                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all font-sans ${
-                                        orderType === 'shipping'
-                                            ? 'border-r-border/30 bg-r-cream/30 opacity-50 cursor-not-allowed'
-                                            : paymentMethod === 'cash'
-                                                ? 'border-green-500 bg-green-50/50 shadow-md shadow-green-100/30'
-                                                : 'border-r-border/50 bg-white hover:border-green-300/50 hover:bg-r-cream/50'
-                                    }`}
-                                >
-                                    {paymentMethod === 'cash' && orderType !== 'shipping' && (
-                                        <div className="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                    )}
-                                    <div className={`p-3 rounded-xl ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'bg-green-100/60' : 'bg-r-cream'}`}>
-                                        <Banknote className={`w-7 h-7 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-green-600' : 'text-r-muted'}`} />
-                                    </div>
-                                    <span className={`text-sm font-bold ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-green-700' : 'text-r-text'}`}>
-                                        Cash
-                                    </span>
-                                    <span className="text-[10px] text-r-muted">
-                                        {orderType === 'shipping' ? 'Not available' : 'Pay at counter'}
-                                    </span>
-                                </button>
-                            </div>
-
-                            {orderType === 'shipping' && (
-                                <p className="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg mt-3 text-center font-sans border border-amber-200/50">
-                                    Delivery orders require QR payment
-                                </p>
-                            )}
-                        </WarmCard>
-
-                        {/* Order Summary */}
-                        <WarmCard hover={false}>
-                            <h2 className="text-lg font-serif font-bold text-r-text mb-4">Order Summary</h2>
-
-                            {coupons.length > 0 && (
-                                <div className="space-y-2 mb-4">
-                                    <label className="flex items-center gap-1.5 text-sm font-medium text-r-text font-sans">
-                                        <Tag className="w-4 h-4 text-r-gold" />
-                                        Available Coupons
-                                    </label>
-                                    <select
-                                        value={selectedCouponCode}
-                                        onChange={(e) => setSelectedCouponCode(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-r-border rounded-xl focus:outline-none focus:ring-2 focus:ring-r-gold/20 focus:border-r-gold text-sm bg-white font-sans text-r-text"
-                                    >
-                                        <option value="">-- Select a Coupon --</option>
-                                        {coupons.map(coupon => (
-                                            <option key={coupon.id} value={coupon.code}>
-                                                {coupon.discount_percentage}% OFF (Code: {coupon.code})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
-
-                            <div className="space-y-3 pb-5 border-b border-r-border/40">
-                                <div className="flex justify-between text-r-muted font-sans text-sm">
-                                    <span>Subtotal</span>
-                                    <span className="tabular-nums">{cartTotal.toLocaleString('vi-VN')}₫</span>
-                                </div>
-                                <div className="flex justify-between text-r-muted font-sans text-sm">
-                                    <span>Tax (8%)</span>
-                                    <span className="tabular-nums">{(cartTotal * 0.08).toLocaleString('vi-VN')}₫</span>
-                                </div>
-                                {selectedCouponCode && (
-                                    <div className="flex justify-between text-green-600 font-medium font-sans text-sm">
-                                        <span>Discount ({coupons.find(c => c.code === selectedCouponCode)?.discount_percentage}%)</span>
-                                        <span className="tabular-nums">-{(cartTotal * (coupons.find(c => c.code === selectedCouponCode)?.discount_percentage / 100)).toLocaleString('vi-VN')}₫</span>
-                                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Items List (Left) */}
+                <div className="lg:col-span-2 space-y-4">
+                    {cart.map((cartItem) => (
+                        <div key={cartItem.item.id} className="flex gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
+                            <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                                {cartItem.item.item_image && (
+                                    <img src={cartItem.item.item_image} className="w-full h-full object-cover" />
                                 )}
                             </div>
 
-                            <div className="flex justify-between items-center py-4 mb-2">
-                                <span className="text-lg font-serif font-bold text-r-text">Total</span>
-                                <span className="text-2xl font-bold text-r-gold font-sans tabular-nums">
+                            <div className="flex-1 flex flex-col justify-between">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-semibold tracking-tight text-slate-900">{cartItem.item.item_name}</h3>
+                                        <p className="text-sm text-slate-500 line-clamp-1">{cartItem.item.item_description}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => removeFromCart(cartItem.item.id)}
+                                        className="text-slate-300 transition-colors hover:text-rose-500"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                <div className="flex justify-between items-end">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => updateQuantity(cartItem.item.id, -1)}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50"
+                                        >
+                                            <Minus className="w-4 h-4" />
+                                        </button>
+                                        <span className="font-bold w-4 text-center">{cartItem.quantity}</span>
+                                        <button
+                                            onClick={() => updateQuantity(cartItem.item.id, 1)}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <span className="text-lg font-semibold text-emerald-700">
+                                        {(cartItem.item.item_price * cartItem.quantity).toLocaleString('vi-VN')}₫
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Right Column: Table Selection + Summary */}
+                <div className="flex h-fit flex-col gap-6">
+
+                    {/* Dining Details */}
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+                        <div className="mb-4 flex items-center gap-2 text-slate-900">
+                            <UtensilsCrossed className="w-5 h-5 text-emerald-600" />
+                            <h2 className="text-lg font-semibold">Dining Details</h2>
+                        </div>
+
+                        {/* Order Type Toggle */}
+                        {!activeOrder && (
+                            <div className="mb-4 flex gap-1 rounded-2xl bg-slate-100 p-1">
+                                <button
+                                    onClick={() => setOrderType('dine_in')}
+                                        className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all ${orderType === 'dine_in'
+                                            ? 'bg-white text-emerald-700 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    <UtensilsCrossed className="w-4 h-4" />
+                                    Dine-in
+                                </button>
+                                <button
+                                    onClick={() => setOrderType('shipping')}
+                                        className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all ${orderType === 'shipping'
+                                            ? 'bg-white text-sky-700 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    <Truck className="w-4 h-4" />
+                                    Shipping
+                                </button>
+                            </div>
+                        )}
+
+                        {activeOrder ? (
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
+                                <p className="font-bold mb-1">Active Order #{activeOrder.id}</p>
+                                <p>You are seated at <span className="font-bold">Table {activeOrder.table_id}</span>.</p>
+                                <p className="mt-2 text-xs opacity-75">Items will be added to this order.</p>
+                            </div>
+                        ) : orderType === 'dine_in' ? (
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">Select Your Table</label>
+                                {tablesLoading ? (
+                                    <div className="h-10 animate-pulse rounded-lg bg-slate-100"></div>
+                                ) : (
+                                    <select
+                                        value={selectedTable}
+                                        onChange={(e) => updateSelectedTable(e.target.value ? Number(e.target.value) : null)}
+                                        className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+                                        style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                                    >
+                                        <option value="">-- Choose a Table --</option>
+                                        {orderedTables.map(t => (
+                                            <option key={t.id} value={t.id} disabled={t.is_occupied}>
+                                                Table {t.table_number} ({t.table_size} seats) {t.is_occupied ? '- Occupied' : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                                <p className="mt-2 text-xs text-slate-400">Only available tables are shown.</p>
+                            </div>
+                        ) : (
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    <MapPin className="w-4 h-4 text-blue-500" />
+                                    Delivery Address
+                                </label>
+                                <textarea
+                                    value={shippingAddress}
+                                    onChange={(e) => setShippingAddress(e.target.value)}
+                                    placeholder="Enter your full delivery address..."
+                                    rows={3}
+                                    className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                                />
+                                <p className="mt-2 text-xs text-slate-400">We'll deliver to this address.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Payment Method Selection */}
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+                        <div className="mb-4 flex items-center gap-2 text-slate-900">
+                            <Banknote className="w-5 h-5 text-emerald-600" />
+                            <h2 className="text-lg font-semibold">Payment Method</h2>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* QR Payment Option */}
+                            <button
+                                onClick={() => setPaymentMethod('QR')}
+                                className={`relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all ${paymentMethod === 'QR'
+                                        ? 'border-sky-500 bg-sky-50 shadow-md shadow-sky-100'
+                                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                            >
+                                {paymentMethod === 'QR' && (
+                                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500">
+                                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                )}
+                                <div className={`rounded-xl p-3 ${paymentMethod === 'QR' ? 'bg-sky-100' : 'bg-slate-100'}`}>
+                                    <QrCode className={`w-7 h-7 ${paymentMethod === 'QR' ? 'text-sky-700' : 'text-slate-500'}`} />
+                                </div>
+                                <span className={`text-sm font-semibold ${paymentMethod === 'QR' ? 'text-sky-700' : 'text-slate-600'}`}>
+                                    QR Transfer
+                                </span>
+                                <span className="text-[10px] text-slate-400">Instant payment</span>
+                            </button>
+
+                            {/* Cash Option — disabled for shipping */}
+                            <button
+                                onClick={() => orderType !== 'shipping' && setPaymentMethod('cash')}
+                                disabled={orderType === 'shipping'}
+                                className={`relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all ${orderType === 'shipping'
+                                        ? 'cursor-not-allowed border-slate-100 bg-slate-50 opacity-50'
+                                        : paymentMethod === 'cash'
+                                            ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100'
+                                            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                            >
+                                {paymentMethod === 'cash' && orderType !== 'shipping' && (
+                                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
+                                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                )}
+                                <div className={`rounded-xl p-3 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                                    <Banknote className={`w-7 h-7 ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-emerald-700' : 'text-slate-500'}`} />
+                                </div>
+                                <span className={`text-sm font-semibold ${paymentMethod === 'cash' && orderType !== 'shipping' ? 'text-emerald-700' : 'text-slate-600'}`}>
+                                    Cash
+                                </span>
+                                <span className="text-[10px] text-slate-400">
+                                    {orderType === 'shipping' ? 'Not available' : 'Pay at counter'}
+                                </span>
+                            </button>
+                        </div>
+
+                        {orderType === 'shipping' && (
+                            <p className="mt-3 rounded-lg bg-amber-50 p-2 text-center text-xs text-amber-700">
+                                Shipping orders require QR payment
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Order Summary */}
+                    <div className="space-y-6 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                        <h2 className="text-xl font-semibold tracking-tight text-slate-900">Order Summary</h2>
+
+                        {coupons.length > 0 && (
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-slate-700">
+                                    Available Coupons
+                                </label>
+                                <select
+                                    value={selectedCouponCode}
+                                    onChange={(e) => setSelectedCouponCode(e.target.value)}
+                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+                                >
+                                    <option value="">-- Select a Coupon --</option>
+                                    {coupons.map(coupon => (
+                                        <option key={coupon.id} value={coupon.code}>
+                                            {coupon.discount_percentage}% OFF (Code: {coupon.code})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        <div className="space-y-3 border-b border-slate-100 pb-6">
+                            <div className="flex justify-between text-slate-600">
+                                <span>Subtotal</span>
+                                <span>{cartTotal.toLocaleString('vi-VN')}₫ </span>
+                            </div>
+                            <div className="flex justify-between text-slate-600">
+                                <span>Tax (8%)</span>
+                                <span>{(cartTotal * 0.08).toLocaleString('vi-VN')}₫ </span>
+                            </div>
+                            {selectedCouponCode && (
+                                <div className="flex justify-between font-medium text-emerald-700">
+                                    <span>Discount ({coupons.find(c => c.code === selectedCouponCode)?.discount_percentage}%)</span>
+                                    <span>-{(cartTotal * (coupons.find(c => c.code === selectedCouponCode)?.discount_percentage / 100)).toLocaleString('vi-VN')}₫</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between pt-2 text-xl font-semibold text-slate-900">
+                                <span>Total</span>
+                                <span>
                                     {(() => {
                                         const tax = cartTotal * 0.08;
                                         const discountPercent = selectedCouponCode ? coupons.find(c => c.code === selectedCouponCode)?.discount_percentage : 0;
@@ -521,31 +530,33 @@ export default function CustomerCartPage() {
                                     })()}₫
                                 </span>
                             </div>
+                        </div>
 
-                            <GoldButton
-                                onClick={() => placeOrderMutation.mutate()}
-                                disabled={placeOrderMutation.isPending || (!activeOrder && orderType === 'dine_in' && !selectedTable) || (!activeOrder && orderType === 'shipping' && !shippingAddress.trim())}
-                                variant={paymentMethod === 'cash' ? 'dark' : 'solid'}
-                                className="w-full py-4 text-base"
-                            >
-                                {placeOrderMutation.isPending ? 'Processing...' : (
-                                    <>
-                                        {activeOrder ? 'Add to Order' : paymentMethod === 'QR' ? 'Pay with QR' : 'Place Order (Cash)'}
-                                        <ArrowRight className="w-5 h-5" />
-                                    </>
-                                )}
-                            </GoldButton>
-
-                            <p className="text-xs text-center text-r-muted mt-3 font-sans">
-                                {paymentMethod === 'QR'
-                                    ? "You'll be redirected to scan the QR code."
-                                    : "Waiter will confirm your cash payment."
-                                }
-                            </p>
-                        </WarmCard>
+                        <button
+                            onClick={() => placeOrderMutation.mutate()}
+                            disabled={placeOrderMutation.isPending || (!activeOrder && orderType === 'dine_in' && !selectedTable) || (!activeOrder && orderType === 'shipping' && !shippingAddress.trim())}
+                                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-lg font-semibold text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-50 ${paymentMethod === 'QR'
+                                    ? 'bg-sky-600 hover:bg-sky-700'
+                                    : 'bg-emerald-600 hover:bg-emerald-700'
+                                }`}
+                        >
+                            {placeOrderMutation.isPending ? 'Processing...' : (
+                                <>
+                                    {activeOrder ? 'Add to Order' : paymentMethod === 'QR' ? 'Pay with QR' : 'Place Order (Cash)'}
+                                    <ArrowRight className="w-5 h-5" />
+                                </>
+                            )}
+                        </button>
+                        <p className="text-center text-xs text-slate-400">
+                            {paymentMethod === 'QR'
+                                ? "You'll be redirected to scan the QR code."
+                                : "Waiter will confirm your cash payment."
+                            }
+                        </p>
                     </div>
+
                 </div>
             </div>
-        </WarmPageWrapper>
+        </div>
     );
 }
