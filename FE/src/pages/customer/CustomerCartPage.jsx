@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote, CheckCircle2 } from 'lucide-react';
+import { Minus, Plus, Trash2, ArrowRight, UtensilsCrossed, Truck, MapPin, QrCode, Banknote, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const SELECTED_TABLE_STORAGE_KEY = 'selectedTable';
 
@@ -141,16 +141,15 @@ export default function CustomerCartPage() {
 
     // Pre-fill table from localStorage (set by CustomerTablePage)
     useEffect(() => {
+        if (tablesLoading || activeOrder) return;
         const saved = localStorage.getItem('selectedTable');
-        if (saved && !activeOrder) {
+        if (saved && !selectedTable) {
             try {
                 const parsed = JSON.parse(saved);
                 setSelectedTable(parsed.id.toString());
             } catch (_) { /* ignore malformed data */ }
         }
-        // Only run once on mount — activeOrder may not be loaded yet, handled by the effect above
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [tablesLoading, activeOrder, selectedTable]);
 
     // Force QR when shipping is selected
     useEffect(() => {
@@ -387,11 +386,15 @@ export default function CustomerCartPage() {
                                                 className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-slate-900 outline-none transition-all focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 shadow-sm"
                                             >
                                                 <option value="">-- Choose a Table --</option>
-                                                {orderedTables.map(t => (
-                                                    <option key={t.id} value={t.id} disabled={t.is_occupied}>
-                                                        Table {t.table_number} ({t.table_size} seats) {t.is_occupied ? '- Occupied' : ''}
-                                                    </option>
-                                                ))}
+                                                {orderedTables.map(t => {
+                                                    // Don't disable the table the user already selected
+                                                    const isPreSelected = selectedTable && t.id.toString() === selectedTable;
+                                                    return (
+                                                        <option key={t.id} value={t.id} disabled={t.is_occupied && !isPreSelected}>
+                                                            Table {t.table_number} ({t.table_size} seats) {t.is_occupied && !isPreSelected ? '- Occupied' : ''}
+                                                        </option>
+                                                    );
+                                                })}
                                             </select>
                                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>

@@ -36,7 +36,9 @@ export default function CustomerTablePage() {
         enabled: !!user
     });
 
-    const activeOrderData = Array.isArray(activeOrder) ? activeOrder[0] : activeOrder;
+    // The backend returns completed orders (within 24h) for rating 
+    const activeOrders = Array.isArray(activeOrder) ? activeOrder : (activeOrder ? [activeOrder] : []);
+    const activeOrderData = activeOrders.find(o => o.status !== 'completed' && o.status !== 'cancelled') || null;
     const tableSelectionLocked = !!activeOrderData;
 
     useEffect(() => {
@@ -55,7 +57,12 @@ export default function CustomerTablePage() {
 
     const handleConfirmTable = () => {
         if (!selectedTable) return;
-        localStorage.setItem('selectedTableId', selectedTable.id);
+        localStorage.setItem('selectedTable', JSON.stringify({
+            id: selectedTable.id,
+            table_number: selectedTable.table_number,
+            table_size: selectedTable.table_size,
+            is_occupied: true,
+        }));
         navigate('/menu', { state: { tableConfirmed: true, tableNumber: selectedTable.table_number } });
     };
 
