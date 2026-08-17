@@ -279,7 +279,7 @@ export default function CustomerCartPage() {
                             <div key={cartItem.item.id} className="group flex gap-5 rounded-[1.75rem] border border-white/70 bg-white/80 p-5 shadow-sm backdrop-blur-xl transition-all hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)] hover:-translate-y-0.5">
                                 <div className="w-28 h-28 shrink-0 overflow-hidden rounded-[1.25rem] bg-slate-100 relative">
                                     {cartItem.item.item_image ? (
-                                        <img src={cartItem.item.item_image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={cartItem.item.item_name} />
+                                        <img src={cartItem.item.item_image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={cartItem.item.item_name} />
                                     ) : (
                                         <div className="flex h-full items-center justify-center text-slate-300"><UtensilsCrossed className="w-8 h-8" /></div>
                                     )}
@@ -294,6 +294,7 @@ export default function CustomerCartPage() {
                                         <button
                                             onClick={() => removeFromCart(cartItem.item.id)}
                                             className="rounded-full p-2 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                            aria-label={`Remove ${cartItem.item.item_name} from cart`}
                                         >
                                             <Trash2 className="h-5 w-5" />
                                         </button>
@@ -304,6 +305,7 @@ export default function CustomerCartPage() {
                                             <button
                                                 onClick={() => updateQuantity(cartItem.item.id, -1)}
                                                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition-colors hover:text-emerald-600"
+                                                aria-label={`Decrease quantity of ${cartItem.item.item_name}`}
                                             >
                                                 <Minus className="h-4 w-4" />
                                             </button>
@@ -311,6 +313,7 @@ export default function CustomerCartPage() {
                                             <button
                                                 onClick={() => updateQuantity(cartItem.item.id, 1)}
                                                 className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition-colors hover:text-emerald-600"
+                                                aria-label={`Increase quantity of ${cartItem.item.item_name}`}
                                             >
                                                 <Plus className="h-4 w-4" />
                                             </button>

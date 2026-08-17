@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useCart } from '../../context/CartContext';
-import { Search, Plus, Utensils, CheckCircle2, X, Sparkles, Flame, Leaf, Sandwich, Coffee } from 'lucide-react';
+import { Search, Plus, Utensils, CheckCircle2, X, Sparkles, Flame, Leaf, Sandwich, Coffee, ShoppingBag, ChevronRight } from 'lucide-react';
 import { StarDisplay } from '../../components/RatingModal';
 
 const CATEGORIES = ['ALL', 'food', 'drink', 'appetizer', 'dessert'];
@@ -19,8 +19,9 @@ export default function CustomerMenuPage() {
     const [selectedCategory, setSelectedCategory] = useState('ALL');
     const [searchQuery, setSearchQuery] = useState('');
     const [notification, setNotification] = useState(null);
-    const { addToCart } = useCart();
+    const { addToCart, cartCount, cartTotal } = useCart();
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Show success banner if navigated from table selection
     useEffect(() => {
@@ -86,6 +87,7 @@ export default function CustomerMenuPage() {
                 <div className="absolute inset-0 bg-slate-900">
                     <img 
                         src="https://images.unsplash.com/photo-1582878826629-29b7ad1cb431?q=80&w=2070&auto=format&fit=crop" 
+                        loading="lazy" decoding="async"
                         className="absolute inset-0 h-full w-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000 ease-out" 
                         alt="Fresh Vietnamese Food" 
                     />
@@ -150,7 +152,13 @@ export default function CustomerMenuPage() {
                         <Utensils className="h-10 w-10" />
                     </div>
                     <p className="text-xl font-bold text-slate-700 font-serif">No dishes found</p>
-                    <p className="mt-2 text-slate-500">Try adjusting your category or search term.</p>
+                    <p className="mt-2 text-slate-500 mb-6">Try adjusting your category or search term.</p>
+                    <button 
+                        onClick={() => { setSearchQuery(''); setSelectedCategory('ALL'); }}
+                        className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-2.5 text-sm font-bold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50"
+                    >
+                        Clear Filters
+                    </button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
@@ -162,7 +170,7 @@ export default function CustomerMenuPage() {
                             <div className="relative h-64 overflow-hidden z-10 p-2">
                                 <div className="w-full h-full rounded-[1rem] overflow-hidden relative">
                                     {item.item_image ? (
-                                        <img src={item.item_image} alt={item.item_name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                        <img src={item.item_image} loading="lazy" decoding="async" alt={item.item_name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     ) : (
                                         <div className="flex h-full items-center justify-center bg-slate-50 text-slate-300">
                                             <Utensils className="h-12 w-12" />
@@ -203,6 +211,30 @@ export default function CustomerMenuPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Floating Cart Button for Mobile */}
+            {cartCount > 0 && (
+                <div className="md:hidden fixed bottom-20 left-4 right-4 z-40 animate-fade-in">
+                    <button 
+                        onClick={() => navigate('/cart')}
+                        className="w-full flex items-center justify-between bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4 rounded-[1.25rem] shadow-[0_8px_30px_rgb(5,150,105,0.3)] transition-transform active:scale-[0.98]"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <ShoppingBag className="w-6 h-6" />
+                                <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[11px] font-bold text-emerald-600 shadow-sm">
+                                    {cartCount}
+                                </span>
+                            </div>
+                            <span className="font-bold tracking-wide">View Cart</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 font-bold text-lg">
+                            {cartTotal?.toLocaleString('vi-VN')}₫
+                            <ChevronRight className="w-5 h-5 opacity-80" />
+                        </div>
+                    </button>
                 </div>
             )}
         </div>
