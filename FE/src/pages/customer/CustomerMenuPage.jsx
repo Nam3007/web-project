@@ -83,9 +83,9 @@ export default function CustomerMenuPage() {
 
             {/* Parallax Hero Section */}
             <section className="relative overflow-hidden rounded-[2.5rem] shadow-xl group h-[28rem] mb-12">
-                <div className="absolute inset-0 bg-slate-900">
+                <div className="absolute inset-1 ">
                     <img 
-                        src="https://images.unsplash.com/photo-1582878826629-29b7ad1cb431?q=80&w=2070&auto=format&fit=crop" 
+                        src="src/assets/vietnamese-food-hero.jpg" 
                         className="absolute inset-0 h-full w-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000 ease-out" 
                         alt="Fresh Vietnamese Food" 
                     />

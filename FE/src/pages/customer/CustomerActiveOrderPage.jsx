@@ -226,7 +226,7 @@ export default function CustomerActiveOrderPage() {
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold text-white tracking-tight font-serif">Active Orders</h1>
-                                <p className="text-sm text-emerald-100/80 mt-1">Track your dine-in & delivery orders in real-time</p>
+                                <p className="text-sm text-emerald-100/80 mt-1"></p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-xl px-5 py-3 border border-white/20 shadow-inner">

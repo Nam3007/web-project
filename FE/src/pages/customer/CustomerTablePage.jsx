@@ -100,7 +100,7 @@ export default function CustomerTablePage() {
                         <div className="max-w-2xl">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700/75">Dining Setup</p>
                             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl font-serif">Select Your Table</h1>
-                            <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base max-w-lg">Choose an available table for your dining experience, then continue to the menu to place your order.</p>
+                            <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base max-w-lg"></p>
                             <div className="mt-6 flex flex-wrap items-center gap-3">
                                 <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3.5 py-1.5 text-sm font-semibold text-emerald-700 shadow-sm">
                                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-soft"></span>

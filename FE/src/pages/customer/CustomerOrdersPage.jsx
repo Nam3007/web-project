@@ -175,17 +175,7 @@ export default function CustomerOrdersPage() {
                         <div className="text-left md:text-right bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 shadow-inner w-full md:w-auto">
                             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-200/80 mb-1">Total Spent</p>
                             <p className="text-3xl font-bold text-amber-400 tabular-nums">{totalSpent.toLocaleString('vi-VN')}₫</p>
-                            {!isVip && (
-                                <div className="mt-3">
-                                    <div className="flex justify-between text-xs font-medium text-emerald-200 mb-1">
-                                        <span>Progress to VIP</span>
-                                        <span>{Math.round(progress)}%</span>
-                                    </div>
-                                    <div className="w-full h-2 bg-black/20 rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full" style={{ width: `${progress}%` }}></div>
-                                    </div>
-                                </div>
-                            )}
+                            
                         </div>
                     </div>
                 </div>

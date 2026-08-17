@@ -13,10 +13,10 @@
 
 @layer base {
   body {
-    background: linear-gradient(135deg, #afa186 0%, #2d4d2d 100%); /* Soft beige to light emerald */
-    color: #1E293B; /* Slate 800 - Note: this is TEXT color, not background color */
+    background: linear-gradient(135deg, #afa186 0%, #2d4d2d 100%); 
+    color: #1E293B; /* Slate 800 - Note: this is TEXT color */
     font-family: var(--font-sans);
-    min-height: 100vh;
+    
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -53,7 +53,7 @@
     @apply text-3xl font-bold text-slate-800 tracking-tight;
   }
   
-  /* Shared Vietnam Pattern Background - for cards and headers */
+  
   .vietnam-pattern {
     background-image: radial-gradient(circle at 2px 2px, rgba(16, 185, 129, 0.15) 1px, transparent 0);
     background-size: 24px 24px;
