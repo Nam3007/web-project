@@ -111,7 +111,24 @@ export default function CustomerOrdersPage() {
             }));
     };
 
-    if (isLoading) return <div className="text-center py-20">Loading orders...</div>;
+    if (isLoading) {
+        return (
+            <div className="customer-page customer-page-wide pb-12 relative">
+                <div className="space-y-4 pt-8">
+                    {/* VIP Status Skeleton */}
+                    <div className="h-40 rounded-[2rem] bg-slate-200/50 animate-pulse"></div>
+                    <div className="flex items-center justify-between px-2 mt-8 mb-4">
+                        <div className="h-8 w-40 bg-slate-200/50 rounded-lg animate-pulse"></div>
+                        <div className="h-6 w-20 bg-slate-200/50 rounded-full animate-pulse"></div>
+                    </div>
+                    {/* Order Cards Skeletons */}
+                    {[1, 2, 3].map((item) => (
+                        <div key={item} className="h-32 rounded-[1.5rem] bg-slate-200/50 animate-pulse"></div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     const isVip = user.role === 'vip_customer';
     const progress = Math.min((totalSpent / VIP_THRESHOLD) * 100, 100);
