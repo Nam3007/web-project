@@ -14,7 +14,8 @@ import {
     MenuSquare,
     Star,
     Truck,
-    Ticket
+    Ticket,
+    CalendarDays
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -39,17 +40,18 @@ export default function AdminLayout() {
     const pendingShippingCount = pendingShipping.length;
 
     const navItems = [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-        { name: 'Shipping Confirm', path: '/admin/shipping-confirm', icon: Truck },
-        { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
-        { name: 'Menu', path: '/admin/menu', icon: MenuSquare },
-        { name: 'Customers', path: '/admin/customers', icon: Users },
-        { name: 'Staff', path: '/admin/staff', icon: ChefHat }, 
-        { name: 'Tables', path: '/admin/tables', icon: UtensilsCrossed },
-        { name: 'Payments', path: '/admin/payments', icon: CreditCard },
-        { name: 'Schedule', path: '/admin/schedule', icon: CalendarRange },
-        { name: 'Reviews', path: '/admin/reviews', icon: Star },
-        { name: 'Discount Coupons', path: '/admin/coupons', icon: Ticket },
+        { name: 'Dashboard', path: '/manager/dashboard', icon: LayoutDashboard },
+        { name: 'Reservations', path: '/manager/reservations', icon: CalendarDays },
+        { name: 'Shipping Confirm', path: '/manager/shipping-confirm', icon: Truck },
+        { name: 'Orders', path: '/manager/orders', icon: ShoppingBag },
+        { name: 'Menu', path: '/manager/menu', icon: MenuSquare },
+        { name: 'Customers', path: '/manager/customers', icon: Users },
+        { name: 'Staff', path: '/manager/staff', icon: ChefHat }, 
+        { name: 'Tables', path: '/manager/tables', icon: UtensilsCrossed },
+        { name: 'Payments', path: '/manager/payments', icon: CreditCard },
+        { name: 'Schedule', path: '/manager/schedule', icon: CalendarRange },
+        { name: 'Reviews', path: '/manager/reviews', icon: Star },
+        { name: 'Discount Coupons', path: '/manager/coupons', icon: Ticket },
     ];
 
     return (

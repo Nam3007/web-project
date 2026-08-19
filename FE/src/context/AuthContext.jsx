@@ -68,12 +68,18 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (updatedFields) => {
+        if (updatedFields.full_name) {
+            localStorage.setItem('full_name', updatedFields.full_name);
+        }
+        setUser(prev => (prev ? { ...prev, ...updatedFields } : null));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );
 };
-
 
 export const useAuth = () => useContext(AuthContext);

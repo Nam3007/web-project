@@ -24,7 +24,7 @@ export default function LoginPage() {
             // Redirect based on role
             switch (result.role) {
                 case 'admin':
-                    navigate('/admin/dashboard');
+                    navigate('/manager/dashboard');
                     break;
                 case 'waiter':
                 case 'chef':

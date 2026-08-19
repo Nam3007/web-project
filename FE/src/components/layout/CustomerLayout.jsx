@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, History, LogOut, UtensilsCrossed, TableProperties, ReceiptText, MapPin, Phone, Instagram, Facebook } from 'lucide-react';
+import { ShoppingBag, History, LogOut, UtensilsCrossed, TableProperties, ReceiptText, MapPin, Phone, Instagram, Facebook, User, Ticket } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -38,8 +38,10 @@ export default function CustomerLayout() {
 
                             <div className="hidden md:flex items-center gap-2 rounded-full bg-slate-100/60 p-1.5 border border-slate-200/50">
                                 <NavLink to="/menu" current={location.pathname}>Menu</NavLink>
+                                <NavLink to="/reservations" current={location.pathname}>Reservations</NavLink>
                                 {user && (
                                     <>
+                                        <NavLink to="/profile" current={location.pathname}>Coupons & Profile</NavLink>
                                         <NavLink to="/tables" current={location.pathname}>Tables</NavLink>
                                         <NavLink to="/active-orders" current={location.pathname}>Live Orders</NavLink>
                                         <NavLink to="/orders" current={location.pathname}>History</NavLink>
@@ -66,10 +68,16 @@ export default function CustomerLayout() {
 
                             {user ? (
                                 <div className="flex items-center gap-3">
-                                    <div className="hidden sm:flex flex-col items-end mr-2">
-                                        
-                                        <span className="text-xl font-medium text-primary bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">{user.full_name}</span>
-                                    </div>
+                                    <Link
+                                        to="/profile"
+                                        className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 text-primary border border-emerald-200/60 font-semibold text-xs sm:text-sm transition-all hover:shadow-sm group"
+                                        title="View Available Coupons & Profile"
+                                    >
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs group-hover:bg-primary group-hover:text-white transition-colors">
+                                            {user.full_name?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                        <span className="font-medium truncate max-w-[140px]">{user.full_name}</span>
+                                    </Link>
                                     <button
                                         onClick={handleLogout}
                                         className="rounded-xl p-2.5 text-slate-400 transition-all duration-200 hover:bg-rose-50 hover:text-rose-500"
@@ -179,6 +187,7 @@ export default function CustomerLayout() {
                 <MobileNavLink to="/menu" icon={UtensilsCrossed} label="Menu" current={location.pathname} />
                 {user && (
                     <>
+                        <MobileNavLink to="/profile" icon={Ticket} label="Coupons" current={location.pathname} />
                         <MobileNavLink to="/tables" icon={TableProperties} label="Tables" current={location.pathname} />
                         <MobileNavLink to="/cart" icon={ShoppingBag} label="Cart" current={location.pathname} count={cartCount} />
                         <MobileNavLink to="/orders" icon={History} label="History" current={location.pathname} />
@@ -191,6 +200,24 @@ export default function CustomerLayout() {
 }
 
 function getPageMeta(pathname, user) {
+    if (pathname.startsWith('/profile')) {
+        return {
+            kicker: 'Member Portal',
+            title: 'My Profile & Coupons',
+            description: 'Manage your personal account details, update your password, and view your available discount vouchers.',
+            badges: ['Discount Coupons', 'Personal Details', 'Security'],
+            backgroundImage: '/src/assets/food-apps.jpg',
+        };
+    }
+    if (pathname.startsWith('/reservations')) {
+        return {
+            kicker: 'Table Booking',
+            title: 'Table Reservations',
+            description: 'Reserve your dining table in advance with pre-ordered dishes, dedicated staff, and instant table assignments.',
+            badges: ['Book Online', 'Pre-order Food', 'VietQR Deposit'],
+            backgroundImage: '/src/assets/testMenu.jpg',
+        };
+    }
     if (pathname.startsWith('/tables')) {
         return {
             kicker: 'Dining Setup',

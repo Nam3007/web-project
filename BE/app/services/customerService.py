@@ -79,18 +79,24 @@ class CustomerService:
     def update(self, db: Session, customer_id: int, customer_data: CustomerUpdateDTO) -> Customer:
         """Update customer information"""
         customer = self.repository.get_by_id(db, customer_id)
+        if not customer:
+            raise ValueError("Customer not found")
+
         updated_customer = customer_data.model_dump(exclude_unset=True)
 
-        if "email" in updated_customer:
-            if self.repository.exists_by_email(db, updated_customer["email"]):
-                raise ValueError("Email already exists")
+        if "email" in updated_customer and updated_customer["email"]:
+            existing = self.repository.find_by_email(db, updated_customer["email"])
+            if existing and existing.id != customer_id:
+                raise ValueError("Email already in use by another account")
+
+        # Hash password if a new password is provided
+        if "password_hashed" in updated_customer and updated_customer["password_hashed"]:
+            updated_customer["password_hashed"] = hash_password(updated_customer["password_hashed"])
+
         # Update fields
         for key, value in updated_customer.items():
             setattr(customer, key, value)
         
-        print("Updated customer data:", updated_customer)
-
-
         return self.repository.update(db, customer)
     
     def update_customer_role(self,db , customer_id: int , new_role : CustomerRole) -> Customer:

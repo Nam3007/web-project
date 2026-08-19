@@ -3,7 +3,10 @@ from .staff import Staff, StaffRole, staff_status, staff_availability
 from .staff_schedule import StaffSchedule, workDay, workShift
 from .menu_item import MenuItem, item_type
 from .table import Table
-from .reservation import Reservation
+from .reservation import Reservation, ReservationStatus
+from .reservation_staff import ReservationStaffAssignment
+from .reservation_preorder_item import ReservationPreorderItem
+from .restaurant_config import RestaurantConfig
 from .order import Order, OrderStatus, PaymentMethod, OrderType
 from .order_item import OrderItem
 from .payment import Payment, PaymentMethod, PaymentStatus

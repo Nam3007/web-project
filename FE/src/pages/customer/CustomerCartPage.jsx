@@ -131,17 +131,38 @@ export default function CustomerCartPage() {
         enabled: !!user
     });
 
+    // Fetch Active Reservation around current time
+    const { data: activeReservation } = useQuery({
+        queryKey: ['myActiveReservation', user?.id],
+        queryFn: async () => {
+            if (!user?.id) return null;
+            try {
+                const res = await api.get(`/reservations/customer/${user.id}/active`);
+                return res.data;
+            } catch {
+                return null;
+            }
+        },
+        enabled: !!user?.id
+    });
+
     // Auto-select table if active order exists
     useEffect(() => {
         if (activeOrder && activeOrder.table_id && selectedTable !== activeOrder.table_id.toString()) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedTable(activeOrder.table_id.toString());
         }
     }, [activeOrder, selectedTable]);
 
+    // Auto-select table if active reservation exists
+    useEffect(() => {
+        if (!activeOrder && activeReservation && activeReservation.table_id && selectedTable !== activeReservation.table_id.toString()) {
+            setSelectedTable(activeReservation.table_id.toString());
+        }
+    }, [activeOrder, activeReservation, selectedTable]);
+
     // Pre-fill table from localStorage (set by CustomerTablePage)
     useEffect(() => {
-        if (tablesLoading || activeOrder) return;
+        if (tablesLoading || activeOrder || activeReservation) return;
         const saved = localStorage.getItem('selectedTable');
         if (saved && !selectedTable) {
             try {
@@ -149,7 +170,7 @@ export default function CustomerCartPage() {
                 setSelectedTable(parsed.id.toString());
             } catch (_) { /* ignore malformed data */ }
         }
-    }, [tablesLoading, activeOrder, selectedTable]);
+    }, [tablesLoading, activeOrder, activeReservation, selectedTable]);
 
     // Force QR when shipping is selected
     useEffect(() => {
@@ -375,6 +396,19 @@ export default function CustomerCartPage() {
                                     <p className="font-bold text-emerald-900">Active Order #{activeOrder.id}</p>
                                     <p className="text-emerald-800 text-sm mt-1">You are seated at <span className="font-bold">Table {activeOrder.table_id}</span>.</p>
                                     <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-emerald-600/80">Items will be added to this order</p>
+                                </div>
+                            ) : activeReservation && activeReservation.table_number ? (
+                                <div className="rounded-[1.25rem] border border-emerald-300 bg-emerald-50/90 p-5 shadow-sm space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                        <p className="font-bold text-emerald-900">Active Table Reservation #{activeReservation.id}</p>
+                                    </div>
+                                    <p className="text-emerald-800 text-sm">
+                                        Your dining table is confirmed: <span className="font-extrabold text-base text-emerald-950">Table {activeReservation.table_number}</span>.
+                                    </p>
+                                    <p className="text-[11px] text-emerald-700">
+                                        Your order will automatically be served to your reserved table without needing to pick a table!
+                                    </p>
                                 </div>
                             ) : orderType === 'dine_in' ? (
                                 <div>

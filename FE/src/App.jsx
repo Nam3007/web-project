@@ -7,16 +7,19 @@ import CustomerRegisterPage from './pages/common/CustomerRegisterPage';
 
 // Admin Pages
 import AdminLayout from './components/layout/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminMenuPage from './pages/admin/AdminMenuPage';
-import AdminStaffPage from './pages/admin/AdminStaffPage';
-import AdminSchedulePage from './pages/admin/AdminSchedulePage';
-import AdminTablePage from './pages/admin/AdminTablePage';
-import AdminPaymentPage from './pages/admin/AdminPaymentPage';
-import AdminCustomerPage from './pages/admin/AdminCustomerPage';
-import AdminCreateStaffPage from './pages/admin/AdminCreateStaffPage';
-import AdminReviewsPage from './pages/admin/AdminReviewsPage';
+import AdminDashboard from './pages/manager/AdminDashboard';
+import AdminOrdersPage from './pages/manager/AdminOrdersPage';
+import AdminMenuPage from './pages/manager/AdminMenuPage';
+import AdminStaffPage from './pages/manager/AdminStaffPage';
+import AdminSchedulePage from './pages/manager/AdminSchedulePage';
+import AdminTablePage from './pages/manager/AdminTablePage';
+import AdminPaymentPage from './pages/manager/AdminPaymentPage';
+import AdminCustomerPage from './pages/manager/AdminCustomerPage';
+import AdminCreateStaffPage from './pages/manager/AdminCreateStaffPage';
+import AdminReviewsPage from './pages/manager/AdminReviewsPage';
+import AdminOrderConfirmPage from './pages/manager/AdminOrderConfirmPage';
+import AdminDiscountCouponPage from './pages/manager/AdminDiscountCouponPage';
+import AdminReservationPage from './pages/manager/AdminReservationPage';
 
 // Staff Pages
 import StaffLayout from './components/layout/StaffLayout';
@@ -26,6 +29,8 @@ import WaiterOrderEntry from './pages/staff/WaiterOrderEntry';
 import WaiterActiveOrdersPage from './pages/staff/WaiterActiveOrdersPage';
 import StaffSchedulePage from './pages/staff/StaffSchedulePage';
 import DeliveryManDashboard from './pages/staff/DeliveryManDashboard';
+import StaffReservationPage from './pages/staff/StaffReservationPage';
+
 // Customer Pages
 import CustomerLayout from './components/layout/CustomerLayout';
 import CustomerMenuPage from './pages/customer/CustomerMenuPage';
@@ -34,11 +39,8 @@ import CustomerOrdersPage from './pages/customer/CustomerOrdersPage';
 import CustomerTablePage from './pages/customer/CustomerTablePage';
 import CustomerActiveOrderPage from './pages/customer/CustomerActiveOrderPage';
 import QRPaymentPage from './pages/customer/QRPaymentPage';
-import AdminOrderConfirmPage from './pages/admin/AdminOrderConfirmPage';
-import AdminDiscountCouponPage from './pages/admin/AdminDiscountCouponPage';
-
-
-
+import CustomerReservationPage from './pages/customer/CustomerReservationPage';
+import CustomerProfilePage from './pages/customer/CustomerProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,9 @@ function App() {
               {/* Customer Routes (Public/Protected mixed) */}
               <Route element={<CustomerLayout />}>
                 <Route path="/menu" element={<CustomerMenuPage />} />
+                <Route path="/reservations" element={<CustomerReservationPage />} />
+                <Route path="/profile" element={<CustomerProfilePage />} />
+                <Route path="/coupons" element={<Navigate to="/profile" replace />} />
                 <Route path="/tables" element={<CustomerTablePage />} />
                 <Route path="/cart" element={<CustomerCartPage />} />
                 <Route path="/orders" element={<CustomerOrdersPage />} />
@@ -66,6 +71,7 @@ function App() {
               {/* Staff Routes */}
               <Route path="/staff" element={<StaffLayout />}>
                 <Route path="dashboard" element={<StaffDashboard />} />
+                <Route path="reservations" element={<StaffReservationPage />} />
                 <Route path="tables" element={<WaiterTableSelection />} />
                 <Route path="orders/new" element={<WaiterOrderEntry />} />
                 <Route path="orders" element={<WaiterActiveOrdersPage />} />
@@ -75,8 +81,9 @@ function App() {
               </Route>
 
               {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
+              <Route path="/manager" element={<AdminLayout />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="reservations" element={<AdminReservationPage />} />
                 <Route path="orders" element={<AdminOrdersPage />} />
                 <Route path="menu" element={<AdminMenuPage />} />
                 <Route path="staff" element={<AdminStaffPage />} />

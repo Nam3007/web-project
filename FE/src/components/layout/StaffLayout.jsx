@@ -27,6 +27,7 @@ export default function StaffLayout() {
     const getNavItems = () => {
         const items = [
             { name: 'Dashboard', path: '/staff/dashboard', icon: LayoutDashboard },
+            { name: 'Reservations', path: '/staff/reservations', icon: CalendarDays },
             { name: 'Schedule', path: '/staff/schedule', icon: CalendarDays }, // Added Schedule for all
         ];
 
