@@ -58,7 +58,7 @@ export default function LoginPage() {
             <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl w-full max-w-md p-8 relative z-10 transition-all duration-300 hover:shadow-2xl hover:bg-white/80">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-2">
-                        River Side
+                        Restaurant Login
                     </h1>
                     <p className="text-gray-500 text-sm font-medium tracking-wide">
                         RESTAURANT & LOUNGE

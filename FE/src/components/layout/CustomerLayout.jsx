@@ -41,10 +41,11 @@ export default function CustomerLayout() {
                                 <NavLink to="/reservations" current={location.pathname}>Reservations</NavLink>
                                 {user && (
                                     <>
-                                        <NavLink to="/profile" current={location.pathname}>Coupons & Profile</NavLink>
+                                        
                                         <NavLink to="/tables" current={location.pathname}>Tables</NavLink>
                                         <NavLink to="/active-orders" current={location.pathname}>Live Orders</NavLink>
                                         <NavLink to="/orders" current={location.pathname}>History</NavLink>
+                                        <NavLink to="/profile" current={location.pathname}>Coupons & Profile</NavLink>
                                     </>
                                 )}
                             </div>

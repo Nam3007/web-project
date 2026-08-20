@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from models import Payment, PaymentStatus, PaymentMethod
 from repository import PaymentRepository
 from typing import Any, List, Optional, cast
-from schemas import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse, QuarterRevenueBreakdown
+from schemas import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse, QuarterRevenueBreakdown, MonthRevenueBreakdown, DailyRevenueBreakdown
 from services import OrderService
 from datetime import datetime, date, time, timedelta
 import calendar
@@ -120,12 +120,14 @@ class PaymentService:
             end_dt = datetime.now()
             start_dt = end_dt - timedelta(days=7)
             summary = self.repository.get_revenue_in_range(db, start_dt, end_dt)
+            daily_breakdown = self.repository.get_daily_revenue_in_range(db, start_dt, end_dt)
             return RevenueSummaryResponse(
                 period=period,
                 start_date=start_dt,
                 end_date=end_dt,
                 total_revenue=summary["total_revenue"],
                 payments_count=summary["payments_count"],
+                daily_breakdown=daily_breakdown,
             )
 
         if period == "date_range":
@@ -134,12 +136,14 @@ class PaymentService:
             start_dt = datetime.combine(start_date, time.min)
             end_dt = datetime.combine(end_date, time.max)
             summary = self.repository.get_revenue_in_range(db, start_dt, end_dt)
+            daily_breakdown = self.repository.get_daily_revenue_in_range(db, start_dt, end_dt)
             return RevenueSummaryResponse(
                 period=period,
                 start_date=start_dt,
                 end_date=end_dt,
                 total_revenue=summary["total_revenue"],
                 payments_count=summary["payments_count"],
+                daily_breakdown=daily_breakdown,
             )
 
         if period == "quarter":
@@ -154,6 +158,26 @@ class PaymentService:
             last_day = calendar.monthrange(year, end_month)[1]
             end_dt = datetime(year, end_month, last_day, 23, 59, 59, 999999)
             summary = self.repository.get_revenue_in_range(db, start_dt, end_dt)
+
+            monthly_breakdown: list[MonthRevenueBreakdown] = []
+            for m in range(start_month, end_month + 1):
+                m_start = datetime(year, m, 1)
+                m_last_day = calendar.monthrange(year, m)[1]
+                m_end = datetime(year, m, m_last_day, 23, 59, 59, 999999)
+                m_summary = self.repository.get_revenue_in_range(db, m_start, m_end)
+                monthly_breakdown.append(
+                    MonthRevenueBreakdown(
+                        month=m,
+                        month_name=calendar.month_name[m],
+                        start_date=m_start,
+                        end_date=m_end,
+                        total_revenue=m_summary["total_revenue"],
+                        payments_count=m_summary["payments_count"],
+                    )
+                )
+
+            daily_breakdown = self.repository.get_daily_revenue_in_range(db, start_dt, end_dt)
+
             return RevenueSummaryResponse(
                 period=period,
                 start_date=start_dt,
@@ -162,6 +186,8 @@ class PaymentService:
                 payments_count=summary["payments_count"],
                 year=year,
                 quarter=quarter,
+                monthly_breakdown=monthly_breakdown,
+                daily_breakdown=daily_breakdown,
             )
 
         if period == "year":
@@ -181,6 +207,24 @@ class PaymentService:
                 quarter_last_day = calendar.monthrange(year, end_month)[1]
                 quarter_end = datetime(year, end_month, quarter_last_day, 23, 59, 59, 999999)
                 summary = self.repository.get_revenue_in_range(db, quarter_start, quarter_end)
+
+                q_monthly_breakdown: list[MonthRevenueBreakdown] = []
+                for m in range(start_month, end_month + 1):
+                    m_start = datetime(year, m, 1)
+                    m_last_day = calendar.monthrange(year, m)[1]
+                    m_end = datetime(year, m, m_last_day, 23, 59, 59, 999999)
+                    m_summary = self.repository.get_revenue_in_range(db, m_start, m_end)
+                    q_monthly_breakdown.append(
+                        MonthRevenueBreakdown(
+                            month=m,
+                            month_name=calendar.month_name[m],
+                            start_date=m_start,
+                            end_date=m_end,
+                            total_revenue=m_summary["total_revenue"],
+                            payments_count=m_summary["payments_count"],
+                        )
+                    )
+
                 total_revenue += summary["total_revenue"]
                 total_payments += summary["payments_count"]
                 breakdown.append(
@@ -190,6 +234,7 @@ class PaymentService:
                         end_date=quarter_end,
                         total_revenue=summary["total_revenue"],
                         payments_count=summary["payments_count"],
+                        monthly_breakdown=q_monthly_breakdown,
                     )
                 )
 

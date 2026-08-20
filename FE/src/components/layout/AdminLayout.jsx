@@ -63,7 +63,7 @@ export default function AdminLayout() {
                         <ChefHat className="w-6 h-6 text-primary" />
                     </div>
                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                        Restaurant Admin
+                        Restaurant manager
                     </span>
                 </div>
 
@@ -98,7 +98,7 @@ export default function AdminLayout() {
                 <div className="p-4 border-t border-gray-100">
                     <div className="bg-gray-50 rounded-xl p-4 mb-4">
                         <p className="text-xs text-gray-400 uppercase font-semibold mb-1">Logged in as</p>
-                        <p className="text-sm font-bold text-gray-800 truncate">Admin</p>
+                        <p className="text-sm font-bold text-gray-800 truncate">Manager</p>
                     </div>
                     <button
                         onClick={handleLogout}
@@ -114,7 +114,7 @@ export default function AdminLayout() {
             <main className="flex-1 overflow-auto">
                 {/* Mobile Header (visible only on small screens) */}
                 <div className="md:hidden bg-white p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 z-20">
-                    <span className="font-bold text-lg text-primary">River Side Admin</span>
+                    <span className="font-bold text-lg text-primary">Manager</span>
                     <button onClick={handleLogout} className="p-2 text-gray-600">
                         <LogOut className="w-5 h-5" />
                     </button>

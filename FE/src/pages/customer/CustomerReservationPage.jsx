@@ -282,17 +282,29 @@ export default function CustomerReservationPage() {
     return (
         <div className="customer-page customer-page-wide pb-16">
             
-            {/* Header Tabs */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-emerald-100/60 pb-5">
-                <div>
-                    <h1 className="text-3xl font-serif font-bold text-slate-900">Table Reservations</h1>
-                    <p className="text-sm text-slate-500 mt-1">Book your private dining experience with instant table reservation & optional pre-orders.</p>
+            {/* Header Card with High-Visibility Glassmorphism */}
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-emerald-100 shadow-md shadow-emerald-950/5 p-6 flex flex-wrap items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                    <div className="p-3.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl shadow-md shadow-emerald-500/20 shrink-0 mt-0.5">
+                        <CalendarCheck className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">Table Reservations</h1>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs">
+                                Instant Booking
+                            </span>
+                        </div>
+                        <p className="text-sm text-slate-600 font-medium mt-1 max-w-xl leading-relaxed">
+                            Book your private dining experience with instant table reservation & optional pre-orders.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
+                <div className="flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80 shadow-inner">
                     <button
                         onClick={() => setActiveTab('book')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all cursor-pointer ${
                             activeTab === 'book'
                                 ? 'bg-primary text-white shadow-md shadow-emerald-200'
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
@@ -303,7 +315,7 @@ export default function CustomerReservationPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('my-reservations')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all relative ${
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all relative cursor-pointer ${
                             activeTab === 'my-reservations'
                                 ? 'bg-primary text-white shadow-md shadow-emerald-200'
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
@@ -319,7 +331,7 @@ export default function CustomerReservationPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('calendar')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all cursor-pointer ${
                             activeTab === 'calendar'
                                 ? 'bg-primary text-white shadow-md shadow-emerald-200'
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'

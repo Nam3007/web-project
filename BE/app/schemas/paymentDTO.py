@@ -23,12 +23,28 @@ class PaymentResponse(BaseModel):
         from_attributes = True
 
 
+class MonthRevenueBreakdown(BaseModel):
+    month: int
+    month_name: str
+    start_date: datetime
+    end_date: datetime
+    total_revenue: float
+    payments_count: int
+
+
+class DailyRevenueBreakdown(BaseModel):
+    date: str
+    total_revenue: float
+    payments_count: int
+
+
 class QuarterRevenueBreakdown(BaseModel):
     quarter: int
     start_date: datetime
     end_date: datetime
     total_revenue: float
     payments_count: int
+    monthly_breakdown: list[MonthRevenueBreakdown] = Field(default_factory=list)
 
 
 class RevenueSummaryResponse(BaseModel):
@@ -40,3 +56,5 @@ class RevenueSummaryResponse(BaseModel):
     year: Optional[int] = None
     quarter: Optional[int] = None
     quarterly_breakdown: list[QuarterRevenueBreakdown] = Field(default_factory=list)
+    monthly_breakdown: list[MonthRevenueBreakdown] = Field(default_factory=list)
+    daily_breakdown: list[DailyRevenueBreakdown] = Field(default_factory=list)

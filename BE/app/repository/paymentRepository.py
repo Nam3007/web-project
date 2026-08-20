@@ -81,3 +81,28 @@ class PaymentRepository:
             "payments_count": int(payments_count or 0),
         }
 
+    def get_daily_revenue_in_range(self, db: Session, start_date, end_date):
+        results = db.query(
+            func.date(Payment.payment_date).label("pay_date"),
+            func.coalesce(func.sum(Payment.amount_paid), 0).label("daily_revenue"),
+            func.count(Payment.id).label("daily_count"),
+        ).filter(
+            Payment.payment_status == PaymentStatus.completed,
+            Payment.payment_date >= start_date,
+            Payment.payment_date <= end_date,
+        ).group_by(
+            func.date(Payment.payment_date)
+        ).order_by(
+            func.date(Payment.payment_date)
+        ).all()
+
+        return [
+            {
+                "date": str(row.pay_date),
+                "total_revenue": float(row.daily_revenue or 0),
+                "payments_count": int(row.daily_count or 0),
+            }
+            for row in results
+        ]
+
+
