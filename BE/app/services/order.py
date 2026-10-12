@@ -1,8 +1,10 @@
 from schemas import OrderCreateDTO, OrderUpdateDTO
 from sqlalchemy.orm import Session
 from models import Order, OrderStatus, OrderType
-from typing import List
+from typing import List, Optional
 from repository import OrderRepository,OrderItemRepository, PaymentRepository, TableRepository
+
+
 
 class OrderService:
     def __init__(self):
@@ -23,7 +25,7 @@ class OrderService:
     def get_all(self, db: Session, skip: int = 0, limit: int = 100) -> List[Order]:
         return self.repository.get_all(db, skip, limit)
     
-    def get_by_id(self, db: Session, order_id: int) -> Order:
+    def get_by_id(self, db: Session, order_id: int) -> Optional[Order]:
         return self.repository.get_by_id(db, order_id)
     
     def create(self, db: Session, order_data: OrderCreateDTO) -> Order:
@@ -43,9 +45,33 @@ class OrderService:
 
         return created_order
     
-    def update(self, db: Session, order_id: int, order_data: OrderUpdateDTO) -> Order:
-        order = self.get_by_id(db, order_id)
+    VALID_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
+    OrderStatus.pending: {OrderStatus.paid, OrderStatus.pending_confirmation, OrderStatus.cancelled},
+    OrderStatus.paid: {OrderStatus.queued, OrderStatus.preparing, OrderStatus.cancelled},
+    OrderStatus.pending_confirmation: {OrderStatus.confirmed, OrderStatus.cancelled},
+    OrderStatus.confirmed: {OrderStatus.queued, OrderStatus.preparing, OrderStatus.cancelled},
+    OrderStatus.queued: {OrderStatus.preparing, OrderStatus.cancelled},
+    OrderStatus.preparing: {OrderStatus.ready, OrderStatus.cancelled},
+    OrderStatus.ready: {OrderStatus.served, OrderStatus.delivering, OrderStatus.cancelled},
+    OrderStatus.served: {OrderStatus.completed},
+    OrderStatus.delivering: {OrderStatus.delivered, OrderStatus.cancelled},
+    OrderStatus.delivered: {OrderStatus.completed},
+    OrderStatus.completed: set(),  # Terminal state
+    OrderStatus.cancelled: set(),  # Terminal state
+}
 
+    def update(self, db: Session, order_id: int, order_data: OrderUpdateDTO) -> Optional[Order]:
+        order = self.get_by_id(db, order_id)
+        if not order:
+            return None
+        
+        # Enforce FSM Transition Guard
+        if order_data.status and order_data.status != order.status:
+            allowed = self.VALID_TRANSITIONS.get(order.status, set())
+            if order_data.status not in allowed:
+                raise ValueError(f"Invalid transition from '{order.status}' to '{order_data.status}'")
+
+        # Apply updates before persisting
         previous_status = order.status
         for key, value in order_data.model_dump(exclude_unset=True).items():
             setattr(order, key, value)

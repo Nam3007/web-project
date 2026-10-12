@@ -20,6 +20,7 @@ origins = [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:3000",
+    "http://localhost:4040",
     
 ]
 
@@ -57,6 +58,18 @@ def test_db_connection():
 
     try:
         with engine.connect() as conn:
+            # create_all does not alter existing tables; keep deployments using
+            # the startup schema bootstrap compatible with the MoMo model.
+            conn.execute(text(
+                "ALTER TABLE restaurant.payments "
+                "ADD COLUMN IF NOT EXISTS provider_order_id VARCHAR(200)"
+            ))
+            conn.execute(text(
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_payments_provider_order_id "
+                "ON restaurant.payments (provider_order_id) "
+                "WHERE provider_order_id IS NOT NULL"
+            ))
+            conn.commit()
             conn.execute(text("SELECT 1"))
         print(" Database connection successful")
     except Exception as e:

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Customer Order Placement Sequence",
+    "output": "diagrams/restaurant-order-sequence.html",
+    "viewBox": [900, 860],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "auth-phase", "label": "Authentication", "focus": ["customer", "react", "fastapi", "jwt"], "note": "Customer logs in and receives a JWT token for subsequent API calls." },
+      { "id": "order-phase", "label": "Order and payment", "focus": ["react", "fastapi", "postgres"], "note": "Customer places order, adds items, and completes payment." },
+      { "id": "dispatch-phase", "label": "Staff dispatch", "focus": ["fastapi", "assign", "postgres"], "note": "After payment, Assignment Service auto-assigns chef via Order Queue." }
+    ]
+  },
+  "participants": [
+    { "id": "customer", "type": "external", "label": "Customer", "sublabel": "browser" },
+    { "id": "react", "type": "frontend", "label": "React SPA", "sublabel": "Vite app" },
+    { "id": "fastapi", "type": "backend", "label": "FastAPI", "sublabel": "REST API" },
+    { "id": "jwt", "type": "security", "label": "JWT Auth", "sublabel": "bcrypt + JOSE" },
+    { "id": "assign", "type": "backend", "label": "Assign Svc", "sublabel": "staff dispatch" },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL", "sublabel": "restaurant DB" }
+  ],
+  "segments": [
+    { "from": 150, "to": 300, "label": "Authentication" },
+    { "from": 320, "to": 540, "label": "Order placement" },
+    { "from": 560, "to": 760, "label": "Staff dispatch" }
+  ],
+  "messages": [
+    { "id": "login-req", "from": "customer", "to": "react", "y": 180, "label": "enter credentials", "variant": "default" },
+    { "id": "auth-call", "from": "react", "to": "fastapi", "y": 215, "label": "POST /auth/login", "variant": "emphasis" },
+    { "id": "verify-pw", "from": "fastapi", "to": "jwt", "y": 250, "label": "verify password", "variant": "security" },
+    { "id": "jwt-token", "from": "jwt", "to": "fastapi", "y": 285, "label": "JWT access_token", "variant": "return" },
+    { "id": "login-ok", "from": "fastapi", "to": "react", "y": 290, "label": "200 token + role", "variant": "return" },
+    { "id": "add-items", "from": "customer", "to": "react", "y": 350, "label": "add items to cart", "variant": "default" },
+    { "id": "create-order", "from": "react", "to": "fastapi", "y": 385, "label": "POST /orders", "variant": "emphasis" },
+    { "id": "save-order", "from": "fastapi", "to": "postgres", "y": 420, "label": "INSERT order + items", "variant": "emphasis" },
+    { "id": "order-saved", "from": "postgres", "to": "fastapi", "y": 455, "label": "order_id", "variant": "return" },
+    { "id": "pay-req", "from": "react", "to": "fastapi", "y": 490, "label": "POST /payments", "variant": "emphasis" },
+    { "id": "save-payment", "from": "fastapi", "to": "postgres", "y": 530, "label": "INSERT payment", "variant": "default" },
+    { "id": "trigger-assign", "from": "fastapi", "to": "assign", "y": 580, "label": "try_assign_chef()", "variant": "emphasis" },
+    { "id": "find-chef", "from": "assign", "to": "postgres", "y": 620, "label": "find available chef", "variant": "default" },
+    { "id": "chef-found", "from": "postgres", "to": "assign", "y": 655, "label": "chef record", "variant": "return" },
+    { "id": "update-status", "from": "assign", "to": "postgres", "y": 690, "label": "UPDATE → preparing", "variant": "emphasis" },
+    { "id": "assign-ok", "from": "assign", "to": "fastapi", "y": 720, "label": "assigned", "variant": "return" },
+    { "id": "confirm", "from": "fastapi", "to": "react", "y": 750, "label": "200 confirmed", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "react", "from": 210, "to": 755, "type": "frontend" },
+    { "participant": "fastapi", "from": 215, "to": 750, "type": "backend" },
+    { "participant": "jwt", "from": 245, "to": 290, "type": "security" },
+    { "participant": "postgres", "from": 415, "to": 540, "type": "database" },
+    { "participant": "assign", "from": 575, "to": 725, "type": "backend" },
+    { "participant": "postgres", "from": 615, "to": 700, "type": "database" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Authentication", "items": ["Customer submits credentials via React login form", "FastAPI verifies bcrypt hash and returns JWT", "Token stored in localStorage for subsequent requests"] },
+    { "dot": "cyan", "title": "Order Flow", "items": ["Cart items sent as a batch to POST /orders", "Payment created with calculated total including 8% tax", "Order status transitions: pending → paid → preparing"] },
+    { "dot": "rose", "title": "Auto-Assignment", "items": ["Assignment Service finds available chef by role", "If no chef free, order enters DB-backed FIFO queue", "Chef marked unavailable; dispatched when freed"] }
+  ]
+}

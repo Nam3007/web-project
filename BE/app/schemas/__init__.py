@@ -2,7 +2,7 @@ from .customerDTO import CustomerCreateDTO, CustomerUpdateDTO, CustomerResponse
 from .menu_itemDTO import MenuItemCreateDTO, MenuItemUpdateDTO, MenuItemResponse
 from .order_itemDTO import OrderItemCreateDTO, OrderItemUpdateDTO, OrderItemResponse
 from .orderDTO import OrderCreateDTO, OrderUpdateDTO, OrderResponseDTO
-from .paymentDTO import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse, QuarterRevenueBreakdown, MonthRevenueBreakdown, DailyRevenueBreakdown
+from .paymentDTO import PaymentCreateDTO, PaymentResponse, RevenueSummaryResponse, QuarterRevenueBreakdown, MonthRevenueBreakdown, DailyRevenueBreakdown, VietQRConfig, PaymentVerificationResponse
 from .reservationDTO import (
     ReservationCreateDTO, 
     ReservationUpdateDTO, 

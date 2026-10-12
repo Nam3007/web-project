@@ -15,13 +15,15 @@ from schemas import LoginResponseDTO
 from schemas import LoginRequestDTO
 from db import get_db
 from services import CustomerService, StaffService
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 router = APIRouter(
     prefix="/auth",
     tags=["auth"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
-SECRET_KEY = "THISSHOULDBEENOUGHFORASECRETKEY"
+SECRET_KEY = os.getenv("SECRET_KEY")  # Load from environment
 ALGORITHM = "HS256"
 

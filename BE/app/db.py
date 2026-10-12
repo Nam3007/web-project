@@ -1,10 +1,13 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 metadata = MetaData(schema="restaurant")
 
-DATABASE_URL = "postgresql+psycopg2://postgres:Nam30072003@localhost:5432/restaurant"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL, echo=False)
 

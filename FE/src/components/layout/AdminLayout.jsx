@@ -15,7 +15,8 @@ import {
     Star,
     Truck,
     Ticket,
-    CalendarDays
+    CalendarDays,
+    QrCode
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -52,6 +53,7 @@ export default function AdminLayout() {
         { name: 'Schedule', path: '/manager/schedule', icon: CalendarRange },
         { name: 'Reviews', path: '/manager/reviews', icon: Star },
         { name: 'Discount Coupons', path: '/manager/coupons', icon: Ticket },
+        { name: 'VietQR Settings', path: '/manager/vietqr-settings', icon: QrCode },
     ];
 
     return (

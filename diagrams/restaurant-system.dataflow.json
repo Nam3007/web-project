@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Restaurant System Data Flow",
+    "output": "diagrams/restaurant-dataflow.html",
+    "viewBox": [1080, 760],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "order-path", "label": "Order data path", "focus": ["customer-ui", "api-gateway", "order-svc", "order-db"], "note": "Follow order data from customer input through API to persistent storage." },
+      { "id": "payment-path", "label": "Payment and revenue", "focus": ["payment-svc", "order-db", "revenue-report"], "note": "Payment processing triggers status transitions and revenue aggregation." },
+      { "id": "assignment-path", "label": "Staff assignment flow", "focus": ["order-svc", "queue-store", "staff-dispatch", "staff-db"], "note": "Order queue manages FIFO dispatch of chef, waiter, and delivery staff." }
+    ]
+  },
+  "stages": [
+    { "label": "Input" },
+    { "label": "API Layer" },
+    { "label": "Services" },
+    { "label": "Storage" },
+    { "label": "Output" }
+  ],
+  "nodes": [
+    { "id": "customer-ui", "type": "frontend", "label": "Customer UI", "sublabel": "React SPA", "stage": 0, "row": 0, "tag": "forms" },
+    { "id": "staff-ui", "type": "frontend", "label": "Staff UI", "sublabel": "waiter / chef views", "stage": 0, "row": 2, "tag": "dashboard" },
+    { "id": "manager-ui", "type": "frontend", "label": "Manager UI", "sublabel": "admin dashboard", "stage": 0, "row": 4, "tag": "reports" },
+    { "id": "api-gateway", "type": "backend", "label": "FastAPI Router", "sublabel": "13 route groups", "stage": 1, "row": 1, "tag": "REST" },
+    { "id": "auth-guard", "type": "security", "label": "JWT Guard", "sublabel": "token verify", "stage": 1, "row": 3, "tag": "RBAC" },
+    { "id": "order-svc", "type": "backend", "label": "Order Service", "sublabel": "business logic", "stage": 2, "row": 0, "tag": "CRUD" },
+    { "id": "payment-svc", "type": "backend", "label": "Payment Service", "sublabel": "transaction logic", "stage": 2, "row": 2, "tag": "tax calc" },
+    { "id": "staff-dispatch", "type": "backend", "label": "Assignment Svc", "sublabel": "auto-dispatch", "stage": 2, "row": 4, "tag": "FIFO" },
+    { "id": "order-db", "type": "database", "label": "Orders DB", "sublabel": "orders + items", "stage": 3, "row": 0, "tag": "PostgreSQL" },
+    { "id": "staff-db", "type": "database", "label": "Staff DB", "sublabel": "availability", "stage": 3, "row": 4, "tag": "PostgreSQL" },
+    { "id": "queue-store", "type": "messagebus", "label": "Order Queue", "sublabel": "FIFO dispatch", "stage": 3, "row": 2, "tag": "DB-backed" },
+    { "id": "revenue-report", "type": "backend", "label": "Revenue Reports", "sublabel": "weekly / quarterly", "stage": 4, "row": 1, "tag": "analytics" }
+  ],
+  "flows": [
+    { "id": "customer-to-api", "from": "customer-ui", "to": "api-gateway", "label": "order + cart data", "classification": "user input", "variant": "emphasis", "fromSide": "right", "toSide": "left", "via": [[205, 157], [205, 271]], "labelAt": [204, 190] },
+    { "id": "staff-to-api", "from": "staff-ui", "to": "api-gateway", "label": "status updates", "classification": "staff actions", "variant": "default", "fromSide": "right", "toSide": "left", "via": [[222, 385], [222, 271]], "labelAt": [260, 342] },
+    { "id": "api-to-auth", "from": "api-gateway", "to": "auth-guard", "label": "token + role", "classification": "credentials", "variant": "security", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelAt": [310, 390] },
+    { "id": "api-to-order", "from": "api-gateway", "to": "order-svc", "label": "order request", "classification": "validated DTO", "variant": "emphasis", "fromSide": "right", "toSide": "left", "via": [[420, 271], [420, 157]], "labelAt": [438, 200] },
+    { "id": "api-to-payment", "from": "api-gateway", "to": "payment-svc", "label": "payment request", "classification": "payment DTO", "variant": "default", "fromSide": "right", "toSide": "left", "via": [[420, 271], [420, 385]], "labelAt": [438, 300] },
+    { "id": "order-to-db", "from": "order-svc", "to": "order-db", "label": "persist order", "classification": "SQL INSERT/UPDATE", "variant": "emphasis", "route": "straight", "labelAt": [638, 144] },
+    { "id": "payment-to-db", "from": "payment-svc", "to": "queue-store", "label": "trigger dispatch", "classification": "status change", "variant": "default", "route": "straight", "labelAt": [580, 428] },
+    { "id": "queue-to-staff", "from": "queue-store", "to": "staff-dispatch", "label": "dequeue order", "classification": "FIFO", "variant": "emphasis" },
+    { "id": "dispatch-to-staff-db", "from": "staff-dispatch", "to": "staff-db", "label": "update availability", "classification": "staff state", "variant": "default", "route": "straight", "labelAt": [745, 656] },
+    { "id": "db-to-reports", "from": "order-db", "to": "revenue-report", "label": "revenue SQL", "classification": "read-only", "variant": "dashed", "fromSide": "right", "toSide": "left", "via": [[852, 157], [852, 271]], "labelAt": [830, 200] },
+    { "id": "manager-to-api", "from": "manager-ui", "to": "api-gateway", "label": "admin commands", "classification": "management", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Order Data Path", "items": ["Customer submits cart items via React SPA", "FastAPI validates DTOs and routes to Order Service", "Orders persisted with SQLAlchemy ORM to PostgreSQL"] },
+    { "dot": "cyan", "title": "Payment and Revenue", "items": ["Payment triggers order status transition to paid/preparing", "8% tax calculated on final_amount at payment creation", "Revenue reports aggregate by week, quarter, and year"] },
+    { "dot": "rose", "title": "Staff Assignment", "items": ["Order Queue stores unassigned orders as FIFO entries", "Assignment Service matches orders to available staff by role", "Staff availability toggles between available and unavailable"] }
+  ]
+}

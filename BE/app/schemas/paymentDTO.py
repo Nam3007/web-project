@@ -23,6 +23,19 @@ class PaymentResponse(BaseModel):
         from_attributes = True
 
 
+class VietQRConfig(BaseModel):
+    bank_id: str
+    account_no: str
+    account_name: str
+
+
+class PaymentVerificationResponse(BaseModel):
+    payment_id: int
+    payment_status: PaymentStatus
+    completed: bool
+    transaction_id: Optional[str] = None
+
+
 class MonthRevenueBreakdown(BaseModel):
     month: int
     month_name: str

@@ -13,21 +13,21 @@ class AssignmentService:
         self.queue_repo = OrderQueueRepository()
         self.order_repo = OrderRepository()
 
-    # ------------------------------------------------------------------ #
-    #  STEP 1 — Called right after payment is confirmed                   #
-    # ------------------------------------------------------------------ #
+   
+    #  STEP 1 — Called right after payment is confirmed                   
+    
     def try_assign_chef(self, db: Session, order: Order) -> Order:
         """
-        Try to assign an available active chef to the order.
+        Try to assign an available active chef to the order and change availability to unavailable.
         If none is free, put the order in the queue with required_role='chef'.
         """
-        chef = self.staff_repo.find_available_by_role(db, StaffRole.chef)
+        chef = self.staff_repo.find_available_by_role(db, StaffRole.chef, lock=True)
         if chef:
             order.staff_id = chef.id
             order.status = OrderStatus.preparing
             chef.availability = staff_availability.unavailable
             # Clear queue entry if the order was previously queued
-            self.queue_repo.delete_by_order_id(db, order.id)
+            self.queue_repo.delete_by_order_id(db, order.id, commit=False)
             db.add(order)
             db.add(chef)
             db.commit()
@@ -39,15 +39,13 @@ class AssignmentService:
             db.refresh(order)
             self.queue_repo.enqueue(db, order.id, required_role="chef")
         return order
-
-    # ------------------------------------------------------------------ #
+    
     #  STEP 2 — Called when chef marks the order "ready"                  #
-    # ------------------------------------------------------------------ #
     def try_assign_next_staff(self, db: Session, order: Order) -> Order:
         """
         After chef marks ready:
-          - dine_in  → assign available waiter
-          - shipping → assign available delivery_man
+        - dine_in  → assign available waiter
+        - shipping → assign available delivery_man
         If none is free, put the order back in the queue.
         """
         if order.order_type == OrderType.dine_in:
@@ -55,12 +53,12 @@ class AssignmentService:
         else:
             role = StaffRole.delivery_man
 
-        staff = self.staff_repo.find_available_by_role(db, role)
+        staff = self.staff_repo.find_available_by_role(db, role, lock=True)
         if staff:
             order.staff_id = staff.id
             order.status = OrderStatus.ready
             staff.availability = staff_availability.unavailable
-            self.queue_repo.delete_by_order_id(db, order.id)
+            self.queue_repo.delete_by_order_id(db, order.id, commit=False)
             db.add(order)
             db.add(staff)
             db.commit()
@@ -73,19 +71,17 @@ class AssignmentService:
             self.queue_repo.enqueue(db, order.id, required_role=role.value)
         return order
 
-    # ------------------------------------------------------------------ #
     #  STEP 3 — Called whenever a staff member becomes available again    #
-    # ------------------------------------------------------------------ #
     def dispatch_queue(self, db: Session) -> list:
         """
         Scan all pending queue entries and try to dispatch them to
         now-available staff. Returns list of order IDs that were dispatched.
         """
-        pending = self.queue_repo.get_all_pending(db)
+        pending = self.queue_repo.get_all_pending(db, lock=True)
         dispatched = []
 
         for entry in pending:
-            staff = self.staff_repo.find_available_by_role(db, entry.required_role)
+            staff = self.staff_repo.find_available_by_role(db, entry.required_role, lock=True)
             if not staff:
                 continue  # Still no one available for this role
 
@@ -101,7 +97,7 @@ class AssignmentService:
             else:
                 order.status = OrderStatus.ready
 
-            self.queue_repo.dequeue(db, entry.id, staff.id)
+            self.queue_repo.dequeue(db, entry.id, staff.id, commit=False)
             db.add(order)
             db.add(staff)
             db.commit()

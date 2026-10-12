@@ -5,6 +5,7 @@ from jose import jwt
 from core.security import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+STAFF_ROLES = {"staff", "waiter", "chef", "cashier", "delivery_man", "admin"}
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
@@ -14,7 +15,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 def require_staff(user=Depends(get_current_user)):
-    if user["role"] != "staff":
+    if user.get("role") not in STAFF_ROLES:
         raise HTTPException(status_code=403, detail="Staff only")
     return user
 

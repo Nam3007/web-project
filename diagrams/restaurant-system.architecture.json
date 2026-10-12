@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Restaurant Management System Architecture",
+    "output": "diagrams/restaurant-architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "request-path", "label": "Primary request path", "focus": ["browser", "react-spa", "fastapi", "postgres"], "note": "Follow the customer request from browser through the React SPA and FastAPI backend to PostgreSQL." },
+      { "id": "auth-flow", "label": "Authentication flow", "focus": ["react-spa", "auth-ctx", "fastapi", "jwt-auth"], "note": "JWT-based authentication with role-based access for Customer, Staff, and Manager." },
+      { "id": "staff-assignment", "label": "Staff assignment pipeline", "focus": ["fastapi", "assignment-svc", "order-queue", "postgres"], "note": "Automated chef, waiter, and delivery staff dispatch via the order queue." }
+    ]
+  },
+  "components": [
+    { "id": "browser", "type": "external", "label": "Users", "sublabel": "Customer / Staff / Manager", "pos": [40, 280], "size": [130, 60] },
+    { "id": "react-spa", "type": "frontend", "label": "React SPA", "sublabel": "Vite + TailwindCSS", "pos": [250, 280], "size": [140, 60], "tag": "React 19" },
+    { "id": "auth-ctx", "type": "security", "label": "Auth Context", "sublabel": "JWT + localStorage", "pos": [250, 110], "size": [140, 64], "tag": "RBAC" },
+    { "id": "react-query", "type": "frontend", "label": "React Query", "sublabel": "server state cache", "pos": [250, 440], "size": [140, 60], "tag": "TanStack" },
+    { "id": "fastapi", "type": "backend", "label": "FastAPI Server", "sublabel": "Uvicorn :8000", "pos": [500, 280], "size": [140, 60], "tag": "Python" },
+    { "id": "jwt-auth", "type": "security", "label": "JWT Auth", "sublabel": "bcrypt + JOSE", "pos": [500, 110], "size": [140, 64], "tag": "HS256" },
+    { "id": "assignment-svc", "type": "backend", "label": "Assignment Service", "sublabel": "staff dispatch", "pos": [500, 440], "size": [140, 60], "tag": "auto-assign" },
+    { "id": "order-queue", "type": "messagebus", "label": "Order Queue", "sublabel": "DB-backed FIFO", "pos": [720, 440], "size": [140, 60], "tag": "priority" },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL", "sublabel": "restaurant schema :5432", "pos": [720, 280], "size": [140, 60], "tag": "SQLAlchemy" },
+    { "id": "file-storage", "type": "cloud", "label": "File Storage", "sublabel": "uploaded_images/", "pos": [920, 280], "size": [140, 60], "tag": "static" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Backend Server (localhost)", "wraps": ["fastapi", "jwt-auth", "assignment-svc", "order-queue", "postgres", "file-storage"] },
+    { "kind": "security-group", "label": "CORS-protected API", "wraps": ["fastapi", "jwt-auth"] }
+  ],
+  "connections": [
+    { "id": "user-to-spa", "from": "browser", "to": "react-spa", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "spa-to-api", "from": "react-spa", "to": "fastapi", "label": "Axios REST", "variant": "emphasis" },
+    { "id": "auth-ctx-check", "from": "react-spa", "to": "auth-ctx", "label": "token check", "variant": "security", "fromSide": "top", "toSide": "bottom" },
+    { "id": "spa-cache", "from": "react-spa", "to": "react-query", "label": "query cache", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelAt": [320, 354] },
+    { "id": "api-jwt", "from": "fastapi", "to": "jwt-auth", "label": "verify token", "variant": "security", "fromSide": "top", "toSide": "bottom", "labelAt": [530, 220] },
+    { "id": "api-to-db", "from": "fastapi", "to": "postgres", "label": "SQL via ORM", "variant": "emphasis" },
+    { "id": "api-to-files", "from": "postgres", "to": "file-storage", "label": "serve images", "variant": "dashed", "labelAt": [890, 354] },
+    { "id": "api-to-assign", "from": "fastapi", "to": "assignment-svc", "label": "dispatch orders", "variant": "default", "fromSide": "bottom", "toSide": "top", "labelAt": [570, 354] },
+    { "id": "assign-to-queue", "from": "assignment-svc", "to": "order-queue", "label": "enqueue / dequeue", "labelAt": [680, 514] },
+    { "id": "queue-to-db", "from": "order-queue", "to": "postgres", "label": "persist state", "variant": "dashed", "fromSide": "top", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Frontend", "items": ["React 19 SPA with Vite dev server", "TanStack React Query for server state", "Role-based layouts: Customer, Staff, Manager"] },
+    { "dot": "emerald", "title": "Backend", "items": ["FastAPI with layered architecture: Controller → Service → Repository", "Automated staff assignment via Order Queue", "13 REST API route groups"] },
+    { "dot": "rose", "title": "Security & Data", "items": ["JWT authentication with bcrypt password hashing", "Role-based access: customer, waiter, chef, delivery_man, manager", "PostgreSQL with SQLAlchemy ORM and Alembic migrations"] }
+  ]
+}

@@ -23,14 +23,15 @@ class OrderQueueRepository:
         db.refresh(entry)
         return entry
 
-    def dequeue(self, db: Session, queue_entry_id: int, staff_id: int) -> Optional[OrderQueue]:
+    def dequeue(self, db: Session, queue_entry_id: int, staff_id: int, commit: bool = True) -> Optional[OrderQueue]:
         """Mark a queue entry as dispatched with the assigned staff member."""
         entry = db.query(OrderQueue).filter(OrderQueue.id == queue_entry_id).first()
         if entry:
             entry.dispatched_at = datetime.utcnow()
             entry.assigned_staff_id = staff_id
-            db.commit()
-            db.refresh(entry)
+            if commit:
+                db.commit()
+                db.refresh(entry)
         return entry
 
     def find_pending(self, db: Session, required_role: str) -> List[OrderQueue]:
@@ -45,23 +46,26 @@ class OrderQueueRepository:
             .all()
         )
 
-    def get_all_pending(self, db: Session) -> List[OrderQueue]:
+    def get_all_pending(self, db: Session, lock: bool = False) -> List[OrderQueue]:
         """Get all undispatched entries across all roles, oldest first."""
-        return (
+        query = (
             db.query(OrderQueue)
             .filter(OrderQueue.dispatched_at == None)  # noqa: E711
             .order_by(OrderQueue.queued_at.asc())
-            .all()
         )
+        if lock:
+            query = query.with_for_update(skip_locked=True)
+        return query.all()
 
     def find_by_order_id(self, db: Session, order_id: int) -> Optional[OrderQueue]:
         return db.query(OrderQueue).filter(OrderQueue.order_id == order_id).first()
 
-    def delete_by_order_id(self, db: Session, order_id: int) -> None:
+    def delete_by_order_id(self, db: Session, order_id: int, commit: bool = True) -> None:
         entry = self.find_by_order_id(db, order_id)
         if entry:
             db.delete(entry)
-            db.commit()
+            if commit:
+                db.commit()
 
     def get_all(self, db: Session) -> List[OrderQueue]:
         return db.query(OrderQueue).order_by(OrderQueue.queued_at.asc()).all()

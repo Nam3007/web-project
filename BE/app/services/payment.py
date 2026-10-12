@@ -51,6 +51,21 @@ class PaymentService:
     def get_by_transaction_id(self, db: Session, transaction_id: str) -> List[Payment]:
         """Get payments by transaction ID"""
         return self.repository.find_by_transaction_id(db, transaction_id)
+
+    def complete_sepay_payment(
+        self,
+        db: Session,
+        payment: Payment,
+        transaction_id: str,
+    ) -> Optional[Payment]:
+        """Complete a pending payment once its SePay transaction is validated."""
+        if payment.payment_status == PaymentStatus.completed:
+            return payment
+
+        payment.transaction_id = transaction_id
+        db.add(payment)
+        db.flush()
+        return self.update_payment_status(db, payment.id, PaymentStatus.completed)
     
     
     def update_payment_status(self, db: Session, payment_id: int, status: PaymentStatus) -> Optional[Payment]:

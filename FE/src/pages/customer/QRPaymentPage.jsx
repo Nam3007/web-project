@@ -1,24 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import { CheckCircle, Clock, QrCode, AlertCircle, ArrowLeft, Loader } from 'lucide-react';
 
 // ============================================
 // CONFIGURABLE: Change this value for testing
 // ============================================
-const QR_COUNTDOWN_SECONDS = 30;
-
-// VietQR Bank Details
-const BANK_ID = '970403'; // Sacombank
-const ACCOUNT_NO = '060252287577';
-const ACCOUNT_NAME = 'TRAN QUOC NAM';
-
-function buildVietQRUrl(amount, orderId) {
-    const addInfo = encodeURIComponent(`DH ${orderId}`);
-    const name = encodeURIComponent(ACCOUNT_NAME);
-    return `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${Math.round(amount)}&addInfo=${addInfo}&accountName=${name}`;
-}
+const QR_COUNTDOWN_SECONDS = 3000;
 
 export default function QRPaymentPage() {
     const [searchParams] = useSearchParams();
@@ -33,6 +22,25 @@ export default function QRPaymentPage() {
     const [isCompleted, setIsCompleted] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const intervalRef = useRef(null);
+
+    const { data: qrConfig = {} } = useQuery({
+        queryKey: ['vietqr-config'],
+        queryFn: async () => (await api.get('/payments/config')).data,
+    });
+
+    const { data: paymentVerification } = useQuery({
+        queryKey: ['payment-verification', paymentId],
+        queryFn: async () => (await api.get(`/payments/${paymentId}/verify`)).data,
+        enabled: Boolean(paymentId),
+        refetchInterval: isCompleted ? false : 5000,
+    });
+
+    useEffect(() => {
+        if (paymentVerification?.completed && !isCompleted) {
+            setIsCompleted(true);
+            clearInterval(intervalRef.current);
+        }
+    }, [paymentVerification, isCompleted]);
 
     // Countdown timer
     useEffect(() => {
@@ -78,14 +86,6 @@ export default function QRPaymentPage() {
         confirmPaymentMutation.mutate();
     };
 
-    // Auto-confirm when countdown reaches 0
-    useEffect(() => {
-        if (timeLeft === 0 && !isCompleted && !isProcessing) {
-            handleConfirmPayment();
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [timeLeft]);
-
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
@@ -94,7 +94,7 @@ export default function QRPaymentPage() {
 
     const progress = ((QR_COUNTDOWN_SECONDS - timeLeft) / QR_COUNTDOWN_SECONDS) * 100;
 
-    if (!orderId || !amount) {
+    if (!orderId || !amount || !paymentId) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center customer-page customer-page-narrow relative">
                 <div className="absolute inset-0 pointer-events-none vietnam-pattern opacity-10"></div>
@@ -188,7 +188,7 @@ export default function QRPaymentPage() {
                                 <div className="absolute inset-0 bg-emerald-50 rounded-[2rem] transform rotate-3 -z-10 transition-transform group-hover:rotate-6"></div>
                                 <div className="absolute inset-0 bg-emerald-100 rounded-[2rem] transform -rotate-3 -z-20 transition-transform group-hover:-rotate-6"></div>
                                 <img
-                                    src={buildVietQRUrl(amount, orderId)}
+                                    src={`${api.defaults.baseURL}/payments/${paymentId}/qr`}
                                     alt="VietQR Payment Code"
                                     className="w-64 h-64 object-contain rounded-xl relative z-10 bg-white"
                                     onError={(e) => {
@@ -209,15 +209,15 @@ export default function QRPaymentPage() {
                         <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 space-y-4 shadow-sm">
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-slate-500 font-medium">Bank</span>
-                                <span className="text-slate-900 font-bold bg-white px-3 py-1 rounded-lg border border-slate-200">Sacombank</span>
+                                <span className="text-slate-900 font-bold bg-white px-3 py-1 rounded-lg border border-slate-200">{qrConfig.bank_id || 'Loading...'}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-slate-500 font-medium">Account</span>
-                                <span className="text-slate-900 font-mono font-bold bg-white px-3 py-1 rounded-lg border border-slate-200">{ACCOUNT_NO}</span>
+                                <span className="text-slate-900 font-mono font-bold bg-white px-3 py-1 rounded-lg border border-slate-200">{qrConfig.account_no || 'Loading...'}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-slate-500 font-medium">Name</span>
-                                <span className="text-slate-900 font-bold bg-white px-3 py-1 rounded-lg border border-slate-200">{ACCOUNT_NAME}</span>
+                                <span className="text-slate-900 font-bold bg-white px-3 py-1 rounded-lg border border-slate-200">{qrConfig.account_name || 'Loading...'}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-slate-500 font-medium">Content</span>

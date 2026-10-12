@@ -56,9 +56,9 @@ class StaffRepository:
         if not self.get_admin(db):
             self.create(db, admin)
 
-    def find_available_by_role(self, db: Session, role: StaffRole) -> Optional[Staff]:
+    def find_available_by_role(self, db: Session, role: StaffRole, lock: bool = False) -> Optional[Staff]:
         """Return the first active + available staff member with the given role."""
-        return (
+        query = (
             db.query(Staff)
             .filter(
                 Staff.role == role,
@@ -66,6 +66,8 @@ class StaffRepository:
                 Staff.availability == staff_availability.available
             )
             .order_by(Staff.id.asc())
-            .first()
         )
+        if lock:
+            query = query.with_for_update(skip_locked=True)
+        return query.first()
         

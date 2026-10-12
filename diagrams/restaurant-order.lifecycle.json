@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Restaurant Order Lifecycle",
+    "output": "diagrams/restaurant-order-lifecycle.html",
+    "viewBox": [980, 660],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "dine-in-path", "label": "Dine-in happy path", "focus": ["pending", "paid", "preparing", "ready", "completed"], "note": "Follow a dine-in order through payment, cooking, serving, to completion." },
+      { "id": "shipping-branch", "label": "Shipping confirmation", "focus": ["pending", "pending-confirm", "confirmed"], "note": "Shipping orders need admin confirmation before entering the kitchen." },
+      { "id": "queue-exit", "label": "Queue and cancellation", "focus": ["queued", "cancelled"], "note": "Orders queue when no chef is available; cancellation is terminal." }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "Order lifecycle" },
+    { "id": "waiting", "label": "Wait and branch states" },
+    { "id": "terminal", "label": "Terminal exits" }
+  ],
+  "states": [
+    { "id": "pending", "type": "start", "label": "Pending", "sublabel": "order placed", "lane": "main", "col": 0, "step": "01", "tag": "entry" },
+    { "id": "paid", "type": "active", "label": "Paid", "sublabel": "payment done", "lane": "main", "col": 1, "step": "02", "tag": "dine-in" },
+    { "id": "preparing", "type": "active", "label": "Preparing", "sublabel": "chef assigned", "lane": "main", "col": 2, "step": "03", "tag": "kitchen" },
+    { "id": "ready", "type": "decision", "label": "Ready", "sublabel": "chef finished", "lane": "main", "col": 3, "step": "04", "tag": "pickup" },
+    { "id": "completed", "type": "success", "label": "Completed", "sublabel": "order done", "lane": "main", "col": 4, "step": "05", "tag": "done" },
+    { "id": "pending-confirm", "type": "waiting", "label": "Pending Confirm", "sublabel": "admin review", "lane": "waiting", "col": 0, "yOffset": 20, "tag": "shipping" },
+    { "id": "confirmed", "type": "active", "label": "Confirmed", "sublabel": "approved", "lane": "waiting", "col": 1, "tag": "approved" },
+    { "id": "queued", "type": "waiting", "label": "Queued", "sublabel": "no staff free", "lane": "waiting", "col": 2, "tag": "wait" },
+    { "id": "cancelled", "type": "failure", "label": "Cancelled", "sublabel": "user stopped", "lane": "terminal", "col": 0, "tag": "terminal" },
+    { "id": "served", "type": "failure", "label": "Served", "sublabel": "post-pay exit", "lane": "terminal", "col": 2, "tag": "terminal" }
+  ],
+  "transitions": [
+    { "id": "pending-to-confirm", "from": "pending", "to": "pending-confirm", "variant": "default", "fromSide": "bottom", "toSide": "top", "route": "drop" },
+    { "id": "confirm-to-approved", "from": "pending-confirm", "to": "confirmed", "variant": "emphasis", "fromSide": "right", "toSide": "left", "channelY": 336 },
+    { "id": "pending-cancel", "from": "pending", "to": "cancelled", "variant": "security", "fromSide": "left", "toSide": "left", "via": [[20, 157], [20, 479]] },
+    { "id": "ready-served", "from": "ready", "to": "served", "variant": "default", "fromSide": "bottom", "toSide": "right", "via": [[556, 230], [820, 230], [820, 479]] },
+    { "id": "served-complete", "from": "served", "to": "completed", "variant": "emphasis", "fromSide": "right", "toSide": "bottom", "via": [[860, 479], [860, 188]] }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Dine-in Path", "items": ["Pending → Paid → Preparing → Ready → Completed", "Chef auto-assigned when payment confirmed", "Table freed when order marked completed"] },
+    { "dot": "cyan", "title": "Shipping Path", "items": ["Shipping orders require admin confirmation after payment", "Confirmed orders enter the same kitchen pipeline", "Delivery staff auto-assigned when chef marks ready"] },
+    { "dot": "amber", "title": "Queue and Exits", "items": ["Orders queue when no matching staff role is available", "Queue dispatch runs when any staff member becomes free", "Cancellation exits the lifecycle from any early state"] }
+  ]
+}
