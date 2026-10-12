@@ -82,7 +82,7 @@ export default function AdminCreateStaffPage() {
                 {/* Header */}
                 <div className="mb-8">
                     <button
-                        onClick={() => navigate('/admin/staff')}
+                        onClick={() => navigate('/manager/staff')}
                         className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors mb-4 group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gray-500">Latest customer orders activity</p>
                         </div>
                         <Link
-                            to="/admin/orders"
+                            to="/manager/orders"
                             className="text-xs text-primary font-semibold hover:underline flex items-center gap-0.5"
                         >
                             View all <ArrowUpRight className="w-3.5 h-3.5" />

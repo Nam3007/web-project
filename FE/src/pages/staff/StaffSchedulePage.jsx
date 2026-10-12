@@ -7,8 +7,10 @@ import { useAuth } from '../../context/AuthContext';
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 const SHIFTS = ['morning', 'noon', 'afternoon', 'evening'];
 
+const getToday = () => DAYS[(new Date().getDay() + 6) % 7];
+
 export default function StaffSchedulePage() {
-    const [selectedDay, setSelectedDay] = useState('mon');
+    const [selectedDay, setSelectedDay] = useState(getToday);
     const { user } = useAuth();
 
     // Fetch Schedules. Note: This fetches ALL schedules. 

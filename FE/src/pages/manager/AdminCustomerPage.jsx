@@ -78,7 +78,7 @@ export default function AdminCustomerPage() {
                     </div>
 
                     <button
-                        onClick={() => navigate('/admin/customers/create')}
+                        onClick={() => navigate('/manager/customers/create')}
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-sm shadow-primary/30 whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" />

@@ -31,7 +31,7 @@ export default function CustomerLayout() {
                                     <UtensilsCrossed className="w-6 h-6 relative z-10" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-tight font-serif">River Side</h1>
+                                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-tight font-serif">Restaurant</h1>
                                     <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-700/60 font-semibold mt-0.5">Restaurant</p>
                                 </div>
                             </Link>
@@ -216,7 +216,7 @@ function getPageMeta(pathname, user) {
             title: 'Table Reservations',
             description: 'Reserve your dining table in advance with pre-ordered dishes, dedicated staff, and instant table assignments.',
             badges: ['Book Online', 'Pre-order Food', 'VietQR Deposit'],
-            backgroundImage: '/src/assets/testMenu.jpg',
+            backgroundImage: '/src/assets/reservation.jpg',
         };
     }
     if (pathname.startsWith('/tables')) {
@@ -234,7 +234,7 @@ function getPageMeta(pathname, user) {
             title: 'Your Cart',
             description: 'Review your selections, adjust quantities, and choose your preferred payment method to place your order.',
             badges: ['Checkout', 'QR Payment Available'],
-            backgroundImage: './src/assets/testCart3.jpg',
+            backgroundImage: '',
         };
     }
     if (pathname.startsWith('/active-orders')) {
