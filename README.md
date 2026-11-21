@@ -8,6 +8,7 @@ The project is split into two applications:
 
 - **Frontend (`FE/`)** - React 19 application built with Vite, Tailwind CSS, React Router, TanStack Query, Axios, and Recharts.
 - **Backend (`BE/`)** - FastAPI application using SQLAlchemy and PostgreSQL. It exposes REST endpoints for authentication, customers, staff, menu items, orders, tables, payments, schedules, reservations, coupons, ratings, and image uploads.
+- ** Demo** : https://drive.google.com/file/d/10MjVykmX8tJMYLAfVr1euW7sjV9peWJb/view?usp=sharing
 
 ## Features
 
